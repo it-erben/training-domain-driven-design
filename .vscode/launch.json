@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-RealEstateCrmApplication<immobilien-crm-solution-lab-11>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "de.realestate.RealEstateCrmApplication",
+            "projectName": "immobilien-crm-solution-lab-11",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

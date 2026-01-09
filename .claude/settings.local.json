@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn clean verify:*)",
+      "Bash(xargs:*)",
+      "Bash(find:*)",
+      "Bash(wc:*)",
+      "Bash(git -C \"/Users/aerben/repositories/it-erben/gfu/domain-driven-design\" log --oneline -10)",
+      "Bash(git checkout:*)",
+      "Bash(glab api:*)",
+      "Bash(glab ci:*)",
+      "Bash(glab:*)",
+      "Bash(git push:*)",
+      "Bash(git rm:*)",
+      "Bash(git:*)",
+      "Bash(do echo:*)",
+      "Bash(do:*)",
+      "Bash(mvn dependency:tree:*)",
+      "Bash(mvn:*)",
+      "Bash(git stash:*)"
+    ]
+  }
+}

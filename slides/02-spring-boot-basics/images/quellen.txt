@@ -1,0 +1,10 @@
+Bildquellen:
+
+threads-meme.webp
+https://www.codeitbro.com/blog/threading-memes/
+
+spaghetti-code-meme.png
+https://programmerhumor.io/programming-memes/spaghetti-code-2/
+
+only-god-knew-meme.jpg
+https://programmerhumor.io/programming-memes/only-god-and-i-knew/

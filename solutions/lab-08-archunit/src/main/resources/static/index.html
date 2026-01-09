@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobilien CRM</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --danger: #dc2626;
+            --danger-dark: #b91c1c;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        nav {
+            width: 240px;
+            background: var(--text);
+            color: white;
+            padding: 24px 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav h1 {
+            font-size: 1.2em;
+            padding: 0 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-weight: 600;
+        }
+
+        nav h1 small {
+            display: block;
+            font-size: 0.65em;
+            font-weight: 400;
+            color: rgba(255,255,255,0.5);
+            margin-top: 4px;
+        }
+
+        nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+
+        nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+        nav a.active { background: var(--primary); color: white; }
+
+        nav a .icon { font-size: 1.2em; width: 24px; text-align: center; }
+
+        nav .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-left: auto;
+        }
+
+        nav .status-dot.ok { background: var(--success); }
+        nav .status-dot.off { background: var(--danger); }
+        nav .status-dot.pending { background: var(--warning); }
+
+        nav .nav-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.75em;
+            color: rgba(255,255,255,0.4);
+        }
+
+        main {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h2 { font-size: 1.5em; font-weight: 600; }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .card h3 {
+            font-size: 1em;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .label {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9em;
+        }
+
+        tr:hover td { background: #f1f5f9; }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .icon { font-size: 3em; margin-bottom: 12px; }
+        .empty-state p { margin-top: 8px; font-size: 0.9em; }
+
+        .unavailable-state {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--text-muted);
+        }
+
+        .unavailable-state .icon { font-size: 4em; margin-bottom: 16px; }
+        .unavailable-state h3 { font-size: 1.2em; color: var(--text); margin-bottom: 8px; }
+        .unavailable-state p { font-size: 0.9em; max-width: 400px; margin: 0 auto; }
+
+        button, .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button:hover { background: #f1f5f9; }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover { background: var(--primary-dark); }
+
+        .btn-danger {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm { padding: 4px 10px; font-size: 0.8em; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 480px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 { font-size: 1.1em; }
+
+        .modal-body { padding: 24px; }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.9em;
+            font-family: inherit;
+            transition: border-color 0.15s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            color: white;
+            font-size: 0.85em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+            max-width: 360px;
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .badge-yellow { background: #fef9c3; color: #854d0e; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+
+        .price {
+            font-variant-numeric: tabular-nums;
+            font-weight: 500;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.4em;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 0;
+            line-height: 1;
+        }
+
+        .close-btn:hover { color: var(--text); background: none; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h1>Immobilien CRM <small>DDD Workshop</small></h1>
+    <a class="active" onclick="showPage('dashboard')" data-page="dashboard">
+        <span class="icon">&#9632;</span> Dashboard
+    </a>
+    <a onclick="showPage('properties')" data-page="properties">
+        <span class="icon">&#9998;</span> Immobilien
+        <span class="status-dot pending" id="nav-dot-properties" title="API nicht erreichbar"></span>
+    </a>
+    <a onclick="showPage('brokerage')" data-page="brokerage">
+        <span class="icon">&#9881;</span> Vermittlung
+        <span class="status-dot pending" id="nav-dot-brokerage" title="API nicht erreichbar"></span>
+    </a>
+    <div class="nav-footer">
+        Spring Boot 4 &middot; DDD &middot; Clean Architecture
+    </div>
+</nav>
+
+<main>
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+        <div class="page-header">
+            <h2>Dashboard</h2>
+        </div>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="label">Immobilien</div>
+                <div class="value" id="stat-properties">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Vermittlungen</div>
+                <div class="value" id="stat-brokerage">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">API-Status</div>
+                <div class="value" id="stat-health" style="font-size:1.2em">--</div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>API-Endpunkte</h3>
+            <table>
+                <thead>
+                    <tr><th>Endpunkt</th><th>Lab</th><th>Status</th></tr>
+                </thead>
+                <tbody id="endpoint-status"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Immobilien -->
+    <div class="page" id="page-properties">
+        <div class="page-header">
+            <h2>Immobilien</h2>
+            <button class="btn-primary" onclick="openPropertyModal()">+ Neue Immobilie</button>
+        </div>
+        <div class="card" id="properties-content">
+            <div class="empty-state">
+                <div class="icon">&#127968;</div>
+                <p>Wird geladen...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vermittlung -->
+    <div class="page" id="page-brokerage">
+        <div class="page-header">
+            <h2>Vermittlungsprozesse</h2>
+            <button class="btn-primary" onclick="openBrokerageModal()" id="btn-new-brokerage">+ Neuer Prozess</button>
+        </div>
+        <div class="card" id="brokerage-content">
+            <div class="empty-state">
+                <p>Wird geladen...</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Property Modal -->
+<div class="modal-overlay" id="property-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="property-modal-title">Neue Immobilie</h3>
+            <button class="close-btn" onclick="closeModal('property-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="prop-id">
+            <div class="form-group">
+                <label>Titel</label>
+                <input type="text" id="prop-title" placeholder="z.B. Einfamilienhaus am Stadtpark">
+            </div>
+            <div class="form-group">
+                <label>Stra&szlig;e</label>
+                <input type="text" id="prop-street" placeholder="z.B. Parkstra&szlig;e 42">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>PLZ</label>
+                    <input type="text" id="prop-postalCode" placeholder="z.B. 50667">
+                </div>
+                <div class="form-group">
+                    <label>Stadt</label>
+                    <input type="text" id="prop-city" placeholder="z.B. K&ouml;ln">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Wohnfl&auml;che (m&sup2;)</label>
+                    <input type="number" step="0.1" id="prop-livingArea" placeholder="z.B. 145.5">
+                </div>
+                <div class="form-group">
+                    <label>Kaufpreis (&euro;)</label>
+                    <input type="number" step="1" id="prop-purchasePrice" placeholder="z.B. 485000">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('property-modal')">Abbrechen</button>
+            <button class="btn-primary" onclick="saveProperty()">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- Viewing Modal -->
+<div class="modal-overlay" id="viewing-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Neue Besichtigung</h3>
+            <button class="close-btn" onclick="closeModal('viewing-modal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="viewing-processId">
+            <div class="form-group">
+                <label>Interessent</label>
+                <input type="text" id="viewing-prospectName" placeholder="z.B. Max Mustermann">
+            </div>
+            <div class="form-group">
+                <label>Termin</label>
+                <input type="datetime-local" id="viewing-appointmentDate">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('viewing-modal')">Abbrechen</button>
+            <button class="btn-primary" onclick="saveViewing()">Anlegen</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+    const API = {
+        properties: '/api/properties',
+        brokerage: '/api/brokerage/processes',
+        health: '/actuator/health'
+    };
+
+    const endpoints = [
+        { url: '/actuator/health', label: 'Health (Actuator)', lab: 'Lab 00' },
+        { url: '/api/properties', label: 'GET /api/properties', lab: 'Lab 01' },
+        { url: '/api/brokerage/processes', label: 'GET /api/brokerage/processes', lab: 'Lab 07+' },
+    ];
+
+    // --- Navigation ---
+
+    function showPage(name) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        document.getElementById('page-' + name).classList.add('active');
+        document.querySelector(`nav a[data-page="${name}"]`).classList.add('active');
+
+        if (name === 'properties') loadProperties();
+        if (name === 'brokerage') loadBrokerage();
+        if (name === 'dashboard') refreshDashboard();
+    }
+
+    // --- Toast ---
+
+    function toast(message, type = 'success') {
+        const container = document.getElementById('toasts');
+        const el = document.createElement('div');
+        el.className = 'toast ' + type;
+        el.textContent = message;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+    }
+
+    // --- Modal ---
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+    }
+
+    // --- Properties ---
+
+    function openPropertyModal(property) {
+        document.getElementById('property-modal-title').textContent =
+            property ? 'Immobilie bearbeiten' : 'Neue Immobilie';
+        document.getElementById('prop-id').value = property ? property.id : '';
+        document.getElementById('prop-title').value = property ? property.title : '';
+        document.getElementById('prop-street').value = property ? property.street : '';
+        document.getElementById('prop-postalCode').value = property ? property.postalCode : '';
+        document.getElementById('prop-city').value = property ? property.city : '';
+        document.getElementById('prop-livingArea').value = property ? property.livingArea || '' : '';
+        document.getElementById('prop-purchasePrice').value = property ? property.purchasePrice || '' : '';
+        document.getElementById('property-modal').classList.add('open');
+    }
+
+    async function saveProperty() {
+        const id = document.getElementById('prop-id').value;
+        const data = {
+            title: document.getElementById('prop-title').value,
+            street: document.getElementById('prop-street').value,
+            postalCode: document.getElementById('prop-postalCode').value,
+            city: document.getElementById('prop-city').value,
+            livingArea: parseFloat(document.getElementById('prop-livingArea').value) || null,
+            purchasePrice: parseFloat(document.getElementById('prop-purchasePrice').value) || null,
+        };
+
+        try {
+            const res = await fetch(id ? `${API.properties}/${id}` : API.properties, {
+                method: id ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => null);
+                throw new Error(err?.detail || `HTTP ${res.status}`);
+            }
+
+            closeModal('property-modal');
+            toast(id ? 'Immobilie aktualisiert' : 'Immobilie erstellt');
+            loadProperties();
+        } catch (e) {
+            toast('Fehler: ' + e.message, 'error');
+        }
+    }
+
+    async function deleteProperty(id) {
+        if (!confirm('Immobilie wirklich löschen?')) return;
+        try {
+            const res = await fetch(`${API.properties}/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            toast('Immobilie gelöscht');
+            loadProperties();
+        } catch (e) {
+            toast('Fehler: ' + e.message, 'error');
+        }
+    }
+
+    function formatPrice(value) {
+        if (!value) return '--';
+        return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
+    }
+
+    async function loadProperties() {
+        const container = document.getElementById('properties-content');
+        try {
+            const res = await fetch(API.properties);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            let data = await res.json();
+            // Support paginated and non-paginated responses
+            const items = data.content || data;
+
+            if (!items.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">&#127968;</div>
+                        <p><strong>Noch keine Immobilien vorhanden</strong></p>
+                        <p>Erstelle deine erste Immobilie über den Button oben.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Titel</th>
+                            <th>Adresse</th>
+                            <th>Wohnfläche</th>
+                            <th>Kaufpreis</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${items.map(p => `
+                            <tr>
+                                <td>${p.id}</td>
+                                <td><strong>${esc(p.title)}</strong></td>
+                                <td>${esc(p.street)}, ${esc(p.postalCode)} ${esc(p.city)}</td>
+                                <td>${p.livingArea ? p.livingArea + ' m²' : '--'}</td>
+                                <td class="price">${formatPrice(p.purchasePrice)}</td>
+                                <td style="text-align:right">
+                                    <button class="btn-sm" onclick='openPropertyModal(${JSON.stringify(p)})'>Bearbeiten</button>
+                                    <button class="btn-sm btn-danger" onclick="deleteProperty(${p.id})">Löschen</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>`;
+        } catch {
+            container.innerHTML = `
+                <div class="unavailable-state">
+                    <div class="icon">&#128679;</div>
+                    <h3>API noch nicht verfügbar</h3>
+                    <p>Implementiere die Properties-API in <strong>Lab 01</strong>, um hier Immobilien zu sehen.</p>
+                </div>`;
+        }
+    }
+
+    // --- Brokerage ---
+
+    function openBrokerageModal() {
+        toast('Erstelle Vermittlungsprozesse über die API oder Lab 09 (Context Integration)', 'error');
+    }
+
+    function openViewingModal(processId) {
+        document.getElementById('viewing-processId').value = processId;
+        document.getElementById('viewing-prospectName').value = '';
+        document.getElementById('viewing-appointmentDate').value = '';
+        document.getElementById('viewing-modal').classList.add('open');
+    }
+
+    async function saveViewing() {
+        const processId = document.getElementById('viewing-processId').value;
+        const data = {
+            prospectName: document.getElementById('viewing-prospectName').value,
+            appointmentDate: document.getElementById('viewing-appointmentDate').value + ':00',
+        };
+
+        try {
+            const res = await fetch(`${API.brokerage}/${processId}/viewings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => null);
+                throw new Error(err?.detail || `HTTP ${res.status}`);
+            }
+
+            closeModal('viewing-modal');
+            toast('Besichtigung angelegt');
+            loadBrokerage();
+        } catch (e) {
+            toast('Fehler: ' + e.message, 'error');
+        }
+    }
+
+    const statusLabels = {
+        NEW: ['Neu', 'badge-blue'],
+        IN_MARKETING: ['Vermarktung', 'badge-blue'],
+        VIEWING: ['Besichtigung', 'badge-yellow'],
+        OFFER_PHASE: ['Angebotsphase', 'badge-yellow'],
+        NOTARY_APPOINTMENT: ['Notartermin', 'badge-green'],
+        COMPLETED: ['Abgeschlossen', 'badge-green'],
+    };
+
+    function statusBadge(status) {
+        const [label, cls] = statusLabels[status] || [status, 'badge-blue'];
+        return `<span class="badge ${cls}">${label}</span>`;
+    }
+
+    async function loadBrokerage() {
+        const container = document.getElementById('brokerage-content');
+        try {
+            const res = await fetch(API.brokerage);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            let data = await res.json();
+            const items = data.content || data;
+
+            if (!items.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">&#128196;</div>
+                        <p><strong>Noch keine Vermittlungsprozesse vorhanden</strong></p>
+                        <p>Prozesse werden in Lab 09 (Context Integration) automatisch erstellt.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Adresse</th>
+                            <th>Angebotspreis</th>
+                            <th>Status</th>
+                            <th>Besichtigungen</th>
+                            <th>Angebote</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${items.map(p => `
+                            <tr>
+                                <td style="font-family:monospace;font-size:0.8em">${String(p.id).substring(0, 8)}...</td>
+                                <td>${p.address ? esc(p.address.street + ', ' + p.address.postalCode + ' ' + p.address.city) : '--'}</td>
+                                <td class="price">${p.askingPrice ? formatPrice(p.askingPrice.amount) : '--'}</td>
+                                <td>${statusBadge(p.status)}</td>
+                                <td>${p.viewings ? p.viewings.length : 0}</td>
+                                <td>${p.offers ? p.offers.length : 0}</td>
+                                <td style="text-align:right">
+                                    <button class="btn-sm btn-primary" onclick="openViewingModal('${p.id}')">+ Besichtigung</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>`;
+        } catch {
+            container.innerHTML = `
+                <div class="unavailable-state">
+                    <div class="icon">&#128679;</div>
+                    <h3>API noch nicht verfügbar</h3>
+                    <p>Die Vermittlungs-API wird ab <strong>Lab 07</strong> (REST Adapter) schrittweise aufgebaut.</p>
+                </div>`;
+        }
+    }
+
+    // --- Dashboard ---
+
+    async function checkEndpoint(url) {
+        try {
+            const res = await fetch(url);
+            return res.ok ? 'ok' : 'off';
+        } catch {
+            return 'off';
+        }
+    }
+
+    async function refreshDashboard() {
+        // Health
+        const healthEl = document.getElementById('stat-health');
+        try {
+            const res = await fetch(API.health);
+            const data = await res.json();
+            healthEl.textContent = data.status === 'UP' ? 'Gesund' : data.status;
+            healthEl.style.color = data.status === 'UP' ? 'var(--success)' : 'var(--danger)';
+        } catch {
+            healthEl.textContent = 'Offline';
+            healthEl.style.color = 'var(--danger)';
+        }
+
+        // Property count
+        const propEl = document.getElementById('stat-properties');
+        try {
+            const res = await fetch(API.properties);
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            const items = data.content || data;
+            propEl.textContent = items.length;
+            setNavDot('properties', 'ok');
+        } catch {
+            propEl.textContent = '--';
+            setNavDot('properties', 'off');
+        }
+
+        // Brokerage count
+        const brokerageEl = document.getElementById('stat-brokerage');
+        try {
+            const res = await fetch(API.brokerage);
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            const items = data.content || data;
+            brokerageEl.textContent = items.length;
+            setNavDot('brokerage', 'ok');
+        } catch {
+            brokerageEl.textContent = '--';
+            setNavDot('brokerage', 'off');
+        }
+
+        // Endpoint status table
+        const tbody = document.getElementById('endpoint-status');
+        tbody.innerHTML = '';
+        for (const ep of endpoints) {
+            const status = await checkEndpoint(ep.url);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><code>${esc(ep.label)}</code></td>
+                <td><span class="badge badge-blue">${ep.lab}</span></td>
+                <td><span class="badge ${status === 'ok' ? 'badge-green' : 'badge-red'}">${status === 'ok' ? 'Verfügbar' : 'Nicht verfügbar'}</span></td>
+            `;
+            tbody.appendChild(row);
+        }
+    }
+
+    function setNavDot(name, status) {
+        const dot = document.getElementById('nav-dot-' + name);
+        if (dot) {
+            dot.className = 'status-dot ' + status;
+            dot.title = status === 'ok' ? 'API erreichbar' : 'API nicht erreichbar';
+        }
+    }
+
+    // --- Util ---
+
+    function esc(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    // --- Init ---
+
+    refreshDashboard();
+</script>
+
+</body>
+</html>

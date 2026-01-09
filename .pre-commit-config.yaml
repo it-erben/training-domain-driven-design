@@ -1,0 +1,26 @@
+repos:
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.44.0
+    hooks:
+      - id: markdownlint
+        args: ["-c", ".markdownlint.yaml"]
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.1
+    hooks:
+      - id: yamllint
+        args: ["-d", "relaxed"]
+
+  - repo: local
+    hooks:
+      - id: lychee
+        name: lychee (link checker)
+        entry: lychee
+        language: system
+        types: [markdown]
+        args:
+          - "--accept=429,200"
+          - "--exclude=http://localhost.*"
+          - "--exclude=.*\\.drawio\\.png"
+          - "--max-concurrency=4"
+          - "--timeout=20"
