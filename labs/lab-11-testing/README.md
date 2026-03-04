@@ -1,4 +1,4 @@
-# Lab 11: Teststrategie -- Tests auf allen Ebenen
+# Lab 11: Teststrategie - Tests auf allen Ebenen
 
 ## Lernziel
 
@@ -15,15 +15,15 @@ Domain-, Repository-, Web- und Architektur-Tests schreiben.
 
 ## Aufgabe
 
-Ergaenze das Projekt um Tests auf verschiedenen Ebenen: Unit-Tests fuer die Domain-Logik, Integrationstests fuer das Repository, Web-Tests fuer den REST-Adapter und ArchUnit-Tests fuer die Architektur.
+Ergänze das Projekt um Tests auf verschiedenen Ebenen: Unit-Tests für die Domain-Logik, Integrationstests für das Repository, Web-Tests für den REST-Adapter und ArchUnit-Tests für die Architektur.
 
 ### Teil 1: Domain Unit Test (kein Spring-Kontext!)
 
-Teste die Invariante des Aggregate Root `Vermittlungsvorgang` ohne Spring-Kontext -- reine JUnit-5-Tests:
+Teste die Invariante des Aggregate Root `Vermittlungsvorgang` ohne Spring-Kontext - reine JUnit-5-Tests:
 
 1. **Negativtest:** `statusAufNotarterminSetzen()` wirft eine `IllegalStateException`, wenn kein angenommenes Angebot vorliegt
-2. **Happy Path:** Angebot annehmen, dann Status auf NOTARTERMIN setzen -- kein Fehler
-3. **Besichtigung hinzufuegen:** `besichtigungHinzufuegen()` erstellt eine Besichtigung und setzt den Status
+2. **Happy Path:** Angebot annehmen, dann Status auf NOTARTERMIN setzen - kein Fehler
+3. **Besichtigung hinzufügen:** `besichtigungHinzufügen()` erstellt eine Besichtigung und setzt den Status
 4. **Angebot annehmen:** `angebotAnnehmen()` setzt `angenommen` auf `true`
 
 ```java
@@ -37,18 +37,18 @@ class VermittlungsvorgangTest {
 
     @Test
     void test_statusAufNotartermin_mitAngenommenemAngebot_erfolgreich() {
-        // Arrange: Angebot hinzufuegen und annehmen
+        // Arrange: Angebot hinzufügen und annehmen
         // Act: statusAufNotarterminSetzen()
         // Assert: Status ist NOTARTERMIN
     }
 }
 ```
 
-**Wichtig:** Kein `@SpringBootTest`, kein `@ExtendWith(SpringExtension.class)` -- reine Unit-Tests!
+**Wichtig:** Kein `@SpringBootTest`, kein `@ExtendWith(SpringExtension.class)` - reine Unit-Tests!
 
 ### Teil 2: Repository Integration Test
 
-Erstelle einen `@DataJpaTest` fuer den `VermittlungsvorgangRepositoryAdapter`:
+Erstelle einen `@DataJpaTest` für den `VermittlungsvorgangRepositoryAdapter`:
 
 ```java
 @DataJpaTest
@@ -66,14 +66,14 @@ class VermittlungsvorgangRepositoryAdapterTest {
     @Test
     void test_besichtigungenWerdenPersistiert() {
         // Vermittlungsvorgang mit Besichtigung speichern
-        // Laden und pruefen, dass Besichtigung vorhanden
+        // Laden und prüfen, dass Besichtigung vorhanden
     }
 }
 ```
 
 ### Teil 3: Web/API Test
 
-Erstelle einen `@WebMvcTest` fuer den `BesichtigungController`:
+Erstelle einen `@WebMvcTest` für den `BesichtigungController`:
 
 ```java
 @WebMvcTest(BesichtigungController.class)
@@ -114,32 +114,32 @@ static final ArchRule domain_events_should_be_records =
         .should().beAssignableTo(Record.class);
 ```
 
-**Neue Regel:** "Domain events should be records" -- alle Klassen im Package `..domain.event..` muessen Records sein.
+**Neue Regel:** "Domain events should be records" - alle Klassen im Package `..domain.event..` müssen Records sein.
 
 ### Bonus: Full-Integration-Test
 
 Erstelle einen `@SpringBootTest` Full-Integration-Test, der den kompletten Flow testet:
 
 1. Vermittlungsvorgang erstellen
-2. Besichtigung anlegen (ueber den Use Case)
-3. Pruefen, dass der Vorgang mit Besichtigung gespeichert wurde
+2. Besichtigung anlegen (über den Use Case)
+3. Prüfen, dass der Vorgang mit Besichtigung gespeichert wurde
 
 ## Verifikation
 
-Fuehre alle Tests aus:
+Führe alle Tests aus:
 
 ```bash
 cd solution
 mvn test
 ```
 
-Alle Tests muessen gruen sein -- mindestens 8 Tests.
+Alle Tests müssen grün sein - mindestens 8 Tests.
 
 ## Tipps
 
 - **Domain-Tests** brauchen keinen Spring-Kontext und sind daher sehr schnell.
 - **`@DataJpaTest`** startet nur den JPA-Layer mit einer eingebetteten H2-Datenbank.
-- **`@WebMvcTest`** startet nur den Web-Layer und mockt alle Abhaengigkeiten.
+- **`@WebMvcTest`** startet nur den Web-Layer und mockt alle Abhängigkeiten.
 - **ArchUnit** analysiert den kompilierten Bytecode und braucht keinen laufenden Kontext.
-- Verwende `@MockBean` in `@WebMvcTest`, um die Abhaengigkeiten des Controllers zu mocken.
-- In `@DataJpaTest` muessen Adapter-Klassen explizit mit `@Import` hinzugefuegt werden.
+- Verwende `@MockBean` in `@WebMvcTest`, um die Abhängigkeiten des Controllers zu mocken.
+- In `@DataJpaTest` müssen Adapter-Klassen explizit mit `@Import` hinzugefügt werden.

@@ -224,7 +224,7 @@ public class Immobilie {
     private String strasse;
     private String plz;
     private String ort;
-    private BigDecimal wohnflaeche;
+    private BigDecimal wohnfläche;
     private BigDecimal kaufpreis;
 
     protected Immobilie() {} // JPA benötigt No-Arg-Konstruktor
@@ -301,7 +301,7 @@ public record ImmobilieRequest(
         @NotBlank String ort,
 
         @Positive(message = "Wohnfläche muss positiv sein")
-        BigDecimal wohnflaeche,
+        BigDecimal wohnfläche,
 
         @NotNull @Positive(message = "Kaufpreis muss positiv sein")
         BigDecimal kaufpreis

@@ -228,7 +228,7 @@ public class ExternalCrmTranslator {
 ### Wann einsetzen?
 
 - Gemeinsame Kernkonzepte, die identisch bleiben **müssen**
-- Beispiel: Gemeinsame Value Objects `Adresse`, `Waehrungsbetrag`
+- Beispiel: Gemeinsame Value Objects `Adresse`, `Währungsbetrag`
 
 > **Vorsicht:** Shared Kernel ist **die engste Kopplung** zwischen BCs.
 > Je größer der Kernel, desto mehr Abstimmungsaufwand.

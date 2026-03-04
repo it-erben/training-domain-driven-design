@@ -1,4 +1,4 @@
-# Lab 06: Use-Case-Implementierung -- Besichtigung anlegen
+# Lab 06: Use-Case-Implementierung - Besichtigung anlegen
 
 ## Lernziel
 
@@ -15,7 +15,7 @@ Application Service als Use-Case-Orchestrator implementieren.
 
 ## Aufgabe
 
-Implementiere den Use Case "Besichtigung anlegen" als Application Service. Der Use Case orchestriert den Aufruf der Domain-Logik und kuemmert sich um die Persistenz.
+Implementiere den Use Case "Besichtigung anlegen" als Application Service. Der Use Case orchestriert den Aufruf der Domain-Logik und kümmert sich um die Persistenz.
 
 ### Schritt 1: Command-Objekt erstellen
 
@@ -29,7 +29,7 @@ public record BesichtigungAnlegenCommand(
 ) {}
 ```
 
-Das Command repraesentiert die Intention des Aufrufers und enthaelt alle Daten, die der Use Case benoetigt.
+Das Command repräsentiert die Intention des Aufrufers und enthält alle Daten, die der Use Case benötigt.
 
 ### Schritt 2: Ergebnis-Objekt erstellen
 
@@ -57,9 +57,9 @@ public class BesichtigungAnlegenUseCase {
     @Transactional
     public BesichtigungAnlegenResult anlegen(BesichtigungAnlegenCommand command) {
         // 1. Vermittlungsvorgang aus dem Repository laden
-        // 2. Domain-Methode besichtigungHinzufuegen() aufrufen
+        // 2. Domain-Methode besichtigungHinzufügen() aufrufen
         // 3. Vermittlungsvorgang speichern
-        // 4. Ergebnis zurueckgeben
+        // 4. Ergebnis zurückgeben
     }
 }
 ```
@@ -68,13 +68,13 @@ public class BesichtigungAnlegenUseCase {
 
 1. Lade den `Vermittlungsvorgang` anhand der ID aus dem Repository
 2. Wenn nicht gefunden: wirf eine `VermittlungsvorgangNichtGefundenException`
-3. Rufe die Domain-Methode `besichtigungHinzufuegen(interessentName, zeitpunkt)` auf dem Aggregate Root auf
-4. Speichere den aktualisierten `Vermittlungsvorgang` ueber das Repository
-5. Gib ein `BesichtigungAnlegenResult` mit der neuen Besichtigungs-ID zurueck
+3. Rufe die Domain-Methode `besichtigungHinzufügen(interessentName, zeitpunkt)` auf dem Aggregate Root auf
+4. Speichere den aktualisierten `Vermittlungsvorgang` über das Repository
+5. Gib ein `BesichtigungAnlegenResult` mit der neuen Besichtigungs-ID zurück
 
-**Wichtig:** Der Use Case verwendet `@Transactional`, um die Konsistenz sicherzustellen. Die Geschaeftslogik bleibt im Domain-Modell -- der Use Case orchestriert nur.
+**Wichtig:** Der Use Case verwendet `@Transactional`, um die Konsistenz sicherzustellen. Die Geschäftslogik bleibt im Domain-Modell - der Use Case orchestriert nur.
 
-### Schritt 4: Exception fuer nicht-gefundenen Vermittlungsvorgang
+### Schritt 4: Exception für nicht-gefundenen Vermittlungsvorgang
 
 Erstelle die Exception `VermittlungsvorgangNichtGefundenException` im Package `de.immobiliencrm.vermittlung.domain.model`:
 
@@ -86,20 +86,20 @@ public class VermittlungsvorgangNichtGefundenException extends RuntimeException 
 }
 ```
 
-**Hinweis:** Die Exception liegt im Domain-Package, da sie ein fachliches Konzept repraesentiert ("es gibt keinen Vermittlungsvorgang mit dieser ID").
+**Hinweis:** Die Exception liegt im Domain-Package, da sie ein fachliches Konzept repräsentiert ("es gibt keinen Vermittlungsvorgang mit dieser ID").
 
 ### Bonus: Zweiter Use Case
 
-Implementiere einen zweiten Use Case `BesichtigungDurchfuehrenUseCase`:
+Implementiere einen zweiten Use Case `BesichtigungDurchführenUseCase`:
 
-- Command: `BesichtigungDurchfuehrenCommand(UUID vermittlungsvorgangId, UUID besichtigungId)`
-- Laedt den Vermittlungsvorgang, ruft `besichtigungDurchfuehren(besichtigungId)` auf und speichert
+- Command: `BesichtigungDurchführenCommand(UUID vermittlungsvorgangId, UUID besichtigungId)`
+- Lädt den Vermittlungsvorgang, ruft `besichtigungDurchführen(besichtigungId)` auf und speichert
 
 ## Verifikation
 
 Schreibe einen Unit-Test des Use Case mit gemocktem Repository:
 
-1. **Happy Path:** Vermittlungsvorgang existiert, Besichtigung wird angelegt, Ergebnis wird zurueckgegeben
+1. **Happy Path:** Vermittlungsvorgang existiert, Besichtigung wird angelegt, Ergebnis wird zurückgegeben
 2. **Not Found:** Vermittlungsvorgang existiert nicht, `VermittlungsvorgangNichtGefundenException` wird geworfen
 
 ```bash
@@ -107,11 +107,11 @@ cd solution
 mvn test
 ```
 
-Alle Tests muessen gruen sein.
+Alle Tests müssen grün sein.
 
 ## Tipps
 
-- Der Use Case ist bewusst duenn gehalten -- die Geschaeftslogik steckt im Domain-Modell.
-- Commands und Results sind immutable (Records) und gehoeren zur Application-Schicht.
-- `@Transactional` sorgt dafuer, dass bei einer Exception ein Rollback stattfindet.
-- Das Repository-Interface stammt aus der Domain-Schicht -- der Use Case haengt nur von der Abstraktion ab, nicht von der konkreten Implementierung.
+- Der Use Case ist bewusst dünn gehalten - die Geschäftslogik steckt im Domain-Modell.
+- Commands und Results sind immutable (Records) und gehören zur Application-Schicht.
+- `@Transactional` sorgt dafür, dass bei einer Exception ein Rollback stattfindet.
+- Das Repository-Interface stammt aus der Domain-Schicht - der Use Case hängt nur von der Abstraktion ab, nicht von der konkreten Implementierung.
