@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="draw.io" modified="2026-03-04T00:00:00.000Z" agent="draw.io" version="21.0.0" type="device">
+  <diagram id="ddd-strategic-tactical" name="DDD Strategic &amp; Tactical Design">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="DDD – Strategic &amp; Tactical Design im Überblick" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="200" y="15" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LEFT COLUMN: Strategic Design (blue)                         -->
+        <!-- ============================================================ -->
+
+        <!-- Column background -->
+        <mxCell id="stratbg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;opacity=30;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="400" height="560" as="geometry" />
+        </mxCell>
+
+        <!-- Column header -->
+        <mxCell id="stratheader" value="&lt;b&gt;Strategic Design&lt;/b&gt;&lt;br&gt;(Makro-Ebene)" style="text;html=1;fontSize=16;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#4472C4;" vertex="1" parent="1">
+          <mxGeometry x="100" y="90" width="280" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- S1: Bounded Context -->
+        <mxCell id="s1" value="&lt;b&gt;Bounded Context&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Fachliche Grenze mit eigenem Modell&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="100" y="155" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- S2: Context Map -->
+        <mxCell id="s2" value="&lt;b&gt;Context Map&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Beziehungen zwischen Bounded Contexts&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="100" y="270" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- S3: Subdomains -->
+        <mxCell id="s3" value="&lt;b&gt;Subdomains&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Core · Supporting · Generic&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="100" y="385" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- S4: Ubiquitous Language -->
+        <mxCell id="s4" value="&lt;b&gt;Ubiquitous Language&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Gemeinsame Sprache im Team&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="100" y="500" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows between strategic elements -->
+        <!-- S1 → S2 -->
+        <mxCell id="sa1" value="bildet ab" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#6c8ebf;fontSize=10;fontColor=#6c8ebf;" edge="1" source="s1" target="s2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- S1 → S3 -->
+        <mxCell id="sa2" value="gehört zu" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#6c8ebf;curved=1;fontSize=10;fontColor=#6c8ebf;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" source="s1" target="s3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- S4 → S1 (Ubiquitous Language used within Bounded Context) -->
+        <mxCell id="sa3" value="gilt innerhalb" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#6c8ebf;curved=1;fontSize=10;fontColor=#6c8ebf;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;" edge="1" source="s4" target="s1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- S2 → S3 -->
+        <mxCell id="sa4" value="identifiziert" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#6c8ebf;fontSize=10;fontColor=#6c8ebf;" edge="1" source="s2" target="s3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- RIGHT COLUMN: Tactical Design (green)                        -->
+        <!-- ============================================================ -->
+
+        <!-- Column background -->
+        <mxCell id="tactbg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;opacity=30;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="560" y="80" width="400" height="560" as="geometry" />
+        </mxCell>
+
+        <!-- Column header -->
+        <mxCell id="tactheader" value="&lt;b&gt;Tactical Design&lt;/b&gt;&lt;br&gt;(Mikro-Ebene)" style="text;html=1;fontSize=16;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#548235;" vertex="1" parent="1">
+          <mxGeometry x="620" y="90" width="280" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- T1: Aggregate -->
+        <mxCell id="t1" value="&lt;b&gt;Aggregate&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Konsistenzgrenze&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="660" y="155" width="200" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- T2: Entity -->
+        <mxCell id="t2" value="&lt;b&gt;Entity&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Identität + Lebenszyklus&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="600" y="250" width="170" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- T3: Value Object -->
+        <mxCell id="t3" value="&lt;b&gt;Value Object&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Immutable, keine Identität&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="800" y="250" width="170" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- T4: Repository -->
+        <mxCell id="t4" value="&lt;b&gt;Repository&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Persistenz-Abstraktion&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="600" y="360" width="170" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- T5: Domain Event -->
+        <mxCell id="t5" value="&lt;b&gt;Domain Event&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Fachliches Ereignis&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="800" y="360" width="170" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- T6: Domain Service -->
+        <mxCell id="t6" value="&lt;b&gt;Domain Service&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Fachlogik ohne Entität&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="470" width="170" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows between tactical elements -->
+
+        <!-- Aggregate contains Entity -->
+        <mxCell id="ta1" value="enthält" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#82b366;fontSize=10;fontColor=#548235;" edge="1" source="t1" target="t2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Aggregate contains Value Object -->
+        <mxCell id="ta2" value="enthält" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#82b366;fontSize=10;fontColor=#548235;" edge="1" source="t1" target="t3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Repository stores Aggregate -->
+        <mxCell id="ta3" value="speichert" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#82b366;fontSize=10;fontColor=#548235;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" source="t4" target="t1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Aggregate publishes Domain Event -->
+        <mxCell id="ta4" value="publiziert" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#82b366;fontSize=10;fontColor=#548235;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;" edge="1" source="t1" target="t5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Domain Service operates on Aggregate -->
+        <mxCell id="ta5" value="operiert auf" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#82b366;curved=1;fontSize=10;fontColor=#548235;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="t6" target="t1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Domain Service uses Repository -->
+        <mxCell id="ta6" value="nutzt" style="endArrow=classic;html=1;strokeWidth=1.5;strokeColor=#82b366;fontSize=10;fontColor=#548235;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" source="t6" target="t4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LARGE ARROW: Strategic → Tactical (Bounded Context → right)  -->
+        <!-- ============================================================ -->
+        <mxCell id="bigarrow" value="wird intern strukturiert durch" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#333333;fontSize=12;fontStyle=1;fontColor=#333333;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1">
+          <mxGeometry x="0.05" relative="1" as="geometry">
+            <mxPoint x="380" y="185" as="sourcePoint" />
+            <mxPoint x="560" y="350" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="500" y="185" />
+              <mxPoint x="500" y="350" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
