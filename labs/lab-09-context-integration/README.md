@@ -1,4 +1,4 @@
-# Lab 09: Context-Integration -- Bounded Contexts verbinden
+# Lab 09: Context-Integration - Bounded Contexts verbinden
 
 ## Lernziel
 
@@ -15,25 +15,25 @@ Event-basierte Kommunikation zwischen Bounded Contexts implementieren.
 
 ## Aufgabe
 
-Erstelle einen zweiten Bounded Context "Akquise" und verbinde ihn ueber Domain Events mit dem bestehenden Vermittlungs-BC.
+Erstelle einen zweiten Bounded Context "Akquise" und verbinde ihn über Domain Events mit dem bestehenden Vermittlungs-BC.
 
 ### Schritt 1: Minimalen Akquise-BC erstellen
 
 Erstelle die Entity `Maklerauftrag` im Package `de.immobiliencrm.akquise.domain.model`:
 
-- Felder: `id` (UUID), `eigentuemerId` (UUID), `immobilieId` (UUID), `abgeschlossenAm` (LocalDateTime)
-- Methode: `abschliessen()` setzt `abgeschlossenAm` auf den aktuellen Zeitpunkt
+- Felder: `id` (UUID), `eigentümerId` (UUID), `immobilieId` (UUID), `abgeschlossenAm` (LocalDateTime)
+- Methode: `abschließen()` setzt `abgeschlossenAm` auf den aktuellen Zeitpunkt
 
 ```java
 public class Maklerauftrag {
 
     private final UUID id;
-    private final UUID eigentuemerId;
+    private final UUID eigentümerId;
     private final UUID immobilieId;
     private LocalDateTime abgeschlossenAm;
 
     // Constructor, Factory-Methode, Getter
-    // abschliessen() setzt abgeschlossenAm = LocalDateTime.now()
+    // abschließen() setzt abgeschlossenAm = LocalDateTime.now()
 }
 ```
 
@@ -51,18 +51,18 @@ public record MaklervertragAbgeschlossen(
 
 ### Schritt 3: Application Service im Akquise-BC
 
-Erstelle den Service `MaklerauftragAbschliessenUseCase` im Package `de.immobiliencrm.akquise.application.service`:
+Erstelle den Service `MaklerauftragAbschließenUseCase` im Package `de.immobiliencrm.akquise.application.service`:
 
 - Injiziere `MaklerauftragRepository` und `ApplicationEventPublisher`
-- Methode `abschliessen(UUID maklerauftragId)`:
+- Methode `abschließen(UUID maklerauftragId)`:
   1. Maklerauftrag laden
-  2. `abschliessen()` aufrufen
+  2. `abschließen()` aufrufen
   3. Speichern
-  4. Event `MaklervertragAbgeschlossen` ueber `ApplicationEventPublisher` publizieren
+  4. Event `MaklervertragAbgeschlossen` über `ApplicationEventPublisher` publizieren
 
 ```java
 @Service
-public class MaklerauftragAbschliessenUseCase {
+public class MaklerauftragAbschließenUseCase {
 
     private final MaklerauftragRepository repository;
     private final ApplicationEventPublisher eventPublisher;
@@ -70,9 +70,9 @@ public class MaklerauftragAbschliessenUseCase {
     // Constructor Injection
 
     @Transactional
-    public void abschliessen(UUID maklerauftragId) {
+    public void abschließen(UUID maklerauftragId) {
         // 1. Laden
-        // 2. abschliessen()
+        // 2. abschließen()
         // 3. Speichern
         // 4. Event publizieren
     }
@@ -102,11 +102,11 @@ public class MaklervertragAbgeschlossenListener {
 
 ### Schritt 5: Test
 
-Schreibe einen Integrationstest, der den gesamten Flow prueft:
+Schreibe einen Integrationstest, der den gesamten Flow prüft:
 
 1. Erstelle einen `Maklerauftrag`
-2. Schliesse ihn ab (ueber den UseCase)
-3. Pruefe, dass ein `Vermittlungsvorgang` automatisch erstellt wurde
+2. Schließe ihn ab (über den UseCase)
+3. Prüfe, dass ein `Vermittlungsvorgang` automatisch erstellt wurde
 
 ### Bonus: TransactionalEventListener
 
@@ -114,18 +114,18 @@ Ersetze `@EventListener` durch `@TransactionalEventListener(phase = AFTER_COMMIT
 
 ## Verifikation
 
-Fuehre den Integrationstest aus:
+Führe den Integrationstest aus:
 
 ```bash
 cd solution
 mvn test
 ```
 
-Der Test muss bestaetigen, dass nach dem Abschliessen eines Maklerauftrags automatisch ein Vermittlungsvorgang erstellt wird.
+Der Test muss bestätigen, dass nach dem Abschließen eines Maklerauftrags automatisch ein Vermittlungsvorgang erstellt wird.
 
 ## Tipps
 
-- Spring's `ApplicationEventPublisher` eignet sich gut fuer die Kommunikation zwischen Bounded Contexts innerhalb eines Monolithen.
-- Das Event gehoert zum publizierenden BC (Akquise) -- der konsumierende BC (Vermittlung) importiert es.
-- Achte darauf, dass der Listener im Vermittlungs-BC keine direkte Abhaengigkeit zum Akquise-Domain-Model hat -- nur zum Event.
+- Spring's `ApplicationEventPublisher` eignet sich gut für die Kommunikation zwischen Bounded Contexts innerhalb eines Monolithen.
+- Das Event gehört zum publizierenden BC (Akquise) - der konsumierende BC (Vermittlung) importiert es.
+- Achte darauf, dass der Listener im Vermittlungs-BC keine direkte Abhängigkeit zum Akquise-Domain-Model hat - nur zum Event.
 - `@TransactionalEventListener(phase = AFTER_COMMIT)` stellt sicher, dass das Event erst verarbeitet wird, wenn die Transaktion erfolgreich war.

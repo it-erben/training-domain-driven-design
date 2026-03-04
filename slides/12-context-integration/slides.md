@@ -86,12 +86,12 @@ package de.immobiliencrm.akquise;
 public record MaklervertragAbgeschlossenEvent(
     UUID maklervertragId,
     UUID objektId,
-    UUID eigentuemerId,
+    UUID eigentümerId,
     Instant occurredAt
 ) {
     public MaklervertragAbgeschlossenEvent(
-            UUID maklervertragId, UUID objektId, UUID eigentuemerId) {
-        this(maklervertragId, objektId, eigentuemerId, Instant.now());
+            UUID maklervertragId, UUID objektId, UUID eigentümerId) {
+        this(maklervertragId, objektId, eigentümerId, Instant.now());
     }
 }
 ```
@@ -110,12 +110,12 @@ public record MaklervertragAbgeschlossenEvent(
 package de.immobiliencrm.akquise.internal;
 
 @Service
-public class VertragAbschliessenService {
+public class VertragAbschließenService {
 
     private final MaklervertragRepository repository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public VertragAbschliessenService(
+    public VertragAbschließenService(
             MaklervertragRepository repository,
             ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
@@ -123,9 +123,9 @@ public class VertragAbschliessenService {
     }
 
     @Transactional
-    public void abschliessen(MaklervertragId id) {
+    public void abschließen(MaklervertragId id) {
         var vertrag = repository.findById(id).orElseThrow();
-        vertrag.abschliessen();
+        vertrag.abschließen();
         repository.save(vertrag);
         vertrag.domainEvents().forEach(eventPublisher::publishEvent);
         vertrag.clearDomainEvents();
@@ -149,7 +149,7 @@ public class VertragAbschliessenService {
 ┌── Akquise BC ────┐                      ┌── Vermittlung BC ─────────────┐
 │                   │   Event              │                               │
 │  Maklervertrag    │──────────────────►  │  ┌─── ACL ──────────────┐    │
-│  abschliessen()   │ MaklervertragAbge-   │  │ AkquiseEventTranslator│    │
+│  abschließen()   │ MaklervertragAbge-   │  │ AkquiseEventTranslator│    │
 │                   │ schlossen            │  │   → VermittlungStarten │    │
 └───────────────────┘                      │  │     Command            │    │
                                            │  └───────────┬────────────┘    │
@@ -281,11 +281,11 @@ public class VermittlungStartenService {
 ```
 Akquise BC                        Vermittlung BC
 ┌──────────────────────┐          ┌────────────────────────────────┐
-│ VertragAbschliessen  │          │                                │
+│ VertragAbschließen  │          │                                │
 │ Service              │          │  adapter.acl                   │
 │   │                  │  publish │  ┌─────────────────────────┐   │
 │   ├─ vertrag         │─────────►│  │ AkquiseEventListener   │   │
-│   │  .abschliessen() │  Event   │  │   ├─ translator         │   │
+│   │  .abschließen() │  Event   │  │   ├─ translator         │   │
 │   ├─ save()          │          │  │   │  .translate(event)  │   │
 │   └─ dispatch events │          │  │   └─ service.starten()  │   │
 │                      │          │  └─────────────────────────┘   │

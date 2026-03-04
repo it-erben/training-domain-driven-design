@@ -1,8 +1,8 @@
-# Lab 07: REST-Adapter -- API fuer Besichtigungen
+# Lab 07: REST-Adapter - API für Besichtigungen
 
 ## Lernziel
 
-`@RestController` als Inbound-Adapter implementieren, DTOs fuer die API-Grenze definieren und Fehlerbehandlung mit `ProblemDetail` (RFC 9457) umsetzen.
+`@RestController` als Inbound-Adapter implementieren, DTOs für die API-Grenze definieren und Fehlerbehandlung mit `ProblemDetail` (RFC 9457) umsetzen.
 
 ## Dauer
 
@@ -15,7 +15,7 @@
 
 ## Aufgabe
 
-Implementiere einen REST-Adapter, der die HTTP-Requests entgegennimmt, in Commands uebersetzt und an den Use Case delegiert.
+Implementiere einen REST-Adapter, der die HTTP-Requests entgegennimmt, in Commands übersetzt und an den Use Case delegiert.
 
 ### Schritt 1: Request-DTO erstellen
 
@@ -28,7 +28,7 @@ public record BesichtigungAnlegenRequest(
 ) {}
 ```
 
-**Hinweis:** Die Validierungs-Annotationen (`@NotBlank`, `@NotNull`) gehoeren zur Adapter-Schicht -- das Domain-Modell validiert sich selbst.
+**Hinweis:** Die Validierungs-Annotationen (`@NotBlank`, `@NotNull`) gehören zur Adapter-Schicht - das Domain-Modell validiert sich selbst.
 
 ### Schritt 2: Response-DTO erstellen
 
@@ -61,12 +61,12 @@ public class BesichtigungController {
         // 1. Request-DTO in Command umwandeln
         // 2. Use Case aufrufen
         // 3. Result in Response-DTO umwandeln
-        // 4. 201 Created mit Location-Header zurueckgeben
+        // 4. 201 Created mit Location-Header zurückgeben
     }
 }
 ```
 
-**Wichtig:** Der Controller enthaelt keine Geschaeftslogik. Er ist ein reiner Adapter, der zwischen HTTP und Application-Schicht uebersetzt.
+**Wichtig:** Der Controller enthält keine Geschäftslogik. Er ist ein reiner Adapter, der zwischen HTTP und Application-Schicht übersetzt.
 
 ### Schritt 4: Exception Handler implementieren
 
@@ -78,17 +78,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(VermittlungsvorgangNichtGefundenException.class)
     public ProblemDetail handleNotFound(VermittlungsvorgangNichtGefundenException ex) {
-        // ProblemDetail mit Status 404 und Fehlermeldung zurueckgeben
+        // ProblemDetail mit Status 404 und Fehlermeldung zurückgeben
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
-        // ProblemDetail mit Status 422 und Validierungsfehlern zurueckgeben
+        // ProblemDetail mit Status 422 und Validierungsfehlern zurückgeben
     }
 }
 ```
 
-**Hinweis:** `ProblemDetail` ist ab Spring Boot 3 nativ unterstuetzt und implementiert RFC 9457 (ehemals RFC 7807).
+**Hinweis:** `ProblemDetail` ist ab Spring Boot 3 nativ unterstützt und implementiert RFC 9457 (ehemals RFC 7807).
 
 ### Schritt 5: Testen mit curl
 
@@ -101,13 +101,13 @@ Implementiere einen GET-Endpunkt, der alle Besichtigungen eines Vermittlungsvorg
 ```java
 @GetMapping
 public List<BesichtigungAnlegenResponse> auflisten(@PathVariable UUID vorgangId) {
-    // Vermittlungsvorgang laden und Besichtigungen als Response-DTOs zurueckgeben
+    // Vermittlungsvorgang laden und Besichtigungen als Response-DTOs zurückgeben
 }
 ```
 
 ## Verifikation
 
-Starte die Anwendung und fuehre folgende curl-Befehle aus:
+Starte die Anwendung und führe folgende curl-Befehle aus:
 
 ### Besichtigung anlegen (erwartet: 201 Created)
 
@@ -162,7 +162,7 @@ Erwartete Antwort: HTTP 422, ProblemDetail-JSON mit Validierungsfehlern.
 
 ## Tipps
 
-- Der Controller ist ein Inbound-Adapter in der Clean-Architecture-Terminologie. Er haengt von der Application-Schicht ab, nicht umgekehrt.
-- DTOs (Request/Response) gehoeren zur Adapter-Schicht und werden **nicht** in der Domain oder Application-Schicht verwendet.
-- `ProblemDetail` ist der Standard fuer Fehlerantworten in REST-APIs und wird von Spring Boot 3 nativ unterstuetzt.
+- Der Controller ist ein Inbound-Adapter in der Clean-Architecture-Terminologie. Er hängt von der Application-Schicht ab, nicht umgekehrt.
+- DTOs (Request/Response) gehören zur Adapter-Schicht und werden **nicht** in der Domain oder Application-Schicht verwendet.
+- `ProblemDetail` ist der Standard für Fehlerantworten in REST-APIs und wird von Spring Boot 3 nativ unterstützt.
 - Der `Location`-Header im 201-Response zeigt dem Client, wo die neu erstellte Ressource zu finden ist.

@@ -158,7 +158,7 @@ static final ArchRule domain_ist_framework_frei =
 
 ```java
 @ArchTest
-static final ArchRule domain_kennt_keine_aeusseren_ringe =
+static final ArchRule domain_kennt_keine_äußeren_ringe =
     noClasses()
         .that().resideInAPackage("..domain..")
         .should().dependOnClassesThat()
@@ -302,7 +302,7 @@ static final ArchRule vermittlung_greift_nicht_auf_akquise_domain =
             + "Akquise-Domain zugreifen");
 
 @ArchTest
-static final ArchRule bcs_kommunizieren_nur_ueber_events =
+static final ArchRule bcs_kommunizieren_nur_über_events =
     slices().matching("de.immobiliencrm.(*).domain..")
         .should().notDependOnEachOther()
         .as("Domain-Schichten verschiedener BCs "
@@ -348,7 +348,7 @@ class CleanArchitectureTest {
 
     // Abhängigkeitsregeln
     @ArchTest static final ArchRule r1 = /* domain_ist_framework_frei */;
-    @ArchTest static final ArchRule r2 = /* domain_kennt_keine_aeusseren_ringe */;
+    @ArchTest static final ArchRule r2 = /* domain_kennt_keine_äußeren_ringe */;
     @ArchTest static final ArchRule r3 = /* application_kennt_keine_infrastruktur */;
 
     // Annotation-Regeln
@@ -363,7 +363,7 @@ class CleanArchitectureTest {
     @ArchTest static final ArchRule r8 = /* onion_architecture */;
 
     // Cross-BC-Isolation
-    @ArchTest static final ArchRule r9 = /* bcs_kommunizieren_nur_ueber_events */;
+    @ArchTest static final ArchRule r9 = /* bcs_kommunizieren_nur_über_events */;
 }
 ```
 

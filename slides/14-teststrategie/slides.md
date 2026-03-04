@@ -414,7 +414,7 @@ public class VermittlungsvorgangFixture {
     public static Vermittlungsvorgang abgeschlossen() {
         var vorgang = aktiv();
         // Vorgang durch alle Phasen führen...
-        vorgang.abschliessen();
+        vorgang.abschließen();
         return vorgang;
     }
 }

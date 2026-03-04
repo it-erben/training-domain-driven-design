@@ -96,7 +96,7 @@ public class Immobilie {
 @Service
 public class ImmobilienService {
 
-    public void veroeffentlichen(Long id) {
+    public void veröffentlichen(Long id) {
         Immobilie immo = repo.findById(id).orElseThrow();
         if (!"BEWERTET".equals(immo.getStatus())) {
             throw new IllegalStateException("Nur bewertete Objekte!");
@@ -126,13 +126,13 @@ public class Immobilie {
     private Kaufpreis kaufpreis;
     private ImmobilienStatus status;
 
-    public void veroeffentlichen() {
+    public void veröffentlichen() {
         if (this.status != ImmobilienStatus.BEWERTET) {
             throw new ImmobilieNichtBereitException(this.id);
         }
         Objects.requireNonNull(this.kaufpreis, "Kaufpreis fehlt");
         this.status = ImmobilienStatus.VEROEFFENTLICHT;
-        registerEvent(new ImmobilieVeroeffentlicht(this.id));
+        registerEvent(new ImmobilieVeröffentlicht(this.id));
     }
 }
 ```
@@ -278,7 +278,7 @@ public class Vermittlungsvorgang {
     private Provision provision;
 }
 
-public void besichtigungDurchfuehren(BesichtigungId id) { ... }
+public void besichtigungDurchführen(BesichtigungId id) { ... }
 public void angebotAnnehmen(AngebotId id) { ... }
 ```
 

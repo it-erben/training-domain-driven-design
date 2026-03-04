@@ -226,7 +226,7 @@ public class Vermittlungsvorgang {
     private final UUID id;
     private final List<Besichtigung> besichtigungen;
 
-    public UUID besichtigungHinzufuegen(String name, LocalDateTime termin) {
+    public UUID besichtigungHinzufügen(String name, LocalDateTime termin) {
         // Geschäftslogik hier, nicht im Service
     }
 }

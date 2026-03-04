@@ -131,11 +131,11 @@ public class VorgangJpaEntity {
 ## Was passiert bei einem Konflikt?
 
 ```sql
--- JPA generiert automatisch:
+- JPA generiert automatisch:
 UPDATE vermittlungsvorgang
 SET status = ?, immobilie_id = ?, version = 2
 WHERE id = ? AND version = 1;
--- Wenn 0 Rows affected → OptimisticLockException
+- Wenn 0 Rows affected → OptimisticLockException
 ```
 
 ### Exception-Kette

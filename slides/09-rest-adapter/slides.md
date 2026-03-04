@@ -194,17 +194,17 @@ public ResponseEntity<VorgangDetailResponse> getById(
 }
 
 @PutMapping("/{id}/status")
-public ResponseEntity<Void> statusAendern(
+public ResponseEntity<Void> statusÄndern(
         @PathVariable UUID id,
-        @Valid @RequestBody StatusAendernRequest request) {
-    statusAendernUseCase.execute(
-        new StatusAendernCommand(new VorgangId(id), request.neuerStatus()));
+        @Valid @RequestBody StatusÄndernRequest request) {
+    statusÄndernUseCase.execute(
+        new StatusÄndernCommand(new VorgangId(id), request.neuerStatus()));
     return ResponseEntity.noContent().build();
 }
 
 @DeleteMapping("/{id}")
-public ResponseEntity<Void> loeschen(@PathVariable UUID id) {
-    loeschenUseCase.execute(new VorgangId(id));
+public ResponseEntity<Void> löschen(@PathVariable UUID id) {
+    löschenUseCase.execute(new VorgangId(id));
     return ResponseEntity.noContent().build();
 }
 ```

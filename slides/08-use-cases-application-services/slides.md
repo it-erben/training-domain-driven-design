@@ -102,7 +102,7 @@ public class ProvisionsBerechnungService {
         var basis = vertrag.kaufpreis()
             .multiply(immobilie.provisionssatz());
 
-        if (immobilie.istDenkmalgeschuetzt()) {
+        if (immobilie.istDenkmalgeschützt()) {
             return new Provision(basis.multiply(BigDecimal.valueOf(0.95)));
         }
         return new Provision(basis);
@@ -218,7 +218,7 @@ public interface BesichtigungAnlegen {
 ```java
 public interface VorgangAbfragen {
     Optional<VorgangDetails> findById(VorgangId id);
-    List<VorgangUebersicht> findByStatus(VorgangStatus status);
+    List<VorgangÜbersicht> findByStatus(VorgangStatus status);
 }
 ```
 
@@ -248,9 +248,9 @@ public class VorgangAbfragenService implements VorgangAbfragen {
     }
 
     @Override
-    public List<VorgangUebersicht> findByStatus(VorgangStatus status) {
+    public List<VorgangÜbersicht> findByStatus(VorgangStatus status) {
         return repository.findByStatus(status).stream()
-            .map(VorgangUebersicht::from)
+            .map(VorgangÜbersicht::from)
             .toList();
     }
 }
@@ -284,12 +284,12 @@ public record VorgangDetails(
     UUID id,
     String status,
     int anzahlBesichtigungen,
-    LocalDateTime letzteAktivitaet
+    LocalDateTime letzteAktivität
 ) {
     public static VorgangDetails from(Vermittlungsvorgang v) {
         return new VorgangDetails(
             v.getId().value(), v.getStatus().name(),
-            v.getBesichtigungen().size(), v.getLetzteAktivitaet());
+            v.getBesichtigungen().size(), v.getLetzteAktivität());
     }
 }
 ```
@@ -376,7 +376,7 @@ public class VorgangNichtGefunden extends DomainException {
     public VorgangId getId() { return id; }
 }
 
-public class BesichtigungNichtMoeglich extends DomainException { /* ... */ }
+public class BesichtigungNichtMöglich extends DomainException { /* ... */ }
 public class MaximaleBesichtigungenErreicht extends DomainException { /* ... */ }
 ```
 

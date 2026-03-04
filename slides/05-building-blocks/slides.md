@@ -182,25 +182,25 @@ public record Adresse(String strasse, String plz, String ort) {
 ## Value Objects mit Geschäftslogik
 
 ```java
-public record Preisvorstellung(BigDecimal betrag, String waehrung) {
+public record Preisvorstellung(BigDecimal betrag, String währung) {
 
     public Preisvorstellung {
         Objects.requireNonNull(betrag);
-        Objects.requireNonNull(waehrung);
+        Objects.requireNonNull(währung);
         if (betrag.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException(
                 "Preis muss positiv sein: " + betrag);
         }
     }
 
-    public boolean istUeberMarktpreis(Preisvorstellung marktpreis) {
+    public boolean istÜberMarktpreis(Preisvorstellung marktpreis) {
         return betrag.compareTo(marktpreis.betrag()) > 0;
     }
 
     public Preisvorstellung reduzieren(BigDecimal prozent) {
         var faktor = BigDecimal.ONE.subtract(
             prozent.divide(BigDecimal.valueOf(100)));
-        return new Preisvorstellung(betrag.multiply(faktor), waehrung);
+        return new Preisvorstellung(betrag.multiply(faktor), währung);
     }
 }
 ```
@@ -216,7 +216,7 @@ public record Preisvorstellung(BigDecimal betrag, String waehrung) {
 
 ```java
 public class Vermittlungsvorgang {
-    private String eigentuemerId;     // Welches Format?
+    private String eigentümerId;     // Welches Format?
     private double kaufpreis;          // Welche Währung? Cent?
     private double provision;          // Prozent oder absolut?
     private String strasse, plz, ort;  // Immer zusammen nötig
@@ -227,7 +227,7 @@ public class Vermittlungsvorgang {
 
 ```java
 public class Vermittlungsvorgang {
-    private UUID eigentuemerId;
+    private UUID eigentümerId;
     private Preisvorstellung preisvorstellung;
     private Provision provision;
     private Adresse adresse;
@@ -282,8 +282,8 @@ public class Vermittlungsvorgang {
 6. Aggregates sollten **klein** gehalten werden
 7. **Ein Repository pro Aggregate** – nie für innere Entities
 
-> **Regel 3** ist besonders wichtig: Kein `private Kontakt eigentuemer`,
-> sondern `private UUID eigentuemerId`. Das entkoppelt Aggregates!
+> **Regel 3** ist besonders wichtig: Kein `private Kontakt eigentümer`,
+> sondern `private UUID eigentümerId`. Das entkoppelt Aggregates!
 
 ---
 
@@ -335,7 +335,7 @@ public class Vermittlungsvorgang {
     private final List<Angebot> angebote = new ArrayList<>();
     private final List<Object> domainEvents = new ArrayList<>();
 
-    public UUID besichtigungHinzufuegen(
+    public UUID besichtigungHinzufügen(
             String interessent, LocalDateTime zeitpunkt) {
         var besichtigung = new Besichtigung(
             UUID.randomUUID(), interessent, zeitpunkt);
@@ -477,7 +477,7 @@ public class Provisionsrechner {
 [Aggregate][WasPassiertIst]
 ```
 
-Beispiele: `BesichtigungDurchgefuehrt`, `AngebotAngenommen`,
+Beispiele: `BesichtigungDurchgeführt`, `AngebotAngenommen`,
 `VermittlungAbgeschlossen`
 
 ---
@@ -485,12 +485,12 @@ Beispiele: `BesichtigungDurchgefuehrt`, `AngebotAngenommen`,
 ## Domain Event – Codebeispiel
 
 ```java
-public record BesichtigungDurchgefuehrt(
+public record BesichtigungDurchgeführt(
     UUID vermittlungsvorgangId,
     UUID besichtigungId,
     LocalDateTime zeitpunkt
 ) {
-    public BesichtigungDurchgefuehrt {
+    public BesichtigungDurchgeführt {
         Objects.requireNonNull(vermittlungsvorgangId);
         Objects.requireNonNull(besichtigungId);
         Objects.requireNonNull(zeitpunkt);
@@ -619,7 +619,7 @@ Factory ──────────► │   ┌─────────�
 ### Building Blocks im Immobilien-CRM implementieren
 
 - **Value Objects** als Java Records: `Adresse`, `Preisvorstellung`, `Provision`
-- **Domain Events** als Records: `BesichtigungDurchgefuehrt`, `AngebotAngenommen`
+- **Domain Events** als Records: `BesichtigungDurchgeführt`, `AngebotAngenommen`
 - **Entities**: `Besichtigung`, `Angebot` (innerhalb des Aggregats)
 - **Aggregate Root**: `Vermittlungsvorgang` mit Geschäftslogik + Invarianten
 - **Repository Interface**: `VermittlungsvorgangRepository` (reines Java)
