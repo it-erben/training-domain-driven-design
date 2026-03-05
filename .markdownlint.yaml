@@ -5,6 +5,7 @@ MD024: false  # Duplicate headings - Marp nutzt Headings als Slide-Titel
 MD026: false  # Trailing punctuation in heading
 MD029: false  # Ordered list prefix
 MD032: false  # Blanks around lists
+MD033: false  # Inline HTML - Marp-Slides nutzen style-Tags
 MD036: false  # Emphasis as heading
 MD040: false  # Fenced code blocks language
 MD060: false  # Table column style
