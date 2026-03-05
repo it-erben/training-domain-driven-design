@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
 }
 ```
 
-**Note:** `ProblemDetail` is natively supported since Spring Boot 3 and implements RFC 9457 (formerly RFC 7807).
+**Note:** `ProblemDetail` is natively supported since Spring Boot 4 and implements RFC 9457 (formerly RFC 7807).
 
 ### Step 5: Test with curl
 
@@ -164,5 +164,5 @@ Expected response: HTTP 422, ProblemDetail JSON with validation errors.
 
 - The controller is an inbound adapter in Clean Architecture terminology. It depends on the application layer, not the other way around.
 - DTOs (Request/Response) belong to the adapter layer and are **not** used in the domain or application layer.
-- `ProblemDetail` is the standard for error responses in REST APIs and is natively supported by Spring Boot 3.
+- `ProblemDetail` is the standard for error responses in REST APIs and is natively supported by Spring Boot 4.
 - The `Location` header in the 201 response tells the client where the newly created resource can be found.

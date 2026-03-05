@@ -2,7 +2,7 @@
 
 ## Lernziel
 
-Grundlegende Spring Boot 3 Konzepte anwenden: Entity, Repository, Service und Controller implementieren und zu einer funktionierenden CRUD-API zusammenfuegen.
+Grundlegende Spring Boot 4 Konzepte anwenden: Entity, Repository, Service und Controller implementieren und zu einer funktionierenden CRUD-API zusammenfuegen.
 
 ## Dauer
 

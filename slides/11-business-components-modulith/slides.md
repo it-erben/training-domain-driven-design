@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -25,15 +25,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Von Bounded Context zu Deployment Unit
 
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  Bounded Context│     │     Modul       │     │ Deployment Unit │
-│  (strategisch)  │────►│  (Code)         │────►│ (Artefakt)      │
-│                 │     │                 │     │                 │
-│  Problemraum /  │     │  Java-Paket,    │     │  JAR, Container,│
-│  Lösungsraum    │     │  Spring Modulith│     │  Microservice   │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-```
+![BC → Modul → Deployment Unit](images/bc-modul-deployment-unit.drawio.png)
 
 | Ebene | Beschreibung | Beispiel |
 |-------|-------------|----------|
@@ -361,20 +353,7 @@ class ViewingNotification {
 </dependency>
 ```
 
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│ Application  │────►│  EVENT_      │────►│ Event        │
-│ Service      │     │  PUBLICATION │     │ Listener     │
-│ publishEvent │     │  (DB-Table)  │     │ @After-      │
-│              │     │  ✓ persisted │     │ Commit       │
-└──────────────┘     └──────────────┘     └──────────────┘
-                           │
-                           ▼
-                     Bei Neustart:
-                     unverarbeitete
-                     Events erneut
-                     dispatchen
-```
+![Event Publication Registry](images/event-publication-registry.drawio.png)
 
 - Events werden **in der gleichen Transaktion** in eine DB-Tabelle geschrieben
 - Nach Verarbeitung: Event wird als **completed** markiert
@@ -469,19 +448,7 @@ public record ViewingScheduledEvent(
 
 ![Spring Modulith Events](images/spring-modulith-events.drawio.png)
 
-```
-┌── Modul: Brokerage ────────────────┐   ┌── Modul: Contact ────────────┐
-│                                     │   │                              │
-│  ScheduleViewingService             │   │  @EventListener              │
-│    │                                │   │  onViewingScheduled()        │
-│    ├─ process.scheduleViewing()     │   │    → synchron, same TX      │
-│    ├─ repository.save()            │   │                              │
-│    └─ eventPublisher.publishEvent()│──►│  @TransactionalEventListener │
-│                                     │   │  onViewingScheduled()        │
-│  ViewingScheduledEvent              │   │    → nach Commit, async      │
-│    (öffentliche API)                │   │                              │
-└─────────────────────────────────────┘   └──────────────────────────────┘
-```
+![Spring Modulith Events Detail](images/modulith-events-detail.drawio.png)
 
 ---
 

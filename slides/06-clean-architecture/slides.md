@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -72,20 +72,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Stellt die Schichten als **konzentrische Ringe** dar
 - Abhängigkeiten zeigen **immer nach innen**
 
-```
-┌─────────────────────────────────────────────────────┐
-│  Infrastructure (UI, DB, externe Systeme)           │
-│  ┌─────────────────────────────────────────────┐    │
-│  │  Application Services                       │    │
-│  │  ┌─────────────────────────────────────┐    │    │
-│  │  │  Domain Services                    │    │    │
-│  │  │  ┌─────────────────────────────┐    │    │    │
-│  │  │  │  Domain Model (Kern)        │    │    │    │
-│  │  │  └─────────────────────────────┘    │    │    │
-│  │  └─────────────────────────────────────┘    │    │
-│  └─────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────┘
-```
+![Onion Architecture](images/onion-architecture.drawio.png)
 
 - Der Kern (Domain Model) hat **keine** Abhängigkeiten nach außen
 
@@ -138,26 +125,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ### Die Lösung
 
-```
-┌───────────────────────────────────────────────────────┐
-│  Domain (innerer Ring)                                │
-│                                                       │
-│  interface BrokerageProcessRepository {                │
-│      Optional<BrokerageProcess> findById(UUID id);    │
-│      void save(BrokerageProcess process);             │
-│  }                                                    │
-└────────────────────────┬──────────────────────────────┘
-                         │ implements
-┌────────────────────────┴──────────────────────────────┐
-│  Infrastructure (äußerer Ring)                        │
-│                                                       │
-│  @Component                                           │
-│  class BrokerageProcessRepositoryAdapter              │
-│      implements BrokerageProcessRepository {           │
-│      // ... JPA implementation                        │
-│  }                                                    │
-└───────────────────────────────────────────────────────┘
-```
+![Dependency Inversion Principle](images/dependency-inversion-principle.drawio.png)
 
 - Der **innere Ring** definiert das Interface (Port)
 - Der **äußere Ring** liefert die Implementierung (Adapter)
@@ -169,19 +137,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ### Das häufigste Missverständnis
 
-```
-Datenfluss (Request):
-[Controller] ──► [Use Case] ──► [Repository Port] ──► [DB]
-     │                │                │
-     ▼                ▼                ▼
-  Adapter          Application        Domain          Infrastructure
-
-Abhängigkeiten:
-[Controller] ──► [Use Case] ◄── [Repository Adapter]
-                      │
-                      ▼
-               [Domain Model]
-```
+![Datenfluss vs. Abhängigkeitsrichtung](images/datenfluss-vs-abhaengigkeiten.drawio.png)
 
 - Daten fließen **durch alle Schichten** (Request rein, Response raus)
 - Abhängigkeiten zeigen **nur nach innen** (Controller → Use Case ← Adapter)
@@ -226,21 +182,7 @@ public class BrokerageProcess {
 
 ### Der Daten-Transformations-Flow
 
-```
-HTTP-Request            Command              Domain              JPA-Entity
-┌──────────┐    Map    ┌──────────┐   Use   ┌──────────┐  Map   ┌──────────┐
-│ Request  │ ────────► │ Schedule │ ──Case─►│ Brokerage│ ────►  │ JpaBro-  │
-│ DTO      │           │ Viewing  │         │ Process  │        │ kerage   │
-│ (JSON)   │           │ Command  │         │          │        │ (DB)     │
-└──────────┘           └──────────┘         └──────────┘        └──────────┘
-                                                 │
-                                                 ▼
-┌──────────┐    Map    ┌──────────┐         ┌──────────┐
-│ Response │ ◄──────── │ Result   │ ◄────── │ Domain   │
-│ DTO      │           │ Record   │         │ Methode  │
-│ (JSON)   │           └──────────┘         └──────────┘
-└──────────┘
-```
+![Mapping zwischen Schichten](images/mapping-zwischen-schichten.drawio.png)
 
 - Jede Schichtgrenze hat **eigene Datenstrukturen**
 - Kein „durchreichen" von JPA-Entities bis zum Controller!

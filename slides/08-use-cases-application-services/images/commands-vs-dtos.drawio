@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="draw.io" modified="2026-03-05T00:00:00.000Z" agent="draw.io" version="21.0.0" type="device">
+  <diagram id="commands-vs-dtos" name="Commands vs DTOs">
+    <mxGraphModel dx="1422" dy="862" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ======= TOP LAYER LABELS ======= -->
+        <mxCell id="lblHttp" value="&lt;b&gt;HTTP-Layer&lt;/b&gt;" style="text;html=1;fontSize=13;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="60" y="30" width="160" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lblApp" value="&lt;b&gt;Application-Layer&lt;/b&gt;" style="text;html=1;fontSize=13;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="30" width="190" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lblDomain" value="&lt;b&gt;Domain-Layer&lt;/b&gt;" style="text;html=1;fontSize=13;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="650" y="30" width="160" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ======= MAIN BOXES ======= -->
+
+        <!-- Request DTO (orange) -->
+        <mxCell id="requestDto" value="&lt;b&gt;Request&lt;br&gt;DTO&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;(UUID)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=13;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="70" y="80" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Request DTO → Command Record -->
+        <mxCell id="arrMap" value="&lt;b&gt;map&lt;/b&gt;" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;fontSize=11;" edge="1" parent="1">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint x="220" y="120" as="sourcePoint" />
+            <mxPoint x="340" y="120" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Command Record (blue) -->
+        <mxCell id="commandRecord" value="&lt;b&gt;Command&lt;br&gt;Record&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;&quot;&gt;(ProcessId)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=13;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="340" y="80" width="190" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Command Record → Aggregate Methode -->
+        <mxCell id="arrCall" value="&lt;b&gt;call&lt;/b&gt;" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;fontSize=11;" edge="1" parent="1">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint x="530" y="120" as="sourcePoint" />
+            <mxPoint x="650" y="120" as="targetPoint" />
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Aggregate Methode (green) -->
+        <mxCell id="aggregateMethode" value="&lt;b&gt;Aggregate&lt;br&gt;Methode&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=13;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="650" y="80" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ======= BOTTOM LABELS ======= -->
+        <mxCell id="lblPrimitiv" value="&lt;i&gt;primitiv&lt;/i&gt;" style="text;html=1;fontSize=11;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="95" y="170" width="100" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lblValueObjects" value="&lt;i&gt;Value Objects&lt;/i&gt;" style="text;html=1;fontSize=11;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="380" y="170" width="110" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lblDomainModel" value="&lt;i&gt;Domain Model&lt;/i&gt;" style="text;html=1;fontSize=11;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="675" y="170" width="110" height="25" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

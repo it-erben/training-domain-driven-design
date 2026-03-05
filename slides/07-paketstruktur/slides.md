@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -65,35 +65,7 @@ de.realestate.brokerage            ← Bounded Context
 
 ## Vertikaler Schnitt: Ein Request durch alle Schichten
 
-```
-HTTP POST /api/brokerage/viewings
-  │
-  ▼
-┌─────────────────────────────────────────────────┐
-│ adapter.web.ViewingController                   │  Ring 3
-│   → JSON → ViewingRequest (DTO)                 │
-│   → request.toCommand()                         │
-└────────────────────┬────────────────────────────┘
-                     │ ruft auf
-                     ▼
-┌─────────────────────────────────────────────────┐
-│ application.service.ScheduleViewingService      │  Ring 2
-│   → repository.findById(processId)              │
-│   → process.scheduleViewing(appointmentDate,    │
-│     contact)                                    │
-│   → repository.save(process)                    │
-└──────┬─────────────────────────────┬────────────┘
-       │ lädt / speichert           │ ruft auf
-       ▼                            ▼
-┌──────────────────┐  ┌──────────────────────────┐
-│ infrastructure   │  │ domain.model             │  Ring 1
-│ .persistence     │  │   BrokerageProcess       │
-│ JpaRepository    │  │   .scheduleViewing()     │
-│ Adapter          │  │   → Geschäftslogik       │
-│                  │  │   → Domain Event sammeln │
-└──────────────────┘  └──────────────────────────┘
-       Ring 4
-```
+![Vertikaler Schnitt Request](images/vertikaler-schnitt-request.drawio.png)
 
 ---
 
@@ -454,18 +426,7 @@ interface ProcessSpringDataRepository
 
 ## Abhängigkeitsregeln
 
-```
-adapter.web ──────────────► application.port
-                            application.service
-                                    │
-                                    │ implements / uses
-                                    ▼
-infrastructure.persistence    domain.model
-         │                    domain.port
-         │ implements         domain.event
-         │                        ▲
-         └────────────────────────┘
-```
+![Abhängigkeitsregeln](images/abhaengigkeitsregeln.drawio.png)
 
 - `domain.*` importiert **nichts** aus `application`, `infrastructure` oder `adapter`
 - `application.*` importiert **nur** `domain.*`
@@ -586,21 +547,7 @@ de.realestate                     ← @SpringBootApplication hier
 
 ## Zusammenfassung
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ adapter.web                                                     │
-│   Controller → DTO → Command                                   │
-├─────────────────────────────────────────────────────────────────┤
-│ application.service                                             │
-│   @Service @Transactional → orchestriert Use Case               │
-├─────────────────────────────────────────────────────────────────┤
-│ domain.model / domain.port / domain.event                       │
-│   Reines Java: Geschäftslogik, Interfaces, Events               │
-├─────────────────────────────────────────────────────────────────┤
-│ infrastructure.persistence                                      │
-│   JPA Entities, Mapper, Repository-Adapter, Spring Data         │
-└─────────────────────────────────────────────────────────────────┘
-```
+![Zusammenfassung Schichten](images/zusammenfassung-schichten.drawio.png)
 
 - Jede Schicht hat **eigene Datenstrukturen** (DTO ≠ Command ≠ Domain ≠ JPA)
 - Abhängigkeiten zeigen **nur nach innen** (Richtung Domain)

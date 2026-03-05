@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -41,20 +41,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Der Use-Case-Flow
 
-```
-              Command                         Domain Event
-  HTTP ─────────┐                                 │
-  Request       ▼                                 ▼
-┌──────┐   ┌─────────────┐   ┌──────────┐   ┌──────────┐   ┌────────┐
-│ REST │──►│ Application │──►│ Domain   │──►│ Repo-    │──►│ Event  │
-│Ctrlr │   │ Service     │   │ Aggregate│   │ sitory   │   │Publish │
-└──────┘   └─────────────┘   └──────────┘   └────────┘   └────────┘
-  ▲              │                                           │
-  │              ▼                                           ▼
-  │         Result / ID                              Async Listener
-  │              │
-  └──── Response ┘
-```
+![Use-Case-Flow](images/use-case-flow.drawio.png)
 
 1. **Controller** empfängt Request, mappt auf Command
 2. **Application Service** lädt Aggregate, ruft Domain-Logik auf
@@ -176,15 +163,7 @@ public record CreateViewingCommand(
 
 ### Commands vs. DTOs
 
-```
-HTTP-Layer          Application-Layer        Domain-Layer
-┌──────────┐  map   ┌──────────────┐  call   ┌──────────┐
-│ Request  │ ─────► │   Command    │ ──────► │ Aggregate│
-│ DTO      │        │   Record     │         │ Methode  │
-│ (UUID)   │        │ (ProcessId)  │         │          │
-└──────────┘        └──────────────┘         └──────────┘
-  primitiv            Value Objects           Domain Model
-```
+![Commands vs DTOs](images/commands-vs-dtos.drawio.png)
 
 ---
 
@@ -405,25 +384,7 @@ public class DomainExceptionHandler {
 
 ## Gesamtbild: Ein Use Case End-to-End
 
-```
-     adapter.web                   application.service             domain.model
-┌─────────────────────┐     ┌─────────────────────────────┐  ┌──────────────────┐
-│ ViewingController   │     │ CreateViewingUseCase         │  │ Brokerage-       │
-│                     │     │                             │  │ Process          │
-│ POST /viewings      │────►│ 1. findById(processId)      │  │                  │
-│   → Request DTO     │     │ 2. process.createViewing- ──┼─►│ .createViewing() │
-│   → toCommand()     │     │    (appointmentDate,contact)│  │                  │
-│                     │◄────│ 3. save(process)            │  │  → Invarianten   │
-│   ← 201 Created    │     │ 4. dispatch(events)         │  │  → Event sammeln │
-│   ← Location-Header│     │ 5. return viewingId         │  │                  │
-└─────────────────────┘     └─────────────────────────────┘  └──────────────────┘
-         │                                │                           │
-         │ @RestController                │ @Service @Transactional   │ POJO
-         │ DTOs, Bean Validation          │ Orchestrierung            │ Geschäftslogik
-         │                                │                           │
-         ▼                                ▼                           ▼
-  infrastructure.persistence: JPA Entity ↔ Mapper ↔ Domain Model
-```
+![Gesamtbild Use Case End-to-End](images/gesamtbild-use-case-e2e.drawio.png)
 
 ---
 

@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -82,13 +82,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ### Beispiele aus dem Immobilien-CRM
 
-```
-  ┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
-  │  ObjektErfasst       │  │  ObjektBewertet       │  │  MaklervertragUnter- │
-  │                      │  │                      │  │  schrieben           │
-  └──────────────────────┘  └──────────────────────┘  └──────────────────────┘
-        (orange)                  (orange)                  (orange)
-```
+![Domain Event Beispiele](images/domain-event-beispiele.drawio.png)
 
 > **Tipp:** Zuerst Events sammeln – Reihenfolge und Details später klären.
 > Menge vor Präzision!
@@ -140,21 +134,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ### So hängen die Elemente zusammen
 
-```
-┌──────────┐     ┌────────────────┐     ┌───────────────────┐
-│ Akteur   │     │   Aggregate    │     │   Domain Event     │
-│ (Makler) │────►│   (Immobilie)  │────►│  (ObjektBewertet)  │
-└──────────┘     └────────────────┘     └───────────────────┘
-      │                 ▲                        │
-      │                 │                        │
-      ▼                 │                        ▼
-┌──────────┐     ┌────────────────┐     ┌───────────────────┐
-│ Command  │     │  Geschäfts-    │     │   Policy           │
-│(Bewerte  │     │  regel prüfen  │     │  (Wenn bewertet →  │
-│ Objekt)  │     │                │     │   Exposé erstellen)│
-└──────────┘     └────────────────┘     └───────────────────┘
-   (blau)            (gelb)                   (lila)
-```
+![Command Aggregate Event Flow](images/command-aggregate-event-flow.drawio.png)
 
 > Die **Policy** löst automatisch den nächsten Command aus →
 > so entsteht eine **Kette von Events** durch den Geschäftsprozess.
@@ -195,13 +175,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ### Konkretes Beispiel
 
-```
-┌───────────────────┐     ┌──────────┐     ┌──────────────┐
-│ Immobilien-       │     │  Makler  │     │ Bewerte      │
-│ übersicht         │────►│ (Akteur) │────►│ Objekt       │
-│ (Read Model 🟩)  │     │          │     │ (Command 🟦) │
-└───────────────────┘     └──────────┘     └──────────────┘
-```
+![Read Model Akteur Command](images/read-model-akteur-command.drawio.png)
 
 > Der Makler sieht die Übersicht (Read Model) → entscheidet → löst Command aus.
 
@@ -255,17 +229,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Session-Ablauf – 5 Phasen
 
-```
-Phase 1          Phase 2          Phase 3          Phase 4          Phase 5
-┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐
-│  Events   │──►│ Timeline  │──►│Hot Spots  │──►│ Commands  │──►│Aggregates │
-│  sammeln  │   │ ordnen    │   │ markieren │   │ + Akteure │   │+ Policies │
-│           │   │           │   │           │   │           │   │           │
-│  15-20'   │   │  10-15'   │   │   10'     │   │   15'     │   │   15'     │
-└───────────┘   └───────────┘   └───────────┘   └───────────┘   └───────────┘
-   chaotisch       sortieren      hinterfragen    wer löst aus?   Grenzen +
-   alles raus!     Duplikate      Lücken finden   welche Absicht? Automatis.
-```
+![Event Storming 5 Phasen](images/event-storming-phasen.drawio.png)
 
 ---
 
@@ -323,13 +287,7 @@ Phase 1          Phase 2          Phase 3          Phase 4          Phase 5
 
 ### Das Board sieht dann so aus:
 
-```
-[Read Model] → Akteur → [Command] → [Aggregate] → [Domain Event]
-                                                         │
-                                                    [Policy] → [Command] → ...
-                                                         │
-                                                  [Ext. System]
-```
+![Event Storming Board Layout](images/event-storming-board-layout.drawio.png)
 
 ---
 
@@ -357,25 +315,7 @@ Phase 1          Phase 2          Phase 3          Phase 4          Phase 5
 
 ## Konkreter Durchlauf: Von der Akquise zum Abschluss
 
-```
-Makler                              Makler                         System
-  │                                   │                              │
-  ▼                                   ▼                              ▼
-[Kontaktiere    [Bewerte    [Unterschreibe         [Erstelle        [Veröffentliche
- Eigentümer]    Objekt]      Maklervertrag]         Exposé]          Inserat]
-     │             │              │                    │                │
-     ▼             ▼              ▼                    ▼                ▼
- ┌────────┐   ┌────────┐   ┌──────────────┐      ┌────────┐      ┌────────┐
- │Kontakt │   │Immob.  │   │Maklerauftrag │      │Exposé  │      │Inserat │
- └────────┘   └────────┘   └──────────────┘      └────────┘      └────────┘
-     │             │              │                    │                │
-     ▼             ▼              ▼                    ▼                ▼
- Eigentümer   Objekt         Maklervertrag        Exposé           Inserat
- Kontaktiert  Bewertet       Unterschrieben       Erstellt         Veröffentlicht
-                                  │                                    │
-                                  └──[Policy]──────────┘               │
-                                  "Wenn Vertrag → Exposé"             ...
-```
+![Event Storming Durchlauf](images/event-storming-durchlauf.drawio.png)
 
 ---
 
@@ -399,16 +339,7 @@ Makler                              Makler                         System
 
 ### Schnittstellen erkennen
 
-```
-  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-  │   Akquise       │     │  Vermarktung    │     │  Vermittlung    │
-  │                 │     │                 │     │                 │
-  │  Maklervertrag  │────►│  Exposé         │────►│  Besichtigung   │
-  │  Unterschrieben │     │  Erstellt       │     │  Durchgeführt   │
-  │   (Pivot)       │     │   (Pivot)       │     │                 │
-  └─────────────────┘     └─────────────────┘     └─────────────────┘
-         Event verbindet die Kontexte → wird zur Schnittstelle
-```
+![Pivot Events und BC-Grenzen](images/pivot-events-bc-grenzen.drawio.png)
 
 > Die **Pivot Events** werden später zu **Integration Events**
 > zwischen den Bounded Contexts (→ Modul 12, Lab 09).

@@ -82,7 +82,7 @@ class ViewingControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private CreateViewingUseCase useCase;
 
     @Test
@@ -141,5 +141,5 @@ All tests must pass -- at least 8 tests.
 - **`@DataJpaTest`** only starts the JPA layer with an embedded H2 database.
 - **`@WebMvcTest`** only starts the web layer and mocks all dependencies.
 - **ArchUnit** analyzes the compiled bytecode and does not need a running context.
-- Use `@MockBean` in `@WebMvcTest` to mock the controller's dependencies.
+- Use `@MockitoBean` in `@WebMvcTest` to mock the controller's dependencies.
 - In `@DataJpaTest`, adapter classes must be explicitly added via `@Import`.
