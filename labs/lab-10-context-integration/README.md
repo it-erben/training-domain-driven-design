@@ -117,7 +117,7 @@ Ersetze `@EventListener` durch `@TransactionalEventListener(phase = AFTER_COMMIT
 Führe den Integrationstest aus:
 
 ```bash
-cd solution
+cd ../../solutions/lab-10-context-integration
 mvn test
 ```
 

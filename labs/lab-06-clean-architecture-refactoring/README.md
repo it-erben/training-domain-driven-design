@@ -80,7 +80,7 @@ Erstelle `BrokerageProcessApplicationService` im Package `application/service/`:
 1. Projekt kompiliert:
 
 ```bash
-cd solution
+cd ../../solutions/lab-06-clean-architecture-refactoring
 mvn compile
 ```
 

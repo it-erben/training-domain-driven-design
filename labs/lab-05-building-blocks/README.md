@@ -154,7 +154,7 @@ Schreibe einen Unit-Test, der die Invariante überprüft:
 4. Rufe `setStatusToNotaryAppointment()` erneut auf – diesmal muss es erfolgreich sein
 
 ```bash
-cd solution
+cd ../../solutions/lab-05-building-blocks
 mvn test
 ```
 

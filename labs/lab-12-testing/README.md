@@ -129,7 +129,7 @@ Erstelle einen `@SpringBootTest`-Integrationstest, der den vollständigen Ablauf
 Führe alle Tests aus:
 
 ```bash
-cd solution
+cd ../../solutions/lab-12-testing
 mvn test
 ```
 

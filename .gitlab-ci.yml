@@ -25,16 +25,16 @@ maven-test:
   parallel:
     matrix:
       - PROJECT_DIR:
-          - labs/lab-00-setup/initial-project
-          - labs/lab-01-spring-boot-basics/solution
-          - labs/lab-04-building-blocks/solution
-          - labs/lab-05-clean-architecture-refactoring/solution
-          - labs/lab-06-use-case-implementierung/solution
-          - labs/lab-07-rest-adapter/solution
-          - labs/lab-08-archunit/solution
-          - labs/lab-09-context-integration/solution
-          - labs/lab-10-querschnittsthemen/solution
-          - labs/lab-11-testing/solution
+          - labs/lab-01-setup/initial-project
+          - solutions/lab-02-spring-boot-basics
+          - solutions/lab-05-building-blocks
+          - solutions/lab-06-clean-architecture-refactoring
+          - solutions/lab-07-use-case-implementierung
+          - solutions/lab-08-rest-adapter
+          - solutions/lab-09-archunit
+          - solutions/lab-10-context-integration
+          - solutions/lab-11-querschnittsthemen
+          - solutions/lab-12-testing
   script:
     - cd "$PROJECT_DIR"
     - mvn --batch-mode verify
