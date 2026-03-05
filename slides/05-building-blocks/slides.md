@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 05 – Tactical DDD Building Blocks
@@ -77,29 +62,29 @@ style: |
 
 ### Beispiele im Immobilien-CRM
 
-- `Vermittlungsvorgang` (identifiziert durch `UUID`)
-- `Besichtigung` (identifiziert durch `UUID`, lebt innerhalb des Aggregats)
-- `Kontakt` (identifiziert durch `KontaktId`)
+- `BrokerageProcess` (identifiziert durch `UUID`)
+- `Viewing` (identifiziert durch `UUID`, lebt innerhalb des Aggregats)
+- `Contact` (identifiziert durch `ContactId`)
 
 ---
 
 ## Entity – Codebeispiel
 
 ```java
-public class Kontakt {
+public class Contact {
 
     private final UUID id;
-    private String vorname;
-    private String nachname;
+    private String firstName;
+    private String lastName;
     private Emailadresse email;
-    private Kontaktart art; // EIGENTUEMER, INTERESSENT
+    private ContactType type; // OWNER, PROSPECT
 
-    public Kontakt(UUID id, String vorname,
-                   String nachname, Kontaktart art) {
+    public Contact(UUID id, String firstName,
+                   String lastName, ContactType type) {
         this.id = Objects.requireNonNull(id);
-        this.vorname = Objects.requireNonNull(vorname);
-        this.nachname = Objects.requireNonNull(nachname);
-        this.art = Objects.requireNonNull(art);
+        this.firstName = Objects.requireNonNull(firstName);
+        this.lastName = Objects.requireNonNull(lastName);
+        this.type = Objects.requireNonNull(type);
     }
 }
 ```
@@ -112,13 +97,13 @@ public class Kontakt {
 ## Entity – Gleichheit über ID
 
 ```java
-public class Kontakt {
-    // ... Felder und Konstruktor
+public class Contact {
+    // ... fields and constructor
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Kontakt other)) return false;
+        if (!(o instanceof Contact other)) return false;
         return id.equals(other.id);
     }
 
@@ -147,27 +132,27 @@ public class Kontakt {
 
 | Value Object | Beschreibt |
 |-------------|-----------|
-| `Adresse` | Straße, PLZ, Ort |
-| `Preisvorstellung` | Betrag + Währung |
-| `Provision` | Prozentsatz |
+| `Address` | Straße, PLZ, Ort |
+| `AskingPrice` | Betrag + Währung |
+| `Commission` | Prozentsatz |
 | `Emailadresse` | Validierte E-Mail |
 
-> **Auch IDs sind Value Objects!** `KontaktId`, `VorgangId` etc.
+> **Auch IDs sind Value Objects!** `ContactId`, `ProcessId` etc.
 
 ---
 
 ## Value Object als Java Record
 
 ```java
-public record Adresse(String strasse, String plz, String ort) {
+public record Address(String street, String postalCode, String city) {
 
-    // Compact Constructor: Validierung
-    public Adresse {
-        Objects.requireNonNull(strasse, "Straße darf nicht null sein");
-        Objects.requireNonNull(plz, "PLZ darf nicht null sein");
-        Objects.requireNonNull(ort, "Ort darf nicht null sein");
-        if (!plz.matches("\\d{5}")) {
-            throw new IllegalArgumentException("PLZ ungültig: " + plz);
+    // Compact constructor: validation
+    public Address {
+        Objects.requireNonNull(street, "Street must not be null");
+        Objects.requireNonNull(postalCode, "Postal code must not be null");
+        Objects.requireNonNull(city, "City must not be null");
+        if (!postalCode.matches("\\d{5}")) {
+            throw new IllegalArgumentException("Invalid postal code: " + postalCode);
         }
     }
 }
@@ -175,38 +160,38 @@ public record Adresse(String strasse, String plz, String ort) {
 
 - Record = automatisch immutable + `equals()`/`hashCode()` by value
 - **Compact Constructor** für Validierung – kein new-Keyword im Body
-- Keine Getter-Boilerplate: `adresse.plz()` statt `adresse.getPlz()`
+- Keine Getter-Boilerplate: `address.postalCode()` statt `address.getPostalCode()`
 
 ---
 
 ## Value Objects mit Geschäftslogik
 
 ```java
-public record Preisvorstellung(BigDecimal betrag, String währung) {
+public record AskingPrice(BigDecimal amount, String currency) {
 
-    public Preisvorstellung {
-        Objects.requireNonNull(betrag);
-        Objects.requireNonNull(währung);
-        if (betrag.compareTo(BigDecimal.ZERO) <= 0) {
+    public AskingPrice {
+        Objects.requireNonNull(amount);
+        Objects.requireNonNull(currency);
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException(
-                "Preis muss positiv sein: " + betrag);
+                "Price must be positive: " + amount);
         }
     }
 
-    public boolean istÜberMarktpreis(Preisvorstellung marktpreis) {
-        return betrag.compareTo(marktpreis.betrag()) > 0;
+    public boolean isAboveMarketPrice(AskingPrice marketPrice) {
+        return amount.compareTo(marketPrice.amount()) > 0;
     }
 
-    public Preisvorstellung reduzieren(BigDecimal prozent) {
-        var faktor = BigDecimal.ONE.subtract(
-            prozent.divide(BigDecimal.valueOf(100)));
-        return new Preisvorstellung(betrag.multiply(faktor), währung);
+    public AskingPrice reduce(BigDecimal percent) {
+        var factor = BigDecimal.ONE.subtract(
+            percent.divide(BigDecimal.valueOf(100)));
+        return new AskingPrice(amount.multiply(factor), currency);
     }
 }
 ```
 
 - Geschäftslogik **im Value Object** selbst
-- `reduzieren()` liefert **neues** Objekt (immutabel!)
+- `reduce()` liefert **neues** Objekt (immutabel!)
 
 ---
 
@@ -215,28 +200,28 @@ public record Preisvorstellung(BigDecimal betrag, String währung) {
 ### ❌ Primitives statt Value Objects
 
 ```java
-public class Vermittlungsvorgang {
-    private String eigentümerId;     // Welches Format?
-    private double kaufpreis;          // Welche Währung? Cent?
-    private double provision;          // Prozent oder absolut?
-    private String strasse, plz, ort;  // Immer zusammen nötig
+public class BrokerageProcess {
+    private String ownerId;              // What format?
+    private double purchasePrice;        // What currency? Cents?
+    private double commission;           // Percent or absolute?
+    private String street, postalCode, city; // Always needed together
 }
 ```
 
 ### ✅ Value Objects statt Primitives
 
 ```java
-public class Vermittlungsvorgang {
-    private UUID eigentümerId;
-    private Preisvorstellung preisvorstellung;
-    private Provision provision;
-    private Adresse adresse;
+public class BrokerageProcess {
+    private UUID ownerId;
+    private AskingPrice askingPrice;
+    private Commission commission;
+    private Address address;
 }
 ```
 
 - Value Objects **dokumentieren** die Domäne
 - **Validierung** findet im Konstruktor statt, nicht überall verstreut
-- **Typsicherheit**: Man kann keine `Provision` versehentlich als `Preisvorstellung` übergeben
+- **Typsicherheit**: Man kann keine `Commission` versehentlich als `AskingPrice` übergeben
 
 ---
 
@@ -249,7 +234,7 @@ public class Vermittlungsvorgang {
 | **Veränderlich** | Ja (kontrolliert) | Nein (immutable) |
 | **Lebenszyklus** | Ja | Nein – wird ersetzt |
 | **Java-Umsetzung** | Klasse | Record |
-| **Beispiel** | `Besichtigung` | `Adresse` |
+| **Beispiel** | `Viewing` | `Address` |
 
 > **Faustregel:** Im Zweifel → **Value Object** bevorzugen!
 > Nur wenn ein Objekt über die Zeit **getrackt** werden muss → Entity.
@@ -282,8 +267,8 @@ public class Vermittlungsvorgang {
 6. Aggregates sollten **klein** gehalten werden
 7. **Ein Repository pro Aggregate** – nie für innere Entities
 
-> **Regel 3** ist besonders wichtig: Kein `private Kontakt eigentümer`,
-> sondern `private UUID eigentümerId`. Das entkoppelt Aggregates!
+> **Regel 3** ist besonders wichtig: Kein `private Contact owner`,
+> sondern `private UUID ownerId`. Das entkoppelt Aggregates!
 
 ---
 
@@ -294,16 +279,16 @@ public class Vermittlungsvorgang {
 ```
 ❌ Zu groß:                    ✅ Richtig geschnitten:
 ┌─────────────────────┐       ┌─────────────────┐
-│ Vermittlungsvorgang │       │ Vermittlungs-   │
-│ ├── Immobilie       │       │ vorgang (Root)  │
-│ ├── Eigentümer      │       │ ├── Besichtigung│
-│ ├── Interessenten[] │       │ ├── Angebot     │
-│ ├── Besichtigungen[]│       │ └── (Value Obj.)│
-│ ├── Angebote[]      │       └─────────────────┘
-│ ├── Exposé          │             │ ID-Ref.
-│ └── Maklervertrag   │             ▼
+│ BrokerageProcess    │       │ Brokerage-      │
+│ ├── Property        │       │ Process (Root)  │
+│ ├── Owner           │       │ ├── Viewing     │
+│ ├── Prospects[]     │       │ ├── Offer       │
+│ ├── Viewings[]      │       │ └── (Value Obj.)│
+│ ├── Offers[]        │       └─────────────────┘
+│ ├── Expose          │             │ ID-Ref.
+│ └── BrokerageContr. │             ▼
 └─────────────────────┘       ┌──────────────┐
-   Lock-Contention!           │ Immobilie    │  ← eigenes Aggregate
+   Lock-Contention!           │ Property     │  ← eigenes Aggregate
                               └──────────────┘
 ```
 
@@ -317,31 +302,31 @@ public class Vermittlungsvorgang {
 
 ## Aggregate – Codebeispiel
 
-![Aggregate Vermittlungsvorgang](../diagrams/aggregate-vermittlungsvorgang.drawio.png)
+![Aggregate Vermittlungsvorgang](images/aggregate-vermittlungsvorgang.drawio.png)
 
 ---
 
 ## Aggregate Root – Vermittlungsvorgang
 
 ```java
-public class Vermittlungsvorgang {
+public class BrokerageProcess {
 
     private final UUID id;
-    private final UUID immobilieId; // Referenz per ID!
-    private Adresse adresse;
-    private Preisvorstellung preisvorstellung;
-    private VermittlungsvorgangStatus status;
-    private final List<Besichtigung> besichtigungen = new ArrayList<>();
-    private final List<Angebot> angebote = new ArrayList<>();
+    private final UUID propertyId; // Reference by ID!
+    private Address address;
+    private AskingPrice askingPrice;
+    private ProcessStatus status;
+    private final List<Viewing> viewings = new ArrayList<>();
+    private final List<Offer> offers = new ArrayList<>();
     private final List<Object> domainEvents = new ArrayList<>();
 
-    public UUID besichtigungHinzufügen(
-            String interessent, LocalDateTime zeitpunkt) {
-        var besichtigung = new Besichtigung(
-            UUID.randomUUID(), interessent, zeitpunkt);
-        this.besichtigungen.add(besichtigung);
-        this.status = VermittlungsvorgangStatus.BESICHTIGUNG;
-        return besichtigung.getId();
+    public UUID addViewing(
+            String prospect, LocalDateTime timestamp) {
+        var viewing = new Viewing(
+            UUID.randomUUID(), prospect, timestamp);
+        this.viewings.add(viewing);
+        this.status = ProcessStatus.VIEWING;
+        return viewing.getId();
     }
 }
 ```
@@ -351,24 +336,24 @@ public class Vermittlungsvorgang {
 ## Invarianten schützen
 
 ```java
-public class Vermittlungsvorgang {
+public class BrokerageProcess {
 
-    // ... Felder
+    // ... fields
 
-    public void statusAufNotarterminSetzen() {
-        boolean hatAngenommenesAngebot = angebote.stream()
-            .anyMatch(Angebot::isAngenommen);
+    public void setStatusToNotaryAppointment() {
+        boolean hasAcceptedOffer = offers.stream()
+            .anyMatch(Offer::isAccepted);
 
-        if (!hatAngenommenesAngebot) {
+        if (!hasAcceptedOffer) {
             throw new IllegalStateException(
-                "Notartermin nur mit angenommenem Angebot möglich");
+                "Notary appointment requires an accepted offer");
         }
-        this.status = VermittlungsvorgangStatus.NOTARTERMIN;
-        domainEvents.add(new NotarterminVereinbart(this.id));
+        this.status = ProcessStatus.NOTARY_APPOINTMENT;
+        domainEvents.add(new NotaryAppointmentScheduled(this.id));
     }
 
-    public List<Besichtigung> getBesichtigungen() {
-        return Collections.unmodifiableList(besichtigungen);
+    public List<Viewing> getViewings() {
+        return Collections.unmodifiableList(viewings);
     }
 }
 ```
@@ -384,11 +369,11 @@ public class Vermittlungsvorgang {
 ### Wie Events gesammelt und dispatcht werden
 
 ```java
-public class Vermittlungsvorgang {
+public class BrokerageProcess {
 
     private final transient List<Object> domainEvents = new ArrayList<>();
 
-    // Wird von Geschäftsmethoden aufgerufen
+    // Called by business methods
     protected void registerEvent(Object event) {
         this.domainEvents.add(event);
     }
@@ -407,11 +392,11 @@ public class Vermittlungsvorgang {
 
 ```
 Application Service:
-  1. vorgang = repo.findById(id)
-  2. vorgang.angebotAnnehmen(angebotId)  ← Event registriert
-  3. repo.save(vorgang)
-  4. vorgang.getDomainEvents().forEach(publisher::publish)
-  5. vorgang.clearDomainEvents()
+  1. process = repo.findById(id)
+  2. process.acceptOffer(offerId)  ← Event registered
+  3. repo.save(process)
+  4. process.getDomainEvents().forEach(publisher::publish)
+  5. process.clearDomainEvents()
 ```
 
 ---
@@ -431,29 +416,29 @@ Application Service:
 | **Enthält** | Geschäftslogik | Orchestrierung |
 | **Zustand** | Stateless | Stateless |
 | **Spring** | Kein Spring nötig | `@Service`, `@Transactional` |
-| **Beispiel** | Provisionsberechnung | BesichtigungAnlegenUseCase |
+| **Beispiel** | Provisionsberechnung | ScheduleViewingUseCase |
 
 ---
 
 ## Domain Service – Codebeispiel
 
 ```java
-public class Provisionsrechner {
+public class CommissionCalculator {
 
-    public Provision berechne(Preisvorstellung preis,
-                              BigDecimal provisionssatz,
-                              Aufteilungsmodell modell) {
-        var betrag = preis.betrag()
-            .multiply(provisionssatz)
+    public Commission calculate(AskingPrice price,
+                                BigDecimal commissionRate,
+                                SplitModel model) {
+        var amount = price.amount()
+            .multiply(commissionRate)
             .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
-        return switch (modell) {
-            case KAEUFER_ZAHLT_ALLES ->
-                new Provision(betrag, BigDecimal.ZERO);
-            case HALBE_HALBE ->
-                new Provision(betrag.divide(BigDecimal.TWO), betrag.divide(BigDecimal.TWO));
-            case VERKAEUFER_ZAHLT_ALLES ->
-                new Provision(BigDecimal.ZERO, betrag);
+        return switch (model) {
+            case BUYER_PAYS_ALL ->
+                new Commission(amount, BigDecimal.ZERO);
+            case FIFTY_FIFTY ->
+                new Commission(amount.divide(BigDecimal.TWO), amount.divide(BigDecimal.TWO));
+            case SELLER_PAYS_ALL ->
+                new Commission(BigDecimal.ZERO, amount);
         };
     }
 }
@@ -474,26 +459,26 @@ public class Provisionsrechner {
 ### Namenskonvention
 
 ```
-[Aggregate][WasPassiertIst]
+[Aggregate][WhatHappened]
 ```
 
-Beispiele: `BesichtigungDurchgeführt`, `AngebotAngenommen`,
-`VermittlungAbgeschlossen`
+Beispiele: `ViewingCompleted`, `OfferAccepted`,
+`BrokerageCompleted`
 
 ---
 
 ## Domain Event – Codebeispiel
 
 ```java
-public record BesichtigungDurchgeführt(
-    UUID vermittlungsvorgangId,
-    UUID besichtigungId,
-    LocalDateTime zeitpunkt
+public record ViewingCompleted(
+    UUID brokerageProcessId,
+    UUID viewingId,
+    LocalDateTime timestamp
 ) {
-    public BesichtigungDurchgeführt {
-        Objects.requireNonNull(vermittlungsvorgangId);
-        Objects.requireNonNull(besichtigungId);
-        Objects.requireNonNull(zeitpunkt);
+    public ViewingCompleted {
+        Objects.requireNonNull(brokerageProcessId);
+        Objects.requireNonNull(viewingId);
+        Objects.requireNonNull(timestamp);
     }
 }
 ```
@@ -511,26 +496,26 @@ public record BesichtigungDurchgeführt(
 ### Als statische Factory-Methode auf dem Aggregate Root
 
 ```java
-public class Vermittlungsvorgang {
+public class BrokerageProcess {
 
-    // Privater Konstruktor
-    private Vermittlungsvorgang(UUID id, UUID immobilieId,
-            Adresse adresse, Preisvorstellung preis, Provision provision) {
+    // Private constructor
+    private BrokerageProcess(UUID id, UUID propertyId,
+            Address address, AskingPrice price, Commission commission) {
         this.id = id;
-        this.immobilieId = immobilieId;
-        this.adresse = adresse;
-        this.preisvorstellung = preis;
-        this.provision = provision;
-        this.status = VermittlungsvorgangStatus.NEU;
+        this.propertyId = propertyId;
+        this.address = address;
+        this.askingPrice = price;
+        this.commission = commission;
+        this.status = ProcessStatus.NEW;
     }
 
-    public static Vermittlungsvorgang erstellen(
-            UUID immobilieId, Adresse adresse,
-            Preisvorstellung preis, Provision provision) {
-        var vorgang = new Vermittlungsvorgang(
-            UUID.randomUUID(), immobilieId, adresse, preis, provision);
-        vorgang.registerEvent(new VermittlungGestartet(vorgang.id));
-        return vorgang;
+    public static BrokerageProcess create(
+            UUID propertyId, Address address,
+            AskingPrice price, Commission commission) {
+        var process = new BrokerageProcess(
+            UUID.randomUUID(), propertyId, address, price, commission);
+        process.registerEvent(new BrokerageStarted(process.id));
+        return process;
     }
 }
 ```
@@ -551,12 +536,12 @@ public class Vermittlungsvorgang {
 ### Repository-Interface
 
 ```java
-// Domain-Schicht: reines Java, kein Spring!
-public interface VermittlungsvorgangRepository {
+// Domain layer: pure Java, no Spring!
+public interface BrokerageProcessRepository {
 
-    Optional<Vermittlungsvorgang> findById(UUID id);
+    Optional<BrokerageProcess> findById(UUID id);
 
-    void save(Vermittlungsvorgang vorgang);
+    void save(BrokerageProcess process);
 
     void deleteById(UUID id);
 }
@@ -582,7 +567,7 @@ public interface VermittlungsvorgangRepository {
 ### Empfehlung für diesen Workshop
 
 ```java
-UUID id = UUID.randomUUID(); // Einfach, unabhängig, gut genug
+UUID id = UUID.randomUUID(); // Simple, independent, good enough
 ```
 
 > ID wird im **Domain Layer** erzeugt (Factory-Methode),
@@ -595,12 +580,12 @@ UUID id = UUID.randomUUID(); // Einfach, unabhängig, gut genug
 ```
                     ┌────────────────────────────┐
                     │   Aggregate Root            │
-                    │   (Vermittlungsvorgang)     │
+                    │   (BrokerageProcess)        │
                     │                             │
 Factory ──────────► │   ┌───────────┐  ┌───────┐ │ ──────► Domain Events
-(erstellen)         │   │ Entity    │  │ Value │ │        (Records)
-                    │   │(Besichtig)│  │Object │ │
-                    │   └───────────┘  │(Adress)│ │
+(create)            │   │ Entity    │  │ Value │ │        (Records)
+                    │   │(Viewing)  │  │Object │ │
+                    │   └───────────┘  │(Addr.) │ │
                     │                  └───────┘ │
                     └──────────────┬──────────────┘
                                    │
@@ -609,7 +594,7 @@ Factory ──────────► │   ┌─────────�
                     │   (findById, save, delete)   │
                     └──────────────────────────────┘
                               Domain Service
-                          (Provisionsrechner)
+                        (CommissionCalculator)
 ```
 
 ---
@@ -618,11 +603,11 @@ Factory ──────────► │   ┌─────────�
 
 ### Building Blocks im Immobilien-CRM implementieren
 
-- **Value Objects** als Java Records: `Adresse`, `Preisvorstellung`, `Provision`
-- **Domain Events** als Records: `BesichtigungDurchgeführt`, `AngebotAngenommen`
-- **Entities**: `Besichtigung`, `Angebot` (innerhalb des Aggregats)
-- **Aggregate Root**: `Vermittlungsvorgang` mit Geschäftslogik + Invarianten
-- **Repository Interface**: `VermittlungsvorgangRepository` (reines Java)
+- **Value Objects** als Java Records: `Address`, `AskingPrice`, `Commission`
+- **Domain Events** als Records: `ViewingCompleted`, `OfferAccepted`
+- **Entities**: `Viewing`, `Offer` (innerhalb des Aggregats)
+- **Aggregate Root**: `BrokerageProcess` mit Geschäftslogik + Invarianten
+- **Repository Interface**: `BrokerageProcessRepository` (reines Java)
 
 > **Dauer:** ca. 90 Minuten
 > Details und Aufgabenstellung im **Lab 04**

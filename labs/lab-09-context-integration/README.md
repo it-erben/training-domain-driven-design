@@ -1,131 +1,131 @@
-# Lab 09: Context-Integration - Bounded Contexts verbinden
+# Lab 09: Context Integration - Connecting Bounded Contexts
 
-## Lernziel
+## Learning Objective
 
-Event-basierte Kommunikation zwischen Bounded Contexts implementieren.
+Implement event-based communication between bounded contexts.
 
-## Dauer
+## Duration
 
-60 Minuten
+60 minutes
 
-## Voraussetzungen
+## Prerequisites
 
-- Lab 08 abgeschlossen
-- Slides Module 11 und 12
+- Lab 08 completed
+- Slides Modules 11 and 12
 
-## Aufgabe
+## Task
 
-Erstelle einen zweiten Bounded Context "Akquise" und verbinde ihn über Domain Events mit dem bestehenden Vermittlungs-BC.
+Create a second bounded context "Acquisition" and connect it to the existing Brokerage BC via domain events.
 
-### Schritt 1: Minimalen Akquise-BC erstellen
+### Step 1: Create a Minimal Acquisition BC
 
-Erstelle die Entity `Maklerauftrag` im Package `de.immobiliencrm.akquise.domain.model`:
+Create the entity `BrokerageContract` in the package `de.realestate.acquisition.domain.model`:
 
-- Felder: `id` (UUID), `eigentümerId` (UUID), `immobilieId` (UUID), `abgeschlossenAm` (LocalDateTime)
-- Methode: `abschließen()` setzt `abgeschlossenAm` auf den aktuellen Zeitpunkt
+- Fields: `id` (UUID), `ownerId` (UUID), `propertyId` (UUID), `closedAt` (LocalDateTime)
+- Method: `close()` sets `closedAt` to the current timestamp
 
 ```java
-public class Maklerauftrag {
+public class BrokerageContract {
 
     private final UUID id;
-    private final UUID eigentümerId;
-    private final UUID immobilieId;
-    private LocalDateTime abgeschlossenAm;
+    private final UUID ownerId;
+    private final UUID propertyId;
+    private LocalDateTime closedAt;
 
-    // Constructor, Factory-Methode, Getter
-    // abschließen() setzt abgeschlossenAm = LocalDateTime.now()
+    // Constructor, factory method, getters
+    // close() sets closedAt = LocalDateTime.now()
 }
 ```
 
-### Schritt 2: Integration Event erstellen
+### Step 2: Create Integration Event
 
-Erstelle das Integration Event `MaklervertragAbgeschlossen` als Record im Package `de.immobiliencrm.akquise.domain.event`:
+Create the integration event `ContractSigned` as a record in the package `de.realestate.acquisition.domain.event`:
 
 ```java
-public record MaklervertragAbgeschlossen(
-    UUID maklerauftragId,
-    UUID immobilieId,
-    LocalDateTime abgeschlossenAm
+public record ContractSigned(
+    UUID contractId,
+    UUID propertyId,
+    LocalDateTime closedAt
 ) {}
 ```
 
-### Schritt 3: Application Service im Akquise-BC
+### Step 3: Application Service in the Acquisition BC
 
-Erstelle den Service `MaklerauftragAbschließenUseCase` im Package `de.immobiliencrm.akquise.application.service`:
+Create the service `CloseContractUseCase` in the package `de.realestate.acquisition.application.service`:
 
-- Injiziere `MaklerauftragRepository` und `ApplicationEventPublisher`
-- Methode `abschließen(UUID maklerauftragId)`:
-  1. Maklerauftrag laden
-  2. `abschließen()` aufrufen
-  3. Speichern
-  4. Event `MaklervertragAbgeschlossen` über `ApplicationEventPublisher` publizieren
+- Inject `BrokerageContractRepository` and `ApplicationEventPublisher`
+- Method `close(UUID contractId)`:
+  1. Load the BrokerageContract
+  2. Call `close()`
+  3. Save
+  4. Publish the `ContractSigned` event via `ApplicationEventPublisher`
 
 ```java
 @Service
-public class MaklerauftragAbschließenUseCase {
+public class CloseContractUseCase {
 
-    private final MaklerauftragRepository repository;
+    private final BrokerageContractRepository repository;
     private final ApplicationEventPublisher eventPublisher;
 
     // Constructor Injection
 
     @Transactional
-    public void abschließen(UUID maklerauftragId) {
-        // 1. Laden
-        // 2. abschließen()
-        // 3. Speichern
-        // 4. Event publizieren
+    public void close(UUID contractId) {
+        // 1. Load
+        // 2. close()
+        // 3. Save
+        // 4. Publish event
     }
 }
 ```
 
-### Schritt 4: Event Listener im Vermittlung-BC
+### Step 4: Event Listener in the Brokerage BC
 
-Erstelle den Listener `MaklervertragAbgeschlossenListener` im Package `de.immobiliencrm.vermittlung.application.listener`:
+Create the listener `ContractSignedListener` in the package `de.realestate.brokerage.application.listener`:
 
 ```java
 @Component
-public class MaklervertragAbgeschlossenListener {
+public class ContractSignedListener {
 
-    private final VermittlungsvorgangRepository repository;
+    private final BrokerageProcessRepository repository;
 
     // Constructor Injection
 
     @EventListener
-    public void handle(MaklervertragAbgeschlossen event) {
-        // Neuen Vermittlungsvorgang erstellen
-        // mit der immobilieId aus dem Event
-        // Speichern
+    public void handle(ContractSigned event) {
+        // Create a new BrokerageProcess
+        // using the propertyId from the event
+        // Save
     }
 }
 ```
 
-### Schritt 5: Test
+### Step 5: Test
 
-Schreibe einen Integrationstest, der den gesamten Flow prüft:
+Write an integration test that verifies the entire flow:
 
-1. Erstelle einen `Maklerauftrag`
-2. Schließe ihn ab (über den UseCase)
-3. Prüfe, dass ein `Vermittlungsvorgang` automatisch erstellt wurde
+1. Create a `BrokerageContract`
+2. Close it (via the use case)
+3. Verify that a `BrokerageProcess` was automatically created
 
 ### Bonus: TransactionalEventListener
 
-Ersetze `@EventListener` durch `@TransactionalEventListener(phase = AFTER_COMMIT)`, um sicherzustellen, dass das Event erst nach dem erfolgreichen Commit der Transaktion verarbeitet wird.
+Replace `@EventListener` with `@TransactionalEventListener(phase = AFTER_COMMIT)` to ensure that the event is only processed after the transaction has been successfully committed.
 
-## Verifikation
+## Verification
 
-Führe den Integrationstest aus:
+Run the integration test:
 
 ```bash
 cd solution
 mvn test
 ```
 
-Der Test muss bestätigen, dass nach dem Abschließen eines Maklerauftrags automatisch ein Vermittlungsvorgang erstellt wird.
+The test must confirm that after closing a BrokerageContract, a BrokerageProcess is automatically created.
 
-## Tipps
+## Tips
 
-- Spring's `ApplicationEventPublisher` eignet sich gut für die Kommunikation zwischen Bounded Contexts innerhalb eines Monolithen.
-- Das Event gehört zum publizierenden BC (Akquise) - der konsumierende BC (Vermittlung) importiert es.
-- Achte darauf, dass der Listener im Vermittlungs-BC keine direkte Abhängigkeit zum Akquise-Domain-Model hat - nur zum Event.
-- `@TransactionalEventListener(phase = AFTER_COMMIT)` stellt sicher, dass das Event erst verarbeitet wird, wenn die Transaktion erfolgreich war.
+- Spring's `ApplicationEventPublisher` is well suited for communication between bounded contexts within a monolith.
+- The event belongs to the publishing BC (Acquisition) -- the consuming BC (Brokerage) imports it.
+- Make sure that the listener in the Brokerage BC has no direct dependency on the Acquisition domain model -- only on the event.
+- `@TransactionalEventListener(phase = AFTER_COMMIT)` ensures that the event is only processed when the transaction was successful.

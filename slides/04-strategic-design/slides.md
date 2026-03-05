@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 04 – Strategic Design
@@ -80,7 +65,7 @@ style: |
 
 ## Bounded Contexts im Immobilien-CRM
 
-![Bounded Contexts](../diagrams/bounded-contexts-immobilien-crm.drawio.png)
+![Bounded Contexts](images/bounded-contexts-immobilien-crm.drawio.png)
 
 ---
 
@@ -141,7 +126,7 @@ Organisiere Teams **entlang der gewünschten Architektur**, nicht umgekehrt.
 
 ## Context Map – Immobilien-CRM
 
-![Context Map](../diagrams/context-map-immobilien-crm.drawio.png)
+![Context Map](images/context-map-immobilien-crm.drawio.png)
 
 ---
 
@@ -191,11 +176,11 @@ Organisiere Teams **entlang der gewünschten Architektur**, nicht umgekehrt.
 
 ```
   ┌──────────────┐      ┌───────────┐      ┌──────────────┐
-  │ External CRM │ ───► │    ACL    │ ───► │ Kontakt-     │
-  │ (Upstream)   │      │ Translator│      │ management   │
+  │ External CRM │ ───► │    ACL    │ ───► │ Contact      │
+  │ (Upstream)   │      │ Translator│      │ Management   │
   │              │      │           │      │ (Downstream) │
-  │ "Customer"   │      │ Customer  │      │ "Kontakt"    │
-  │ "Account"    │      │ → Kontakt │      │ "Eigentümer" │
+  │ "Customer"   │      │ Customer  │      │ "Contact"    │
+  │ "Account"    │      │ → Contact │      │ "Owner"      │
   └──────────────┘      └───────────┘      └──────────────┘
 ```
 
@@ -206,11 +191,11 @@ Organisiere Teams **entlang der gewünschten Architektur**, nicht umgekehrt.
 ```java
 @Component
 public class ExternalCrmTranslator {
-    public Kontakt translate(CrmCustomerDto dto) {
-        return new Kontakt(
-            KontaktId.generate(),
+    public Contact translate(CrmCustomerDto dto) {
+        return new Contact(
+            ContactId.generate(),
             dto.getFirstName(), dto.getLastName(),
-            Kontaktart.from(dto.getType()));
+            ContactType.from(dto.getType()));
     }
 }
 ```
@@ -228,7 +213,7 @@ public class ExternalCrmTranslator {
 ### Wann einsetzen?
 
 - Gemeinsame Kernkonzepte, die identisch bleiben **müssen**
-- Beispiel: Gemeinsame Value Objects `Adresse`, `Währungsbetrag`
+- Beispiel: Gemeinsame Value Objects `Address`, `MonetaryAmount`
 
 > **Vorsicht:** Shared Kernel ist **die engste Kopplung** zwischen BCs.
 > Je größer der Kernel, desto mehr Abstimmungsaufwand.
@@ -322,25 +307,25 @@ Integrations-Entscheidung:
 ### Vorgeschmack auf Modul 07 (Paketstruktur)
 
 ```
-de.immobiliencrm/
-├── vermittlung/          ← BC: Vermittlungsprozess
+de.realestate/
+├── brokerage/            ← BC: Brokerage
 │   ├── domain/
 │   ├── application/
 │   ├── infrastructure/
 │   └── adapter/
-├── akquise/              ← BC: Akquise / Auftrag
+├── acquisition/          ← BC: Acquisition
 │   ├── domain/
 │   ├── application/
 │   ├── infrastructure/
 │   └── adapter/
-└── kontakt/              ← BC: Kontaktmanagement
+└── contact/              ← BC: Contact Management
     ├── domain/
     └── ...
 ```
 
 - Jeder BC ist ein **Top-Level-Package** (oder Maven-Modul)
 - BCs kommunizieren **nur über definierte Schnittstellen** (Events, APIs)
-- Kein direkter Import von `vermittlung.domain` in `akquise.domain`!
+- Kein direkter Import von `brokerage.domain` in `acquisition.domain`!
 
 ---
 

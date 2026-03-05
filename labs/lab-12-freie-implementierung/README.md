@@ -18,13 +18,13 @@ Wähle eine oder mehrere der folgenden Vertiefungsoptionen und implementiere sie
 
 ### Option 1: Weiterer Use Case im eigenen BC
 
-Implementiere den `AngebotEntgegennehmenUseCase` mit Command, Application Service, REST-Endpoint und Tests.
+Implementiere den `AcceptOfferUseCase` mit Command, Application Service, REST-Endpoint und Tests.
 
 **Flow:**
 
-1. `POST /api/vermittlungsvorgaenge/{id}/angebote` mit Angebotsbetrag und Interessent
-2. Command-Objekt `AngebotEntgegennehmenCommand(UUID vermittlungsvorgangId, String interessentName, BigDecimal betrag)`
-3. Application Service lädt den Vermittlungsvorgang, ruft `angebotEntgegennehmen()` auf und speichert
+1. `POST /api/brokerage-processes/{id}/offers` mit Angebotsbetrag und Interessent
+2. Command-Objekt `AcceptOfferCommand(UUID brokerageProcessId, String prospectName, BigDecimal amount)`
+3. Application Service lädt den `BrokerageProcess`, ruft `acceptOffer()` auf und speichert
 4. REST-Endpoint gibt 201 mit der Angebots-ID zurück
 5. Tests: Unit-Test für Use Case, WebMvcTest für Controller
 
@@ -45,14 +45,14 @@ Erstelle einen Adapter, der ein (simuliertes) OpenImmo-XML-Dokument entgegennimm
 
 ### Option 3: CQRS mit separatem Read Model
 
-Erstelle ein separates Read Model `VermittlungsvorgangÜbersicht`, das für Listenansichten optimiert ist.
+Erstelle ein separates Read Model `BrokerageProcessOverview`, das für Listenansichten optimiert ist.
 
 **Schritte:**
 
-1. Erstelle ein Read Model `VermittlungsvorgangÜbersicht` als eigene `@Entity` (oder Spring Data JPA Projection)
-2. Felder: `id`, `adresse` (als String), `status`, `anzahlBesichtigungen`, `anzahlAngebote`
-3. Implementiere einen dedizierten `VermittlungsvorgangQueryService`, der das Read Model abfragt
-4. Erstelle einen separaten REST-Endpoint `GET /api/vermittlungsvorgaenge/übersicht`
+1. Erstelle ein Read Model `BrokerageProcessOverview` als eigene `@Entity` (oder Spring Data JPA Projection)
+2. Felder: `id`, `address` (als String), `status`, `viewingCount`, `offerCount`
+3. Implementiere einen dedizierten `BrokerageProcessQueryService`, der das Read Model abfragt
+4. Erstelle einen separaten REST-Endpoint `GET /api/brokerage-processes/overview`
 
 **Schwierigkeit:** :star::star:
 
@@ -63,7 +63,7 @@ Füge Spring Modulith hinzu und nutze es zur Prüfung und Verbesserung der Modul
 **Schritte:**
 
 1. Füge `spring-modulith-starter-core` als Dependency hinzu
-2. Definiere `@ApplicationModule` für Akquise und Vermittlung
+2. Definiere `@ApplicationModule` für Acquisition und Brokerage
 3. Erstelle einen `ModulithVerificationTest`, der die Modul-Grenzen prüft
 4. Ersetze den manuellen `@EventListener` durch Spring Modulith's Event Publication Registry
 
@@ -76,8 +76,8 @@ Skizziere eine Kafka-basierte Event-Kommunikation zwischen Bounded Contexts.
 **Schritte:**
 
 1. Füge `spring-kafka` als Dependency hinzu
-2. Erstelle einen Outbound-Adapter `KafkaVermittlungsvorgangEventPublisher` (Interface + Klasse), der Domain Events auf ein Kafka-Topic schreibt
-3. Erstelle einen Inbound-Adapter `KafkaAkquiseEventConsumer`, der Events von Kafka empfängt
+2. Erstelle einen Outbound-Adapter `KafkaBrokerageProcessEventPublisher` (Interface + Klasse), der Domain Events auf ein Kafka-Topic schreibt
+3. Erstelle einen Inbound-Adapter `KafkaAcquisitionEventConsumer`, der Events von Kafka empfängt
 4. Konfiguriere Kafka in `application.yml`
 5. **Hinweis:** Es wird kein laufender Kafka-Broker benötigt - es reicht eine Skizze mit den richtigen Annotationen und Konfigurationen
 

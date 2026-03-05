@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.immobiliencrm</groupId>
-    <artifactId>immobilien-crm-lab07</artifactId>
+    <groupId>de.realestate</groupId>
+    <artifactId>real-estate-crm-lab07</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Immobilien CRM - Lab 07 REST-Adapter</name>
+    <name>Real Estate CRM - Lab 07 REST-Adapter</name>
     <description>Lab 07: REST-Adapter - API fuer Besichtigungen</description>
 
     <properties>

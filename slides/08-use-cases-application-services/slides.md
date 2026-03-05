@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 08 – Use Cases & Application Services
@@ -95,17 +80,17 @@ style: |
 ## Domain Service – Beispiel
 
 ```java
-// domain.model — kein Spring, kein Framework
-public class ProvisionsBerechnungService {
+// domain.model — no Spring, no framework
+public class CommissionCalculationService {
 
-    public Provision berechne(Immobilie immobilie, Kaufvertrag vertrag) {
-        var basis = vertrag.kaufpreis()
-            .multiply(immobilie.provisionssatz());
+    public Commission calculate(Property property, PurchaseContract contract) {
+        var basis = contract.purchasePrice()
+            .multiply(property.commissionRate());
 
-        if (immobilie.istDenkmalgeschützt()) {
-            return new Provision(basis.multiply(BigDecimal.valueOf(0.95)));
+        if (property.isListedBuilding()) {
+            return new Commission(basis.multiply(BigDecimal.valueOf(0.95)));
         }
-        return new Provision(basis);
+        return new Commission(basis);
     }
 }
 ```
@@ -120,13 +105,13 @@ public class ProvisionsBerechnungService {
 
 ```java
 @Service
-public class BesichtigungAnlegenUseCase implements BesichtigungAnlegen {
+public class CreateViewingUseCase implements CreateViewing {
 
-    private final VermittlungsvorgangRepository repository;
+    private final BrokerageProcessRepository repository;
     private final DomainEventDispatcher eventDispatcher;
 
-    public BesichtigungAnlegenUseCase(
-            VermittlungsvorgangRepository repository,
+    public CreateViewingUseCase(
+            BrokerageProcessRepository repository,
             DomainEventDispatcher eventDispatcher) {
         this.repository = repository;
         this.eventDispatcher = eventDispatcher;
@@ -134,17 +119,17 @@ public class BesichtigungAnlegenUseCase implements BesichtigungAnlegen {
 
     @Transactional
     @Override
-    public BesichtigungId execute(BesichtigungAnlegenCommand cmd) {
-        var vorgang = repository.findById(cmd.vorgangId())
-            .orElseThrow(() -> new VorgangNichtGefunden(cmd.vorgangId()));
+    public ViewingId execute(CreateViewingCommand cmd) {
+        var process = repository.findById(cmd.processId())
+            .orElseThrow(() -> new ProcessNotFoundException(cmd.processId()));
 
-        var besichtigungId = vorgang.besichtigungAnlegen(
-            cmd.interessentId(), cmd.termin());
+        var viewingId = process.createViewing(
+            cmd.prospectId(), cmd.appointmentDate());
 
-        repository.save(vorgang);
-        eventDispatcher.dispatchAll(vorgang.domainEvents());
+        repository.save(process);
+        eventDispatcher.dispatchAll(process.domainEvents());
 
-        return besichtigungId;
+        return viewingId;
     }
 }
 ```
@@ -154,27 +139,27 @@ public class BesichtigungAnlegenUseCase implements BesichtigungAnlegen {
 ## Command als Java Record
 
 ```java
-public record BesichtigungAnlegenCommand(
-    VorgangId vorgangId,
-    KontaktId interessentId,
-    LocalDateTime termin
+public record CreateViewingCommand(
+    ProcessId processId,
+    ContactId prospectId,
+    LocalDateTime appointmentDate
 ) {
-    // Compact Constructor: Validierung am Eingang
-    public BesichtigungAnlegenCommand {
-        Objects.requireNonNull(vorgangId, "vorgangId darf nicht null sein");
-        Objects.requireNonNull(interessentId,
-            "interessentId darf nicht null sein");
-        Objects.requireNonNull(termin, "termin darf nicht null sein");
-        if (termin.isBefore(LocalDateTime.now())) {
+    // Compact constructor: validation at the entry point
+    public CreateViewingCommand {
+        Objects.requireNonNull(processId, "processId must not be null");
+        Objects.requireNonNull(prospectId,
+            "prospectId must not be null");
+        Objects.requireNonNull(appointmentDate, "appointmentDate must not be null");
+        if (appointmentDate.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException(
-                "Termin muss in der Zukunft liegen");
+                "appointmentDate must be in the future");
         }
     }
 }
 ```
 
 - Lebt in `application.port` (oder als innere Klasse des Use-Case-Interfaces)
-- Verwendet **Domain-Value-Objects** (`VorgangId`, `KontaktId`), nicht primitive UUIDs
+- Verwendet **Domain-Value-Objects** (`ProcessId`, `ContactId`), nicht primitive UUIDs
 - Commands repräsentieren die **Absicht** des Aufrufers
 
 ---
@@ -196,7 +181,7 @@ HTTP-Layer          Application-Layer        Domain-Layer
 ┌──────────┐  map   ┌──────────────┐  call   ┌──────────┐
 │ Request  │ ─────► │   Command    │ ──────► │ Aggregate│
 │ DTO      │        │   Record     │         │ Methode  │
-│ (UUID)   │        │ (VorgangId)  │         │          │
+│ (UUID)   │        │ (ProcessId)  │         │          │
 └──────────┘        └──────────────┘         └──────────┘
   primitiv            Value Objects           Domain Model
 ```
@@ -208,17 +193,17 @@ HTTP-Layer          Application-Layer        Domain-Layer
 ### Schreibender Use Case (Command)
 
 ```java
-public interface BesichtigungAnlegen {
-    BesichtigungId execute(BesichtigungAnlegenCommand cmd);
+public interface CreateViewing {
+    ViewingId execute(CreateViewingCommand cmd);
 }
 ```
 
 ### Lesender Use Case (Query)
 
 ```java
-public interface VorgangAbfragen {
-    Optional<VorgangDetails> findById(VorgangId id);
-    List<VorgangÜbersicht> findByStatus(VorgangStatus status);
+public interface QueryProcess {
+    Optional<ProcessDetails> findById(ProcessId id);
+    List<ProcessOverview> findByStatus(ProcessStatus status);
 }
 ```
 
@@ -233,24 +218,24 @@ public interface VorgangAbfragen {
 ```java
 @Service
 @Transactional(readOnly = true)
-public class VorgangAbfragenService implements VorgangAbfragen {
+public class QueryProcessService implements QueryProcess {
 
-    private final VermittlungsvorgangRepository repository;
+    private final BrokerageProcessRepository repository;
 
-    public VorgangAbfragenService(VermittlungsvorgangRepository repository) {
+    public QueryProcessService(BrokerageProcessRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public Optional<VorgangDetails> findById(VorgangId id) {
+    public Optional<ProcessDetails> findById(ProcessId id) {
         return repository.findById(id)
-            .map(VorgangDetails::from);
+            .map(ProcessDetails::from);
     }
 
     @Override
-    public List<VorgangÜbersicht> findByStatus(VorgangStatus status) {
+    public List<ProcessOverview> findByStatus(ProcessStatus status) {
         return repository.findByStatus(status).stream()
-            .map(VorgangÜbersicht::from)
+            .map(ProcessOverview::from)
             .toList();
     }
 }
@@ -265,31 +250,31 @@ public class VorgangAbfragenService implements VorgangAbfragen {
 ### Schreibende Use Cases
 
 ```java
-// Nur die erzeugte ID zurückgeben
-BesichtigungId execute(BesichtigungAnlegenCommand cmd);
+// Only return the created ID
+ViewingId execute(CreateViewingCommand cmd);
 
-// Oder ein Result-Record mit mehr Kontext
-public record BesichtigungAnlegenResult(
-    BesichtigungId besichtigungId,
-    VorgangId vorgangId,
-    LocalDateTime termin
+// Or a result record with more context
+public record CreateViewingResult(
+    ViewingId viewingId,
+    ProcessId processId,
+    LocalDateTime appointmentDate
 ) {}
 ```
 
 ### Lesende Use Cases: Projektion (kein Aggregate!)
 
 ```java
-// Read-Model – nicht das Aggregate selbst exponieren!
-public record VorgangDetails(
+// Read model – do not expose the aggregate itself!
+public record ProcessDetails(
     UUID id,
     String status,
-    int anzahlBesichtigungen,
-    LocalDateTime letzteAktivität
+    int viewingCount,
+    LocalDateTime lastActivity
 ) {
-    public static VorgangDetails from(Vermittlungsvorgang v) {
-        return new VorgangDetails(
+    public static ProcessDetails from(BrokerageProcess v) {
+        return new ProcessDetails(
             v.getId().value(), v.getStatus().name(),
-            v.getBesichtigungen().size(), v.getLetzteAktivität());
+            v.getViewings().size(), v.getLastActivity());
     }
 }
 ```
@@ -302,14 +287,14 @@ public record VorgangDetails(
 
 ```java
 @Service
-public class BesichtigungAnlegenUseCase {
+public class CreateViewingUseCase {
 
-    @Transactional  // ← gesamter Use Case = eine Transaktion
-    public BesichtigungId execute(BesichtigungAnlegenCommand cmd) {
-        var vorgang = repository.findById(cmd.vorgangId())
-            .orElseThrow(() -> new VorgangNichtGefunden(cmd.vorgangId()));
-        var id = vorgang.besichtigungAnlegen(cmd.interessentId(), cmd.termin());
-        repository.save(vorgang);
+    @Transactional  // ← entire use case = one transaction
+    public ViewingId execute(CreateViewingCommand cmd) {
+        var process = repository.findById(cmd.processId())
+            .orElseThrow(() -> new ProcessNotFoundException(cmd.processId()));
+        var id = process.createViewing(cmd.prospectId(), cmd.appointmentDate());
+        repository.save(process);
         return id;
     }
 }
@@ -318,10 +303,10 @@ public class BesichtigungAnlegenUseCase {
 ### Falsch: Auf der Domain
 
 ```java
-// Domain soll Framework-frei bleiben!
-public class Vermittlungsvorgang {
-    @Transactional  // ← NIEMALS
-    public BesichtigungId besichtigungAnlegen(...) { }
+// Domain should remain framework-free!
+public class BrokerageProcess {
+    @Transactional  // ← NEVER
+    public ViewingId createViewing(...) { }
 }
 ```
 
@@ -366,18 +351,18 @@ public abstract class DomainException extends RuntimeException {
     }
 }
 
-public class VorgangNichtGefunden extends DomainException {
-    private final VorgangId id;
+public class ProcessNotFoundException extends DomainException {
+    private final ProcessId id;
 
-    public VorgangNichtGefunden(VorgangId id) {
-        super("Vermittlungsvorgang nicht gefunden: " + id.value());
+    public ProcessNotFoundException(ProcessId id) {
+        super("BrokerageProcess not found: " + id.value());
         this.id = id;
     }
-    public VorgangId getId() { return id; }
+    public ProcessId getId() { return id; }
 }
 
-public class BesichtigungNichtMöglich extends DomainException { /* ... */ }
-public class MaximaleBesichtigungenErreicht extends DomainException { /* ... */ }
+public class ViewingNotPossibleException extends DomainException { /* ... */ }
+public class MaxViewingsReachedException extends DomainException { /* ... */ }
 ```
 
 ---
@@ -385,25 +370,25 @@ public class MaximaleBesichtigungenErreicht extends DomainException { /* ... */ 
 ## Error Handling: Exception → HTTP-Response
 
 ```java
-// Im Application Service: Exceptions propagieren lassen!
+// In the application service: let exceptions propagate!
 @Transactional
-public BesichtigungId execute(BesichtigungAnlegenCommand cmd) {
-    var vorgang = repository.findById(cmd.vorgangId())
-        .orElseThrow(() -> new VorgangNichtGefunden(cmd.vorgangId()));
-    var id = vorgang.besichtigungAnlegen(cmd.interessentId(), cmd.termin());
-    repository.save(vorgang);
+public ViewingId execute(CreateViewingCommand cmd) {
+    var process = repository.findById(cmd.processId())
+        .orElseThrow(() -> new ProcessNotFoundException(cmd.processId()));
+    var id = process.createViewing(cmd.prospectId(), cmd.appointmentDate());
+    repository.save(process);
     return id;
-    // Keine try/catch – Exceptions fließen zum Controller-Advice
+    // No try/catch – exceptions flow to the controller advice
 }
 ```
 
 ```java
-// Im Adapter: Exception → HTTP-Status-Code
+// In the adapter: exception → HTTP status code
 @RestControllerAdvice
 public class DomainExceptionHandler {
 
-    @ExceptionHandler(VorgangNichtGefunden.class)
-    public ResponseEntity<ErrorResponse> handle(VorgangNichtGefunden ex) {
+    @ExceptionHandler(ProcessNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handle(ProcessNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(new ErrorResponse(ex.getMessage()));
     }
@@ -423,14 +408,14 @@ public class DomainExceptionHandler {
 ```
      adapter.web                   application.service             domain.model
 ┌─────────────────────┐     ┌─────────────────────────────┐  ┌──────────────────┐
-│ BesichtigungCtrlr   │     │ BesichtigungAnlegenUseCase  │  │ Vermittlungs-    │
-│                     │     │                             │  │ vorgang          │
-│ POST /besichtigungen│────►│ 1. findById(vorgangId)      │  │                  │
-│   → Request DTO     │     │ 2. vorgang.besichtigung-  ──┼─►│ .besichtigung-   │
-│   → toCommand()     │     │    Anlegen(termin, kontakt) │  │  Anlegen()       │
-│                     │◄────│ 3. save(vorgang)            │  │  → Invarianten   │
+│ ViewingController   │     │ CreateViewingUseCase         │  │ Brokerage-       │
+│                     │     │                             │  │ Process          │
+│ POST /viewings      │────►│ 1. findById(processId)      │  │                  │
+│   → Request DTO     │     │ 2. process.createViewing- ──┼─►│ .createViewing() │
+│   → toCommand()     │     │    (appointmentDate,contact)│  │                  │
+│                     │◄────│ 3. save(process)            │  │  → Invarianten   │
 │   ← 201 Created    │     │ 4. dispatch(events)         │  │  → Event sammeln │
-│   ← Location-Header│     │ 5. return besichtigungId    │  │                  │
+│   ← Location-Header│     │ 5. return viewingId         │  │                  │
 └─────────────────────┘     └─────────────────────────────┘  └──────────────────┘
          │                                │                           │
          │ @RestController                │ @Service @Transactional   │ POJO
@@ -458,7 +443,7 @@ public class DomainExceptionHandler {
 
 ### Aufgabe
 
-Implementiert den `BesichtigungAnlegenUseCase` im Immobilien-CRM:
+Implementiert den `CreateViewingUseCase` im Immobilien-CRM:
 
 1. Command Record mit Validierung erstellen
 2. Application Service mit `@Transactional` implementieren

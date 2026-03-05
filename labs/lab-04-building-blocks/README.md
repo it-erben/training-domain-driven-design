@@ -1,167 +1,167 @@
-# Lab 04: Taktisches DDD - Building Blocks implementieren
+# Lab 04: Tactical DDD - Implementing Building Blocks
 
-## Lernziel
+## Learning Objective
 
-Aggregate Root, Entities, Value Objects und Domain Events in Java implementieren.
+Implement Aggregate Root, Entities, Value Objects, and Domain Events in Java.
 
-## Dauer
+## Duration
 
-90 Minuten
+90 minutes
 
-## Voraussetzungen
+## Prerequisites
 
-- Lab 01 abgeschlossen
-- Slides Modul 05
+- Lab 01 completed
+- Slides Module 05
 
-## Aufgabe
+## Task
 
-Modelliere und implementiere den Bounded Context "Vermittlungsprozess".
+Model and implement the Bounded Context "Brokerage Process".
 
-### Schritt 1: Value Objects als Java Records erstellen
+### Step 1: Create Value Objects as Java Records
 
-Erstelle die folgenden Value Objects als Java Records im Package `de.immobiliencrm.vermittlung.domain.model`:
+Create the following Value Objects as Java Records in the package `de.realestate.brokerage.domain.model`:
 
-**Adresse**
+**Address**
 
 ```java
-public record Adresse(String strasse, String plz, String ort) {
-    // Compact Constructor mit Validierung:
-    // - Alle Felder dürfen nicht null oder leer sein
+public record Address(String street, String postalCode, String city) {
+    // Compact constructor with validation:
+    // - All fields must not be null or blank
 }
 ```
 
-**Preisvorstellung**
+**AskingPrice**
 
 ```java
-public record Preisvorstellung(BigDecimal betrag, String währung) {
-    // Compact Constructor mit Validierung:
-    // - betrag muss größer als 0 sein
-    // - währung darf nicht null oder leer sein
+public record AskingPrice(BigDecimal amount, String currency) {
+    // Compact constructor with validation:
+    // - amount must be greater than 0
+    // - currency must not be null or blank
 }
 ```
 
-**Provision**
+**Commission**
 
 ```java
-public record Provision(BigDecimal prozentsatz) {
-    // Compact Constructor mit Validierung:
-    // - prozentsatz muss größer als 0 und kleiner oder gleich 100 sein
+public record Commission(BigDecimal percentage) {
+    // Compact constructor with validation:
+    // - percentage must be greater than 0 and less than or equal to 100
 }
 ```
 
-### Schritt 2: Domain Events als Records
+### Step 2: Domain Events as Records
 
-Erstelle die folgenden Domain Events als Records im Package `de.immobiliencrm.vermittlung.domain.event`:
+Create the following Domain Events as Records in the package `de.realestate.brokerage.domain.event`:
 
 ```java
-public record BesichtigungDurchgeführt(
-    UUID vermittlungsvorgangId,
-    UUID besichtigungId,
-    LocalDateTime zeitpunkt
+public record ViewingCompleted(
+    UUID brokerageProcessId,
+    UUID viewingId,
+    LocalDateTime timestamp
 ) {}
 
-public record AngebotEingegangen(
-    UUID vermittlungsvorgangId,
-    BigDecimal angebotsBetrag,
-    LocalDateTime zeitpunkt
+public record OfferReceived(
+    UUID brokerageProcessId,
+    BigDecimal offerAmount,
+    LocalDateTime timestamp
 ) {}
 
-public record AngebotAngenommen(
-    UUID vermittlungsvorgangId,
-    UUID angebotId,
-    LocalDateTime zeitpunkt
+public record OfferAccepted(
+    UUID brokerageProcessId,
+    UUID offerId,
+    LocalDateTime timestamp
 ) {}
 ```
 
-### Schritt 3: Entity Besichtigung (innerhalb des Aggregats)
+### Step 3: Entity Viewing (within the aggregate)
 
-Erstelle die Entity `Besichtigung` im Package `de.immobiliencrm.vermittlung.domain.model`:
+Create the Entity `Viewing` in the package `de.realestate.brokerage.domain.model`:
 
-- Felder: `id` (UUID), `interessentName` (String), `zeitpunkt` (LocalDateTime), `notizen` (String), `durchgeführt` (boolean)
-- Methode: `durchführen()` setzt `durchgeführt` auf `true`
+- Fields: `id` (UUID), `prospectName` (String), `timestamp` (LocalDateTime), `notes` (String), `completed` (boolean)
+- Method: `complete()` sets `completed` to `true`
 
-### Schritt 4: Entity Angebot (innerhalb des Aggregats)
+### Step 4: Entity Offer (within the aggregate)
 
-Erstelle die Entity `Angebot` im Package `de.immobiliencrm.vermittlung.domain.model`:
+Create the Entity `Offer` in the package `de.realestate.brokerage.domain.model`:
 
-- Felder: `id` (UUID), `interessentName` (String), `betrag` (BigDecimal), `eingegangen` (LocalDateTime), `angenommen` (boolean)
-- Methode: `annehmen()` setzt `angenommen` auf `true`
+- Fields: `id` (UUID), `prospectName` (String), `amount` (BigDecimal), `receivedAt` (LocalDateTime), `accepted` (boolean)
+- Method: `accept()` sets `accepted` to `true`
 
-### Schritt 5: Aggregate Root Vermittlungsvorgang
+### Step 5: Aggregate Root BrokerageProcess
 
-Erstelle die Aggregate Root Klasse `Vermittlungsvorgang` im Package `de.immobiliencrm.vermittlung.domain.model`:
+Create the Aggregate Root class `BrokerageProcess` in the package `de.realestate.brokerage.domain.model`:
 
-**Felder:**
+**Fields:**
 
 - `id` (UUID)
-- `immobilieId` (UUID)
-- `adresse` (Adresse)
-- `preisvorstellung` (Preisvorstellung)
-- `provision` (Provision)
-- `status` (Enum: NEU, IN_VERMARKTUNG, BESICHTIGUNG, ANGEBOT_PHASE, NOTARTERMIN, ABGESCHLOSSEN)
-- `besichtigungen` (List\<Besichtigung\>)
-- `angebote` (List\<Angebot\>)
+- `propertyId` (UUID)
+- `address` (Address)
+- `askingPrice` (AskingPrice)
+- `commission` (Commission)
+- `status` (Enum: NEW, IN_MARKETING, VIEWING, OFFER_PHASE, NOTARY_APPOINTMENT, COMPLETED)
+- `viewings` (List\<Viewing\>)
+- `offers` (List\<Offer\>)
 - `domainEvents` (List\<Object\>, transient)
 
-**Methoden:**
+**Methods:**
 
-- `besichtigungHinzufügen(String interessentName, LocalDateTime zeitpunkt, String notizen)` - fügt eine neue Besichtigung hinzu und setzt Status auf BESICHTIGUNG
-- `besichtigungDurchführen(UUID besichtigungId)` - markiert eine Besichtigung als durchgeführt und erzeugt ein `BesichtigungDurchgeführt`-Event
-- `angebotEntgegennehmen(String interessentName, BigDecimal betrag)` - fügt ein neues Angebot hinzu, setzt Status auf ANGEBOT_PHASE und erzeugt ein `AngebotEingegangen`-Event
-- `angebotAnnehmen(UUID angebotId)` - nimmt ein Angebot an und erzeugt ein `AngebotAngenommen`-Event
-- `statusAufNotarterminSetzen()` - setzt den Status auf NOTARTERMIN; wirft eine `IllegalStateException`, wenn kein angenommenes Angebot vorliegt
+- `addViewing(String prospectName, LocalDateTime timestamp, String notes)` - adds a new viewing and sets the status to VIEWING
+- `completeViewing(UUID viewingId)` - marks a viewing as completed and raises a `ViewingCompleted` event
+- `receiveOffer(String prospectName, BigDecimal amount)` - adds a new offer, sets the status to OFFER_PHASE, and raises an `OfferReceived` event
+- `acceptOffer(UUID offerId)` - accepts an offer and raises an `OfferAccepted` event
+- `setStatusToNotaryAppointment()` - sets the status to NOTARY_APPOINTMENT; throws an `IllegalStateException` if no accepted offer exists
 
-**Invariante:**
+**Invariant:**
 
-`statusAufNotarterminSetzen()` darf nur aufgerufen werden, wenn mindestens ein angenommenes Angebot existiert. Andernfalls wird eine `IllegalStateException` geworfen.
+`setStatusToNotaryAppointment()` may only be called when at least one accepted offer exists. Otherwise, an `IllegalStateException` is thrown.
 
-### Schritt 6: Repository Interface
+### Step 6: Repository Interface
 
-Erstelle das Interface `VermittlungsvorgangRepository` im Package `de.immobiliencrm.vermittlung.domain.port`:
+Create the interface `BrokerageProcessRepository` in the package `de.realestate.brokerage.domain.port`:
 
 ```java
-public interface VermittlungsvorgangRepository {
-    Optional<Vermittlungsvorgang> findById(UUID id);
-    Vermittlungsvorgang save(Vermittlungsvorgang vermittlungsvorgang);
+public interface BrokerageProcessRepository {
+    Optional<BrokerageProcess> findById(UUID id);
+    BrokerageProcess save(BrokerageProcess brokerageProcess);
     void deleteById(UUID id);
 }
 ```
 
-**Wichtig:** Keine Spring-Imports in diesem Interface verwenden. Es handelt sich um ein reines Java-Interface.
+**Important:** Do not use any Spring imports in this interface. It is a pure Java interface.
 
-### Bonus: Factory-Methode
+### Bonus: Factory Method
 
-Implementiere eine statische Factory-Methode auf `Vermittlungsvorgang`:
+Implement a static factory method on `BrokerageProcess`:
 
 ```java
-public static Vermittlungsvorgang erstellen(
-    UUID immobilieId,
-    Adresse adresse,
-    Preisvorstellung preisvorstellung,
-    Provision provision
+public static BrokerageProcess create(
+    UUID propertyId,
+    Address address,
+    AskingPrice askingPrice,
+    Commission commission
 ) {
-    // Erzeugt einen neuen Vermittlungsvorgang mit Status NEU
+    // Creates a new BrokerageProcess with status NEW
 }
 ```
 
-## Verifikation
+## Verification
 
-Schreibe einen Unit-Test, der die Invariante prüft:
+Write a unit test that verifies the invariant:
 
-1. Erstelle einen neuen `Vermittlungsvorgang`
-2. Rufe `statusAufNotarterminSetzen()` auf - es muss eine `IllegalStateException` geworfen werden
-3. Füge ein Angebot hinzu und nimm es an
-4. Rufe `statusAufNotarterminSetzen()` erneut auf - jetzt muss es erfolgreich sein
+1. Create a new `BrokerageProcess`
+2. Call `setStatusToNotaryAppointment()` - an `IllegalStateException` must be thrown
+3. Add an offer and accept it
+4. Call `setStatusToNotaryAppointment()` again - this time it must succeed
 
 ```bash
 cd solution
 mvn test
 ```
 
-Alle Tests müssen grün sein.
+All tests must be green.
 
-## Tipps
+## Tips
 
-- Value Objects sind in Java am besten als Records abbildbar - sie sind automatisch immutable und haben `equals()`/`hashCode()`.
-- Domain Events werden im Aggregate Root gesammelt und erst beim Speichern veröffentlicht.
-- Das Repository-Interface gehört zur Domain-Schicht und darf keine Framework-Abhängigkeiten haben.
+- Value Objects are best represented as Records in Java - they are automatically immutable and have `equals()`/`hashCode()`.
+- Domain Events are collected in the Aggregate Root and published only when saving.
+- The Repository interface belongs to the domain layer and must not have any framework dependencies.

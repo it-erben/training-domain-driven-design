@@ -1,8 +1,8 @@
 spring:
   application:
-    name: immobilien-crm
+    name: realestate-crm
   datasource:
-    url: jdbc:h2:mem:immobiliencrm
+    url: jdbc:h2:mem:realestatecrm
     driver-class-name: org.h2.Driver
     username: sa
     password:

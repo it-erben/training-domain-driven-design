@@ -1,0 +1,181 @@
+<mxfile host="draw.io">
+  <diagram name="Spring Modulith Events" id="modulith-events-1">
+    <mxGraphModel dx="1422" dy="862" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Spring Modulith – Event-basierte Kommunikation" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="250" y="20" width="900" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== Spring Modulith Boundary ==================== -->
+        <mxCell id="modulith-boundary" value="" style="rounded=1;whiteSpace=wrap;fillColor=none;strokeColor=#666666;strokeWidth=3;dashed=1;dashPattern=8 4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="1280" height="770" as="geometry" />
+        </mxCell>
+        <mxCell id="modulith-label" value="Spring Modulith Application" style="text;html=1;fontSize=16;fontStyle=1;align=left;verticalAlign=top;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="80" y="85" width="300" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== AKQUISE MODULE (Left) ==================== -->
+        <mxCell id="akquise-module" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="100" y="140" width="440" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="akquise-label" value="Modul: Akquise" style="text;html=1;fontSize=18;fontStyle=1;align=center;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="150" width="240" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Akquise Domain -->
+        <mxCell id="akquise-domain-bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="200" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="akquise-domain-label" value="Domain" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="140" y="205" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="maklervertrag" value="&lt;b&gt;Maklervertrag&lt;/b&gt;&lt;br/&gt;(Aggregate Root)&lt;hr size=&quot;1&quot;/&gt;- id: UUID&lt;br/&gt;- eigentuemer: Eigentuemer&lt;br/&gt;- immobilie: Immobilie&lt;br/&gt;- status: VertragStatus&lt;hr size=&quot;1&quot;/&gt;+ abschliessen(): void" style="shape=mxgraph.unified_modeling_language.class;verticalAlign=top;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=11;align=left;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="180" y="230" width="280" height="155" as="geometry" />
+        </mxCell>
+
+        <!-- Akquise Application Service -->
+        <mxCell id="akquise-app-bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="420" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="akquise-app-label" value="Application" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="140" y="425" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="akquise-service" value="&lt;b&gt;AkquiseAppService&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;- repository: MaklervertragRepository&lt;br/&gt;- eventPublisher: ApplicationEventPublisher&lt;hr size=&quot;1&quot;/&gt;+ maklervertragAbschliessen(cmd): void {&lt;br/&gt;&amp;nbsp;&amp;nbsp;var v = repository.findById(cmd.id());&lt;br/&gt;&amp;nbsp;&amp;nbsp;v.abschliessen();&lt;br/&gt;&amp;nbsp;&amp;nbsp;repository.save(v);&lt;br/&gt;&amp;nbsp;&amp;nbsp;&lt;b&gt;eventPublisher.publishEvent(&lt;/b&gt;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;b&gt;new MaklervertragAbgeschlossen(v.getId()));&lt;/b&gt;&lt;br/&gt;}" style="shape=mxgraph.unified_modeling_language.class;verticalAlign=top;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;fontSize=10;align=left;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="145" y="450" width="350" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Event class -->
+        <mxCell id="event-class" value="&lt;b&gt;&amp;laquo;Domain Event&amp;raquo;&lt;/b&gt;&lt;br/&gt;&lt;b&gt;MaklervertragAbgeschlossen&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;- maklervertragId: UUID&lt;br/&gt;- zeitpunkt: Instant" style="shape=mxgraph.unified_modeling_language.class;verticalAlign=top;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=11;align=center;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="170" y="610" width="300" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Service publishes event -->
+        <mxCell id="svc-to-event" value="publishes" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;endArrow=open;endFill=0;dashed=0;fontSize=10;" edge="1" source="akquise-service" target="event-class" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== APPLICATION EVENT PUBLISHER (Center) ==================== -->
+        <mxCell id="event-pub-bg" value="" style="ellipse;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="580" y="460" width="240" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="event-pub-label" value="&lt;b&gt;Application&lt;br/&gt;EventPublisher&lt;/b&gt;&lt;br/&gt;&lt;i&gt;(Spring)&lt;/i&gt;" style="text;html=1;fontSize=13;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="610" y="475" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Event to EventPublisher -->
+        <mxCell id="event-to-pub" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=3;endArrow=block;endFill=1;fontSize=10;" edge="1" source="event-class" target="event-pub-bg" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="655" />
+              <mxPoint x="550" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="event-arrow-label1" value="MaklervertragAbgeschlossen" style="text;html=1;fontSize=10;fontStyle=2;align=center;fontColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="510" y="550" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== VERMITTLUNG MODULE (Right) ==================== -->
+        <mxCell id="vermittlung-module" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="860" y="140" width="450" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="vermittlung-label" value="Modul: Vermittlung" style="text;html=1;fontSize=18;fontStyle=1;align=center;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="960" y="150" width="250" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Vermittlung Application -->
+        <mxCell id="vermittlung-app-bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="890" y="200" width="390" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="vermittlung-app-label" value="Application" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="900" y="205" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="event-listener" value="&lt;b&gt;MaklervertragEventListener&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;- repository: VermittlungsvorgangRepository&lt;hr size=&quot;1&quot;/&gt;&lt;b&gt;@EventListener&lt;/b&gt;&lt;br/&gt;+ on(event: MaklervertragAbgeschlossen): void {&lt;br/&gt;&amp;nbsp;&amp;nbsp;var vorgang = Vermittlungsvorgang&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;.starten(event.getMaklervertragId());&lt;br/&gt;&amp;nbsp;&amp;nbsp;repository.save(vorgang);&lt;br/&gt;}" style="shape=mxgraph.unified_modeling_language.class;verticalAlign=top;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;fontSize=10;align=left;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="905" y="230" width="360" height="170" as="geometry" />
+        </mxCell>
+
+        <!-- Vermittlung Domain -->
+        <mxCell id="vermittlung-domain-bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="890" y="440" width="390" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="vermittlung-domain-label" value="Domain" style="text;html=1;fontSize=13;fontStyle=1;align=left;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="900" y="445" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vermittlungsvorgang" value="&lt;b&gt;Vermittlungsvorgang&lt;/b&gt;&lt;br/&gt;(Aggregate Root)&lt;hr size=&quot;1&quot;/&gt;- id: UUID&lt;br/&gt;- maklervertragId: UUID&lt;br/&gt;- status: Status&lt;hr size=&quot;1&quot;/&gt;+ starten(maklervertragId): Vermittlungsvorgang" style="shape=mxgraph.unified_modeling_language.class;verticalAlign=top;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=11;align=left;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="940" y="470" width="310" height="155" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: EventPublisher to Listener -->
+        <mxCell id="pub-to-listener" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=3;endArrow=block;endFill=1;fontSize=10;" edge="1" source="event-pub-bg" target="event-listener" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="850" y="520" />
+              <mxPoint x="850" y="315" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="event-arrow-label2" value="@EventListener" style="text;html=1;fontSize=11;fontStyle=3;align=center;fontColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="820" y="400" width="120" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Listener creates Vermittlungsvorgang -->
+        <mxCell id="listener-to-vorgang" value="erstellt" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;endArrow=open;endFill=0;dashed=0;fontSize=10;" edge="1" source="event-listener" target="vermittlungsvorgang" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== KEY / LEGEND ==================== -->
+        <mxCell id="legend-bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#cccccc;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="640" width="240" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="Legende" style="text;html=1;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="630" y="645" width="140" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-domain" value="" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="595" y="670" width="20" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-domain-t" value="Domain" style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1">
+          <mxGeometry x="625" y="668" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-app" value="" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="595" y="695" width="20" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-app-t" value="Application" style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1">
+          <mxGeometry x="625" y="693" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-event" value="" style="ellipse;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="595" y="720" width="20" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-event-t" value="Event Infrastructure" style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1">
+          <mxGeometry x="625" y="718" width="140" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend-arrow" value="" style="endArrow=block;endFill=1;strokeColor=#9673a6;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="595" y="755" as="sourcePoint" />
+            <mxPoint x="615" y="755" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-arrow-t" value="Event-Fluss" style="text;html=1;fontSize=11;align=left;" vertex="1" parent="1">
+          <mxGeometry x="625" y="745" width="120" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Decoupling note -->
+        <mxCell id="decouple-note" value="Keine direkte Abhaengigkeit&lt;br/&gt;zwischen Modulen!&lt;br/&gt;Kommunikation nur ueber Events." style="shape=note;whiteSpace=wrap;size=14;fillColor=#ffffcc;strokeColor=#d6b656;fontSize=12;fontStyle=2;align=center;" vertex="1" parent="1">
+          <mxGeometry x="560" y="155" width="280" height="70" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

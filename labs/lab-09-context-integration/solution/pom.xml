@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.immobiliencrm</groupId>
-    <artifactId>immobilien-crm-lab09</artifactId>
+    <groupId>de.realestate</groupId>
+    <artifactId>realestate-crm-lab09</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Immobilien CRM - Lab 09 Context Integration</name>
+    <name>Real Estate CRM - Lab 09 Context Integration</name>
     <description>Lab 09: Context-Integration - Bounded Contexts verbinden</description>
 
     <properties>

@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 12 – Context Integration
@@ -80,18 +65,18 @@ style: |
 ### Schritt 1: Event im publizierenden BC definieren
 
 ```java
-// Öffentliche API des Akquise-Moduls (NICHT in internal/)
-package de.immobiliencrm.akquise;
+// Public API of the Acquisition module (NOT in internal/)
+package de.realestate.acquisition;
 
-public record MaklervertragAbgeschlossenEvent(
-    UUID maklervertragId,
-    UUID objektId,
-    UUID eigentümerId,
+public record ContractSignedEvent(
+    UUID contractId,
+    UUID propertyId,
+    UUID ownerId,
     Instant occurredAt
 ) {
-    public MaklervertragAbgeschlossenEvent(
-            UUID maklervertragId, UUID objektId, UUID eigentümerId) {
-        this(maklervertragId, objektId, eigentümerId, Instant.now());
+    public ContractSignedEvent(
+            UUID contractId, UUID propertyId, UUID ownerId) {
+        this(contractId, propertyId, ownerId, Instant.now());
     }
 }
 ```
@@ -107,28 +92,28 @@ public record MaklervertragAbgeschlossenEvent(
 ### Schritt 2: Application Service dispatched nach dem Speichern
 
 ```java
-package de.immobiliencrm.akquise.internal;
+package de.realestate.acquisition.internal;
 
 @Service
-public class VertragAbschließenService {
+public class CloseContractService {
 
-    private final MaklervertragRepository repository;
+    private final BrokerageContractRepository repository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public VertragAbschließenService(
-            MaklervertragRepository repository,
+    public CloseContractService(
+            BrokerageContractRepository repository,
             ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
     }
 
     @Transactional
-    public void abschließen(MaklervertragId id) {
-        var vertrag = repository.findById(id).orElseThrow();
-        vertrag.abschließen();
-        repository.save(vertrag);
-        vertrag.domainEvents().forEach(eventPublisher::publishEvent);
-        vertrag.clearDomainEvents();
+    public void close(BrokerageContractId id) {
+        var contract = repository.findById(id).orElseThrow();
+        contract.close();
+        repository.save(contract);
+        contract.domainEvents().forEach(eventPublisher::publishEvent);
+        contract.clearDomainEvents();
     }
 }
 ```
@@ -139,7 +124,7 @@ public class VertragAbschließenService {
 
 ### Das Problem
 
-- Das Event `MaklervertragAbgeschlossenEvent` spricht die **Akquise-Sprache**
+- Das Event `ContractSignedEvent` spricht die **Akquise-Sprache**
 - Der Vermittlung BC kennt keine "Maklerverträge" — er hat **eigene Begriffe**
 - Ohne ACL: Akquise-Konzepte "infizieren" das Vermittlung-Domänenmodell
 
@@ -148,15 +133,15 @@ public class VertragAbschließenService {
 ```
 ┌── Akquise BC ────┐                      ┌── Vermittlung BC ─────────────┐
 │                   │   Event              │                               │
-│  Maklervertrag    │──────────────────►  │  ┌─── ACL ──────────────┐    │
-│  abschließen()   │ MaklervertragAbge-   │  │ AkquiseEventTranslator│    │
-│                   │ schlossen            │  │   → VermittlungStarten │    │
+│  BrokerageContract│──────────────────►  │  ┌─── ACL ──────────────┐    │
+│  close()          │ ContractSigned-     │  │ AcquisitionEventTranslator│ │
+│                   │ Event               │  │   → StartBrokerage    │    │
 └───────────────────┘                      │  │     Command            │    │
                                            │  └───────────┬────────────┘    │
                                            │              ▼                │
-                                           │  VermittlungStartenService    │
-                                           │  → Vermittlungsvorgang.       │
-                                           │    erstellen()                │
+                                           │  StartBrokerageService         │
+                                           │  → BrokerageProcess.          │
+                                           │    create()                   │
                                            └───────────────────────────────┘
 ```
 
@@ -167,18 +152,18 @@ public class VertragAbschließenService {
 ### Paketstruktur des konsumierenden BC
 
 ```
-de.immobiliencrm.vermittlung
-├── VermittlungApi.java              ← öffentliche API
+de.realestate.brokerage
+├── BrokerageApi.java                ← öffentliche API
 ├── internal
 │   ├── domain
 │   │   └── model
-│   │       └── Vermittlungsvorgang.java
+│   │       └── BrokerageProcess.java
 │   ├── application
-│   │   └── VermittlungStartenService.java
+│   │   └── StartBrokerageService.java
 │   └── adapter
 │       └── acl                      ← Anti-Corruption Layer
-│           ├── AkquiseEventTranslator.java
-│           └── AkquiseEventListener.java
+│           ├── AcquisitionEventTranslator.java
+│           └── AcquisitionEventListener.java
 ```
 
 - Der ACL ist ein **Adapter** des konsumierenden BC
@@ -190,16 +175,16 @@ de.immobiliencrm.vermittlung
 ## ACL-Implementierung: Translator
 
 ```java
-package de.immobiliencrm.vermittlung.internal.adapter.acl;
+package de.realestate.brokerage.internal.adapter.acl;
 
 @Component
-public class AkquiseEventTranslator {
+public class AcquisitionEventTranslator {
 
-    public VermittlungStartenCommand translate(
-            MaklervertragAbgeschlossenEvent event) {
-        return new VermittlungStartenCommand(
-            new ObjektReferenz(event.objektId()),
-            new VertragReferenz(event.maklervertragId()),
+    public StartBrokerageCommand translate(
+            ContractSignedEvent event) {
+        return new StartBrokerageCommand(
+            new PropertyReference(event.propertyId()),
+            new ContractReference(event.contractId()),
             LocalDate.now()
         );
     }
@@ -208,7 +193,7 @@ public class AkquiseEventTranslator {
 
 - **Fremde IDs** werden in eigene Value Objects gewrappt
 - **Fremde Begriffe** werden in eigene Domänensprache übersetzt
-- `MaklervertragAbgeschlossen` (Akquise) → `VermittlungStartenCommand` (Vermittlung)
+- `ContractSignedEvent` (Akquise) → `StartBrokerageCommand` (Vermittlung)
 - Der Translator ist ein reiner Mapper — keine Geschäftslogik
 
 ---
@@ -216,24 +201,24 @@ public class AkquiseEventTranslator {
 ## ACL-Implementierung: Event Listener
 
 ```java
-package de.immobiliencrm.vermittlung.internal.adapter.acl;
+package de.realestate.brokerage.internal.adapter.acl;
 
 @Component
-public class AkquiseEventListener {
+public class AcquisitionEventListener {
 
-    private final AkquiseEventTranslator translator;
-    private final VermittlungStartenService service;
+    private final AcquisitionEventTranslator translator;
+    private final StartBrokerageService service;
 
-    public AkquiseEventListener(AkquiseEventTranslator translator,
-                                VermittlungStartenService service) {
+    public AcquisitionEventListener(AcquisitionEventTranslator translator,
+                                    StartBrokerageService service) {
         this.translator = translator;
         this.service = service;
     }
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void on(MaklervertragAbgeschlossenEvent event) {
+    public void on(ContractSignedEvent event) {
         var command = translator.translate(event);
-        service.starten(command);
+        service.start(command);
     }
 }
 ```
@@ -255,21 +240,21 @@ public class AkquiseEventListener {
 
 ```java
 @Service
-public class VermittlungStartenService {
+public class StartBrokerageService {
 
-    private final VermittlungsvorgangRepository repository;
+    private final BrokerageProcessRepository repository;
 
     @Transactional
-    public void starten(VermittlungStartenCommand cmd) {
-        // Idempotenz: schon vorhanden?
-        if (repository.existsByVertragReferenz(cmd.vertragReferenz())) {
-            log.info("Vermittlung für Vertrag {} existiert bereits",
-                cmd.vertragReferenz());
+    public void start(StartBrokerageCommand cmd) {
+        // Idempotency: already exists?
+        if (repository.existsByContractReference(cmd.contractReference())) {
+            log.info("Brokerage for contract {} already exists",
+                cmd.contractReference());
             return;
         }
-        var vorgang = Vermittlungsvorgang.erstellen(
-            VorgangId.generate(), cmd.objektReferenz(), cmd.vertragReferenz());
-        repository.save(vorgang);
+        var process = BrokerageProcess.create(
+            ProcessId.generate(), cmd.propertyReference(), cmd.contractReference());
+        repository.save(process);
     }
 }
 ```
@@ -281,21 +266,21 @@ public class VermittlungStartenService {
 ```
 Akquise BC                        Vermittlung BC
 ┌──────────────────────┐          ┌────────────────────────────────┐
-│ VertragAbschließen  │          │                                │
+│ CloseContract        │          │                                │
 │ Service              │          │  adapter.acl                   │
 │   │                  │  publish │  ┌─────────────────────────┐   │
-│   ├─ vertrag         │─────────►│  │ AkquiseEventListener   │   │
-│   │  .abschließen() │  Event   │  │   ├─ translator         │   │
+│   ├─ contract        │─────────►│  │ AcquisitionEventListener│   │
+│   │  .close()        │  Event   │  │   ├─ translator         │   │
 │   ├─ save()          │          │  │   │  .translate(event)  │   │
-│   └─ dispatch events │          │  │   └─ service.starten()  │   │
+│   └─ dispatch events │          │  │   └─ service.start()    │   │
 │                      │          │  └─────────────────────────┘   │
-│ MaklervertragAbge-   │          │                                │
-│ schlossenEvent       │          │  application                   │
-│ (öffentliche API)    │          │  ┌─────────────────────────┐   │
-└──────────────────────┘          │  │ VermittlungStarten      │   │
+│ ContractSigned-      │          │                                │
+│ Event                │          │  application                   │
+│ (public API)         │          │  ┌─────────────────────────┐   │
+└──────────────────────┘          │  │ StartBrokerage          │   │
                                   │  │ Service                 │   │
-                                  │  │  → idempotenz check     │   │
-                                  │  │  → Vorgang.erstellen()  │   │
+                                  │  │  → idempotency check    │   │
+                                  │  │  → Process.create()     │   │
                                   │  │  → save()               │   │
                                   │  └─────────────────────────┘   │
                                   └────────────────────────────────┘
@@ -309,30 +294,30 @@ Akquise BC                        Vermittlung BC
 
 ```java
 // In-Process: Spring ApplicationEventPublisher
-eventPublisher.publishEvent(new MaklervertragAbgeschlossenEvent(...));
+eventPublisher.publishEvent(new ContractSignedEvent(...));
 ```
 
 ### Als Microservices (später)
 
 ```java
-// Producer Adapter (Akquise-Service)
+// Producer Adapter (Acquisition Service)
 @Component
 public class KafkaEventPublisher {
     private final KafkaTemplate<String, Object> kafka;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void on(MaklervertragAbgeschlossenEvent event) {
-        kafka.send("akquise.maklervertrag.abgeschlossen",
-            event.maklervertragId().toString(), event);
+    public void on(ContractSignedEvent event) {
+        kafka.send("acquisition.contract.signed",
+            event.contractId().toString(), event);
     }
 }
 
-// Consumer Adapter (Vermittlung-Service)
-@KafkaListener(topics = "akquise.maklervertrag.abgeschlossen",
-    groupId = "vermittlung")
-public void consume(MaklervertragAbgeschlossenEvent event) {
+// Consumer Adapter (Brokerage Service)
+@KafkaListener(topics = "acquisition.contract.signed",
+    groupId = "brokerage")
+public void consume(ContractSignedEvent event) {
     var command = translator.translate(event);
-    service.starten(command);
+    service.start(command);
 }
 ```
 
@@ -379,7 +364,7 @@ Event-Entscheidungsbaum:
 
 Implementiert Cross-BC-Integration im Immobilien-CRM:
 
-1. Domain Event `MaklervertragAbgeschlossenEvent` im Akquise-Modul erstellen
+1. Domain Event `ContractSignedEvent` im Akquise-Modul erstellen
 2. Event über `ApplicationEventPublisher` publizieren (Event Collection Pattern)
 3. ACL-Translator im Vermittlung-Modul implementieren
 4. `@TransactionalEventListener` registrieren

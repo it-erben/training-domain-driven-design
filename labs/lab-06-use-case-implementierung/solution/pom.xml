@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.immobiliencrm</groupId>
-    <artifactId>immobilien-crm-lab06</artifactId>
+    <groupId>de.realestate</groupId>
+    <artifactId>real-estate-crm-lab06</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Immobilien CRM - Lab 06 Use-Case-Implementierung</name>
+    <name>Real Estate CRM - Lab 06 Use-Case-Implementierung</name>
     <description>Lab 06: Use-Case-Implementierung - Besichtigung anlegen</description>
 
     <properties>

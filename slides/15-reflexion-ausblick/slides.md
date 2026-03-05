@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 15 – Reflexion & Ausblick
@@ -215,23 +200,23 @@ Phase 4: Komplett
 ### Eine Praxis, die ihr sofort einführen könnt
 
 ```markdown
-# ADR-001: Puristisches Domain-Modell für Vermittlung BC
+# ADR-001: Purist Domain Model for Brokerage BC
 
 ## Status: Accepted
 
-## Kontext
-Der Vermittlung BC ist unsere Core Domain mit komplexen
-Geschäftsregeln (Zustandsmaschine, Provisionsberechnung).
+## Context
+The Brokerage BC is our Core Domain with complex
+business rules (state machine, commission calculation).
 
-## Entscheidung
-Wir verwenden ein reines Domain-Modell ohne JPA-Annotationen
-mit separaten JPA-Entities und Mappern.
+## Decision
+We use a pure domain model without JPA annotations
+with separate JPA entities and mappers.
 
-## Konsequenzen
-+ Domain ist framework-frei und maximal testbar
-+ Framework-Wechsel betrifft nur Infrastructure
-- Mehr Mapping-Code und Duplikation
-- Höhere Einstiegshürde für neue Teammitglieder
+## Consequences
++ Domain is framework-free and maximally testable
++ Framework change only affects Infrastructure
+- More mapping code and duplication
+- Higher onboarding barrier for new team members
 ```
 
 > Kurz, strukturiert, versioniert im Repository.
@@ -286,7 +271,7 @@ mit separaten JPA-Entities und Mappern.
 - [ ] **Ein ArchUnit-Test** — `domain` darf nicht auf `infrastructure` zugreifen
 - [ ] **Ein ADR** — eine wichtige Architekturentscheidung dokumentieren
 - [ ] **Einen Domain Unit Test** — ohne Spring Context, < 10 ms
-- [ ] **Ein Value Object** — einen primitiven Typ durch ein VO ersetzen (z.B. `EmailAdresse`)
+- [ ] **Ein Value Object** — einen primitiven Typ durch ein VO ersetzen (z.B. `EmailAddress`)
 - [ ] **Event Storming** — für euer nächstes Feature eine Session vorschlagen
 
 > Nicht alles auf einmal — **eine Sache pro Woche** reicht.

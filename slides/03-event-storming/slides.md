@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 03 – Event Storming
@@ -73,7 +58,7 @@ style: |
 
 ## Die Elemente – Farbübersicht
 
-![Event Storming Elemente](../diagrams/event-storming-elemente.drawio.png)
+![Event Storming Elemente](images/event-storming-elemente.drawio.png)
 
 | Farbe | Element | Frage, die es beantwortet |
 |-------|---------|---------------------------|
@@ -350,7 +335,7 @@ Phase 1          Phase 2          Phase 3          Phase 4          Phase 5
 
 ## Unser Immobilien-CRM – Der Gesamtprozess
 
-![Event Storming Immobilien-CRM](../diagrams/event-storming-immobilien-crm.drawio.png)
+![Event Storming Immobilien-CRM](images/event-storming-immobilien-crm.drawio.png)
 
 ---
 

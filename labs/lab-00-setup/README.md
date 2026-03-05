@@ -85,4 +85,4 @@ Wenn diese Antwort erscheint, ist die Entwicklungsumgebung korrekt eingerichtet.
 ## Tipps
 
 - **IntelliJ Maven-Import**: Falls Abhängigkeiten nicht automatisch geladen werden, klicke mit der rechten Maustaste auf die `pom.xml` und wähle `Maven` > `Reload Project`.
-- **H2-Console**: Die H2-Datenbank-Konsole ist unter [http://localhost:8080/h2-console](http://localhost:8080/h2-console) erreichbar. Verwende die JDBC-URL `jdbc:h2:mem:immobiliencrm` mit dem Benutzernamen `sa` und leerem Passwort.
+- **H2-Console**: Die H2-Datenbank-Konsole ist unter [http://localhost:8080/h2-console](http://localhost:8080/h2-console) erreichbar. Verwende die JDBC-URL `jdbc:h2:mem:realestate` mit dem Benutzernamen `sa` und leerem Passwort.
