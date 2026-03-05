@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="draw.io" modified="2026-03-05T00:00:00.000Z" agent="draw.io" version="21.0.0" type="device">
+  <diagram id="aggregate-sizing" name="Aggregate Sizing">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ==================== Left side: Too large ==================== -->
+
+        <!-- Red header -->
+        <mxCell id="leftHeader" value="&lt;b&gt;&#10060; Zu gro&#223;:&lt;/b&gt;" style="text;html=1;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="100" y="30" width="280" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Red aggregate box -->
+        <mxCell id="redBox" value="&lt;b style=&quot;font-size:14px&quot;&gt;BrokerageProcess&lt;/b&gt;&lt;hr&gt;&lt;span style=&quot;font-size:12px&quot;&gt;&#9500;&#9472;&#9472; Property&lt;br&gt;&#9500;&#9472;&#9472; Owner&lt;br&gt;&#9500;&#9472;&#9472; Prospects[]&lt;br&gt;&#9500;&#9472;&#9472; Viewings[]&lt;br&gt;&#9500;&#9472;&#9472; Offers[]&lt;br&gt;&#9500;&#9472;&#9472; Expose&lt;br&gt;&#9492;&#9472;&#9472; BrokerageContract&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=12;align=left;verticalAlign=top;spacingLeft=12;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="280" height="250" as="geometry" />
+        </mxCell>
+
+        <!-- Warning label -->
+        <mxCell id="warningLabel" value="&lt;b&gt;Lock-Contention!&lt;/b&gt;" style="text;html=1;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="100" y="340" width="280" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== Divider ==================== -->
+        <mxCell id="divider" value="" style="endArrow=none;html=1;strokeWidth=1;strokeColor=#999999;dashed=1;dashPattern=8 8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="30" as="sourcePoint" />
+            <mxPoint x="500" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ==================== Right side: Correct sizing ==================== -->
+
+        <!-- Green header -->
+        <mxCell id="rightHeader" value="&lt;b&gt;&#9989; Richtig geschnitten:&lt;/b&gt;" style="text;html=1;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="600" y="30" width="320" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Green aggregate box: BrokerageProcess -->
+        <mxCell id="greenBox1" value="&lt;b style=&quot;font-size:14px&quot;&gt;BrokerageProcess&lt;/b&gt;&lt;br&gt;&lt;i style=&quot;font-size:11px&quot;&gt;(Aggregate Root)&lt;/i&gt;&lt;hr&gt;&lt;span style=&quot;font-size:12px&quot;&gt;&#9500;&#9472;&#9472; Viewing&lt;br&gt;&#9500;&#9472;&#9472; Offer&lt;br&gt;&#9492;&#9472;&#9472; (Value Objects)&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=12;align=left;verticalAlign=top;spacingLeft=12;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="80" width="240" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- ID-Ref arrow -->
+        <mxCell id="idRefArrow" value="ID-Ref." style="endArrow=block;html=1;strokeWidth=2;strokeColor=#82b366;fontSize=11;fontColor=#82b366;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="760" y="260" as="sourcePoint" />
+            <mxPoint x="760" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Green aggregate box: Property -->
+        <mxCell id="greenBox2" value="&lt;b style=&quot;font-size:14px&quot;&gt;Property&lt;/b&gt;&lt;br&gt;&lt;i style=&quot;font-size:11px&quot;&gt;&#8592; eigenes Aggregate&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="660" y="320" width="200" height="60" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

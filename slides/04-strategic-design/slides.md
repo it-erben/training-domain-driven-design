@@ -30,17 +30,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ### Beispiel: Der Begriff "Immobilie"
 
-```
-┌─ BC: Objektverwaltung ──────┐   ┌─ BC: Vermarktung ────────────┐
-│                              │   │                              │
-│  "Immobilie" =               │   │  "Immobilie" =               │
-│  Grundbuchdaten, Baujahr,    │   │  Exposé-Fotos, Headline,     │
-│  Wohnfläche, Energieausweis, │   │  Zielgruppe, Portale,        │
-│  Grundrissplan               │   │  Vermarktungsstatus          │
-│                              │   │                              │
-│  → technisch / detailliert   │   │  → marketingoptimiert        │
-└──────────────────────────────┘   └──────────────────────────────┘
-```
+![BC Immobilie Vergleich](images/bounded-context-immobilie-vergleich.drawio.png)
 
 > **Eric Evans:** *"A Bounded Context delimits the applicability
 > of a particular model."*
@@ -134,15 +124,7 @@ Organisiere Teams **entlang der gewünschten Architektur**, nicht umgekehrt.
 
 ### Downstream stellt Anforderungen an Upstream
 
-```
-  ┌──────────────────┐        ┌──────────────────┐
-  │  Objektverwaltung │  U/D   │  Vermarktung     │
-  │  (Upstream)       │───────►│  (Downstream)    │
-  │                   │        │                   │
-  │  Liefert: Lage,   │        │  Braucht: Adresse,│
-  │  Fläche, Typ      │        │  Fotos, Merkmale  │
-  └──────────────────┘        └──────────────────┘
-```
+![Customer/Supplier Pattern](images/customer-supplier-pattern.drawio.png)
 
 - **Upstream** liefert Daten oder Services
 - **Downstream** konsumiert und kann **Anforderungen stellen**
@@ -174,15 +156,7 @@ Organisiere Teams **entlang der gewünschten Architektur**, nicht umgekehrt.
 
 ### Schützt das eigene Modell mit einer Übersetzungsschicht
 
-```
-  ┌──────────────┐      ┌───────────┐      ┌──────────────┐
-  │ External CRM │ ───► │    ACL    │ ───► │ Contact      │
-  │ (Upstream)   │      │ Translator│      │ Management   │
-  │              │      │           │      │ (Downstream) │
-  │ "Customer"   │      │ Customer  │      │ "Contact"    │
-  │ "Account"    │      │ → Contact │      │ "Owner"      │
-  └──────────────┘      └───────────┘      └──────────────┘
-```
+![Anti-Corruption Layer Pattern](images/acl-pattern.drawio.png)
 
 - Übersetzt eingehende Daten in die **eigene Ubiquitous Language**
 - **Wann?** Integration mit Legacy-Systemen oder externen APIs

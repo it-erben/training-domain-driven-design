@@ -1,0 +1,81 @@
+<mxfile host="app.diagrams.net" modified="2026-03-05T10:00:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="command-aggregate-event-flow" name="Command Aggregate Event Flow">
+    <mxGraphModel dx="1100" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Row 1: Akteur → Aggregate → Domain Event -->
+
+        <!-- Akteur (stick figure) -->
+        <mxCell id="actor" value="Makler" style="shape=mxgraph.basic.person;whiteSpace=wrap;html=1;fillColor=#E0E0E0;strokeColor=#616161;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="60" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Aggregate -->
+        <mxCell id="aggregate" value="&lt;b&gt;Aggregate&lt;/b&gt;&lt;br/&gt;(Immobilie)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff176;strokeColor=#f9a825;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="380" y="45" width="180" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Domain Event -->
+        <mxCell id="event" value="&lt;b&gt;Domain Event&lt;/b&gt;&lt;br/&gt;(ObjektBewertet)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9a825;strokeColor=#f57f17;fontSize=13;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="700" y="45" width="200" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- Row 2: Command → Geschäftsregel → Policy -->
+
+        <!-- Command -->
+        <mxCell id="command" value="&lt;b&gt;Command&lt;/b&gt;&lt;br/&gt;(BewerteObjekt)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#42a5f5;strokeColor=#1565c0;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="230" width="180" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl-cmd" value="(blau)" style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=top;fontColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="40" y="298" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Geschaeftsregel -->
+        <mxCell id="rule" value="&lt;b&gt;Geschäfts-&lt;br/&gt;regel prüfen&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff176;strokeColor=#f9a825;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="380" y="230" width="180" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl-rule" value="(gelb)" style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=top;fontColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="380" y="298" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Policy -->
+        <mxCell id="policy" value="&lt;b&gt;Policy&lt;/b&gt;&lt;br/&gt;(Wenn bewertet →&lt;br/&gt;Exposé erstellen)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ce93d8;strokeColor=#8e24aa;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="700" y="220" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="lbl-policy" value="(lila)" style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=top;fontColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="700" y="303" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Row 1 -->
+        <!-- Actor → Aggregate -->
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="actor" target="aggregate" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Aggregate → Event -->
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="aggregate" target="event" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows connecting rows -->
+        <!-- Actor ↓ Command -->
+        <mxCell id="a3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="actor" target="command" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Command ↑ Aggregate (rule) -->
+        <mxCell id="a4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="rule" target="aggregate" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Event ↓ Policy -->
+        <mxCell id="a5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="event" target="policy" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
