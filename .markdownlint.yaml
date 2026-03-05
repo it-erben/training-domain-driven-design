@@ -1,5 +1,6 @@
 # Markdownlint-Konfiguration fuer Marp-Slides
 MD001: false  # Heading increment
+MD012: false  # Multiple blank lines - Marp slide separators
 MD013: false  # Line length - nicht sinnvoll fuer Slides mit Tabellen
 MD024: false  # Duplicate headings - Marp nutzt Headings als Slide-Titel
 MD026: false  # Trailing punctuation in heading
