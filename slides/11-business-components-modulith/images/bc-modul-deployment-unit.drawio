@@ -1,0 +1,36 @@
+<mxfile host="draw.io">
+  <diagram name="BC Module Deployment Unit" id="bc-modul-deploy-1">
+    <mxGraphModel dx="1200" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Bounded Context Box (green) -->
+        <mxCell id="bc-box" value="&lt;b&gt;Bounded Context&lt;/b&gt;&lt;br/&gt;(strategisch)&lt;hr size=&quot;1&quot;/&gt;Problemraum /&lt;br/&gt;L&amp;ouml;sungsraum" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=14;verticalAlign=middle;align=center;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="80" y="120" width="240" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Modul Box (blue) -->
+        <mxCell id="modul-box" value="&lt;b&gt;Modul&lt;/b&gt;&lt;br/&gt;(Code)&lt;hr size=&quot;1&quot;/&gt;Java-Paket,&lt;br/&gt;Spring Modulith" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=14;verticalAlign=middle;align=center;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="460" y="120" width="240" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Deployment Unit Box (orange) -->
+        <mxCell id="deploy-box" value="&lt;b&gt;Deployment Unit&lt;/b&gt;&lt;br/&gt;(Artefakt)&lt;hr size=&quot;1&quot;/&gt;JAR, Container,&lt;br/&gt;Microservice" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=14;verticalAlign=middle;align=center;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="840" y="120" width="240" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: BC to Modul -->
+        <mxCell id="arrow-bc-modul" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="bc-box" target="modul-box" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Modul to Deployment -->
+        <mxCell id="arrow-modul-deploy" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="modul-box" target="deploy-box" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

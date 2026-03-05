@@ -199,20 +199,7 @@ Erschienen 2003, bis heute das Standardwerk.
 
 ### Wo investieren wir unsere DDD-Energie?
 
-```
-                    ▲ Geschäftswert / Differenzierung
-                    │
-          ┌─────────┤
-          │  CORE   │  ← Volles DDD, Rich Domain Model, eigener Code
-          │         │     Vermittlungsprozess, Akquise
-          ├─────────┤
-          │SUPPORT. │  ← Solides Modell, aber weniger Aufwand
-          │         │     Vermarktung, Objektverwaltung
-          ├─────────┤
-          │ GENERIC │  ← CRUD oder Zukauf (CRM, E-Mail, Kalender)
-          │         │     Kontaktmanagement, Aktivitäten
-          └─────────┘
-```
+![Core, Supporting, Generic Pyramid](images/core-supporting-generic-pyramid.drawio.png)
 
 > Nicht jede Subdomäne braucht volle DDD-Umsetzung.
 > Die Kunst liegt in der **richtigen Zuordnung**.
@@ -331,18 +318,7 @@ Gutes Domänenmodell  +  Gute Architektur  =  Wartbare Software
 
 ### Ein Modell gilt innerhalb seiner Grenze
 
-```
-┌─────────────────────────┐  ┌─────────────────────────┐
-│  BC: Objektverwaltung   │  │  BC: Vermarktung        │
-│                         │  │                         │
-│  "Immobilie" =          │  │  "Immobilie" =          │
-│  Stammdaten, Lage,      │  │  Exposé-Text, Fotos,    │
-│  Bewertung, Grundriss   │  │  Zielgruppe, Portale    │
-│                         │  │                         │
-│  → Detailliertes        │  │  → Marketingorientiert  │
-│    technisches Modell   │  │    für den Interessenten │
-└─────────────────────────┘  └─────────────────────────┘
-```
+![Bounded Context: Immobilie im Vergleich](images/bounded-context-immobilie-vergleich.drawio.png)
 
 - Derselbe Begriff kann in verschiedenen BCs **verschiedene Dinge** bedeuten
 - Jeder BC hat sein **eigenes Modell** – keine „Über-Entity", die alles kennt
@@ -409,21 +385,6 @@ Level 3: Tactical Design + Clean Architecture
 
 ---
 
-## DDD im Vergleich zum klassischen Ansatz
-
-| Aspekt | Klassisch (CRUD) | DDD |
-|--------|-----------------|-----|
-| **Fokus** | Datenbank-Tabellen | Fachliche Prozesse |
-| **Entities** | Datencontainer (Anemic) | Verhalten + Invarianten (Rich) |
-| **Geschäftslogik** | Im Service Layer | In der Domäne |
-| **Struktur** | Package by Layer | Package by Feature / Context |
-| **Sprache** | Technisch geprägt | Ubiquitous Language |
-| **Änderungen** | Kaskaden über Schichten | Lokal im Bounded Context |
-| **Modularisierung** | Schichten | Fachliche Bounded Contexts |
-| **Tests** | Spring-Kontext nötig | Domain: Plain JUnit |
-
----
-
 ## Zusammenfassung
 
 - **Ohne DDD** entsteht oft ein Anemic Domain Model mit verstreuter Logik
@@ -435,16 +396,3 @@ Level 3: Tactical Design + Clean Architecture
 - DDD ist **kein Dogma** – gezielt dort einsetzen, wo Komplexität herrscht
 
 > Im nächsten Modul erkunden wir unsere Domäne mit **Event Storming**.
-
----
-
-## 🎯 Ausblick: Event Storming (Modul 03)
-
-### Im nächsten Modul erkunden wir die Domäne gemeinsam
-
-- **Event Storming** als kollaboratives Workshop-Format
-- Ziel: Die Prozesse im Immobilien-CRM sichtbar machen
-- Events, Commands und Aggregates identifizieren
-- Grundlage für Bounded Contexts und Building Blocks
-
-> Danach folgt **Lab 02** – ihr führt selbst ein Event Storming durch.

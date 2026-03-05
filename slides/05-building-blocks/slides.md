@@ -276,21 +276,7 @@ public class BrokerageProcess {
 
 ### Klein anfangen!
 
-```
-❌ Zu groß:                    ✅ Richtig geschnitten:
-┌─────────────────────┐       ┌─────────────────┐
-│ BrokerageProcess    │       │ Brokerage-      │
-│ ├── Property        │       │ Process (Root)  │
-│ ├── Owner           │       │ ├── Viewing     │
-│ ├── Prospects[]     │       │ ├── Offer       │
-│ ├── Viewings[]      │       │ └── (Value Obj.)│
-│ ├── Offers[]        │       └─────────────────┘
-│ ├── Expose          │             │ ID-Ref.
-│ └── BrokerageContr. │             ▼
-└─────────────────────┘       ┌──────────────┐
-   Lock-Contention!           │ Property     │  ← eigenes Aggregate
-                              └──────────────┘
-```
+![Aggregate Sizing](images/aggregate-sizing.drawio.png)
 
 ### Faustregel
 
@@ -577,25 +563,7 @@ UUID id = UUID.randomUUID(); // Simple, independent, good enough
 
 ## Zusammenspiel der Building Blocks
 
-```
-                    ┌────────────────────────────┐
-                    │   Aggregate Root            │
-                    │   (BrokerageProcess)        │
-                    │                             │
-Factory ──────────► │   ┌───────────┐  ┌───────┐ │ ──────► Domain Events
-(create)            │   │ Entity    │  │ Value │ │        (Records)
-                    │   │(Viewing)  │  │Object │ │
-                    │   └───────────┘  │(Addr.) │ │
-                    │                  └───────┘ │
-                    └──────────────┬──────────────┘
-                                   │
-                    ┌──────────────┴──────────────┐
-                    │   Repository Interface       │
-                    │   (findById, save, delete)   │
-                    └──────────────────────────────┘
-                              Domain Service
-                        (CommissionCalculator)
-```
+![Zusammenspiel der Building Blocks](images/building-blocks-zusammenspiel.drawio.png)
 
 ---
 
