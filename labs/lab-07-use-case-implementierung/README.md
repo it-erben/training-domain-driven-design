@@ -1,25 +1,25 @@
-# Lab 07: Use Case Implementation - Create Viewing
+# Lab 07: Use-Case-Implementierung - Besichtigung anlegen
 
-## Learning Objective
+## Lernziel
 
-Implement an Application Service as a use case orchestrator.
+Einen Application Service als Use-Case-Orchestrator implementieren.
 
-## Duration
+## Dauer
 
-45 minutes
+45 Minuten
 
-## Prerequisites
+## Voraussetzungen
 
-- Lab 06 completed
-- Slides Module 09
+- Lab 06 abgeschlossen
+- Slides Modul 09
 
-## Task
+## Aufgabe
 
-Implement the "Create Viewing" use case as an Application Service. The use case orchestrates the domain logic invocation and handles persistence.
+Implementiere den Use Case „Besichtigung anlegen" als Application Service. Der Use Case orchestriert den Aufruf der Domain-Logik und kümmert sich um die Persistenz.
 
-### Step 1: Create the Command Object
+### Schritt 1: Command-Objekt erstellen
 
-Create the command object `CreateViewingCommand` as a Java Record in the package `de.realestate.brokerage.application.command`:
+Erstelle das Command-Objekt `CreateViewingCommand` als Java Record im Package `de.realestate.brokerage.application.command`:
 
 ```java
 public record CreateViewingCommand(
@@ -29,11 +29,11 @@ public record CreateViewingCommand(
 ) {}
 ```
 
-The command represents the caller's intention and contains all the data the use case needs.
+Das Command repräsentiert die Absicht des Aufrufers und enthält alle Daten, die der Use Case benötigt.
 
-### Step 2: Create the Result Object
+### Schritt 2: Ergebnisobjekt erstellen
 
-Create the result object `CreateViewingResult` as a Java Record in the same package:
+Erstelle das Ergebnisobjekt `CreateViewingResult` als Java Record im selben Package:
 
 ```java
 public record CreateViewingResult(
@@ -42,9 +42,9 @@ public record CreateViewingResult(
 ) {}
 ```
 
-### Step 3: Implement the Use Case
+### Schritt 3: Use Case implementieren
 
-Create the Application Service `CreateViewingUseCase` as a `@Service` in the package `de.realestate.brokerage.application.service`:
+Erstelle den Application Service `CreateViewingUseCase` als `@Service` im Package `de.realestate.brokerage.application.service`:
 
 ```java
 @Service
@@ -64,19 +64,19 @@ public class CreateViewingUseCase {
 }
 ```
 
-**Flow:**
+**Ablauf:**
 
-1. Load the `BrokerageProcess` by ID from the repository
-2. If not found: throw a `ProcessNotFoundException`
-3. Call the domain method `addViewing(prospectName, appointmentDate)` on the Aggregate Root
-4. Save the updated `BrokerageProcess` via the repository
-5. Return a `CreateViewingResult` with the new viewing ID
+1. Lade den `BrokerageProcess` anhand der ID aus dem Repository
+2. Falls nicht gefunden: wirf eine `ProcessNotFoundException`
+3. Rufe die Domain-Methode `addViewing(prospectName, appointmentDate)` auf dem Aggregate Root auf
+4. Speichere den aktualisierten `BrokerageProcess` über das Repository
+5. Gib ein `CreateViewingResult` mit der neuen Viewing-ID zurück
 
-**Important:** The use case uses `@Transactional` to ensure consistency. The business logic remains in the domain model - the use case only orchestrates.
+**Wichtig:** Der Use Case verwendet `@Transactional` zur Sicherstellung der Konsistenz. Die Geschäftslogik bleibt im Domain-Modell – der Use Case orchestriert nur.
 
-### Step 4: Exception for Process Not Found
+### Schritt 4: Exception für nicht gefundenen Prozess
 
-Create the exception `ProcessNotFoundException` in the package `de.realestate.brokerage.domain.model`:
+Erstelle die Exception `ProcessNotFoundException` im Package `de.realestate.brokerage.domain.model`:
 
 ```java
 public class ProcessNotFoundException extends RuntimeException {
@@ -86,32 +86,32 @@ public class ProcessNotFoundException extends RuntimeException {
 }
 ```
 
-**Note:** The exception resides in the domain package because it represents a domain concept ("there is no brokerage process with this ID").
+**Hinweis:** Die Exception liegt im Domain-Package, da sie ein Domänenkonzept darstellt („Es gibt keinen Vermittlungsprozess mit dieser ID").
 
-### Bonus: Second Use Case
+### Bonus: Zweiter Use Case
 
-Implement a second use case `CompleteViewingUseCase`:
+Implementiere einen zweiten Use Case `CompleteViewingUseCase`:
 
 - Command: `CompleteViewingCommand(UUID processId, UUID viewingId)`
-- Loads the BrokerageProcess, calls `completeViewing(viewingId)`, and saves
+- Lädt den BrokerageProcess, ruft `completeViewing(viewingId)` auf und speichert
 
-## Verification
+## Verifikation
 
-Write a unit test for the use case with a mocked repository:
+Schreibe einen Unit-Test für den Use Case mit einem gemockten Repository:
 
-1. **Happy Path:** BrokerageProcess exists, viewing is created, result is returned
-2. **Not Found:** BrokerageProcess does not exist, `ProcessNotFoundException` is thrown
+1. **Happy Path:** BrokerageProcess existiert, Viewing wird erstellt, Ergebnis wird zurückgegeben
+2. **Nicht gefunden:** BrokerageProcess existiert nicht, `ProcessNotFoundException` wird geworfen
 
 ```bash
 cd solution
 mvn test
 ```
 
-All tests must pass.
+Alle Tests müssen grün sein.
 
-## Tips
+## Tipps
 
-- The use case is intentionally kept thin - the business logic resides in the domain model.
-- Commands and Results are immutable (Records) and belong to the application layer.
-- `@Transactional` ensures a rollback occurs in case of an exception.
-- The repository interface comes from the domain layer - the use case depends only on the abstraction, not on the concrete implementation.
+- Der Use Case ist bewusst schlank gehalten – die Geschäftslogik liegt im Domain-Modell.
+- Commands und Results sind unveränderlich (Records) und gehören zur Application-Schicht.
+- `@Transactional` stellt sicher, dass bei einer Exception ein Rollback erfolgt.
+- Das Repository-Interface kommt aus der Domain-Schicht – der Use Case hängt nur von der Abstraktion ab, nicht von der konkreten Implementierung.

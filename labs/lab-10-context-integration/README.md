@@ -1,28 +1,28 @@
-# Lab 10: Context Integration - Connecting Bounded Contexts
+# Lab 10: Context-Integration - Bounded Contexts verbinden
 
-## Learning Objective
+## Lernziel
 
-Implement event-based communication between bounded contexts.
+Event-basierte Kommunikation zwischen Bounded Contexts implementieren.
 
-## Duration
+## Dauer
 
-60 minutes
+60 Minuten
 
-## Prerequisites
+## Voraussetzungen
 
-- Lab 09 completed
-- Slides Modules 12 and 13
+- Lab 09 abgeschlossen
+- Slides Modul 12 und 13
 
-## Task
+## Aufgabe
 
-Create a second bounded context "Acquisition" and connect it to the existing Brokerage BC via domain events.
+Erstelle einen zweiten Bounded Context „Akquise" (Acquisition) und verbinde ihn über Domain Events mit dem bestehenden Brokerage-BC.
 
-### Step 1: Create a Minimal Acquisition BC
+### Schritt 1: Minimalen Acquisition-BC erstellen
 
-Create the entity `BrokerageContract` in the package `de.realestate.acquisition.domain.model`:
+Erstelle die Entity `BrokerageContract` im Package `de.realestate.acquisition.domain.model`:
 
-- Fields: `id` (UUID), `ownerId` (UUID), `propertyId` (UUID), `closedAt` (LocalDateTime)
-- Method: `close()` sets `closedAt` to the current timestamp
+- Felder: `id` (UUID), `ownerId` (UUID), `propertyId` (UUID), `closedAt` (LocalDateTime)
+- Methode: `close()` setzt `closedAt` auf den aktuellen Zeitstempel
 
 ```java
 public class BrokerageContract {
@@ -37,9 +37,9 @@ public class BrokerageContract {
 }
 ```
 
-### Step 2: Create Integration Event
+### Schritt 2: Integrations-Event erstellen
 
-Create the integration event `ContractSigned` as a record in the package `de.realestate.acquisition.domain.event`:
+Erstelle das Integrations-Event `ContractSigned` als Record im Package `de.realestate.acquisition.domain.event`:
 
 ```java
 public record ContractSigned(
@@ -49,16 +49,16 @@ public record ContractSigned(
 ) {}
 ```
 
-### Step 3: Application Service in the Acquisition BC
+### Schritt 3: Application Service im Acquisition-BC
 
-Create the service `CloseContractUseCase` in the package `de.realestate.acquisition.application.service`:
+Erstelle den Service `CloseContractUseCase` im Package `de.realestate.acquisition.application.service`:
 
-- Inject `BrokerageContractRepository` and `ApplicationEventPublisher`
-- Method `close(UUID contractId)`:
-  1. Load the BrokerageContract
-  2. Call `close()`
-  3. Save
-  4. Publish the `ContractSigned` event via `ApplicationEventPublisher`
+- Injiziert `BrokerageContractRepository` und `ApplicationEventPublisher`
+- Methode `close(UUID contractId)`:
+  1. Lade den BrokerageContract
+  2. Rufe `close()` auf
+  3. Speichere
+  4. Veröffentliche das `ContractSigned`-Event über `ApplicationEventPublisher`
 
 ```java
 @Service
@@ -79,9 +79,9 @@ public class CloseContractUseCase {
 }
 ```
 
-### Step 4: Event Listener in the Brokerage BC
+### Schritt 4: Event-Listener im Brokerage-BC
 
-Create the listener `ContractSignedListener` in the package `de.realestate.brokerage.application.listener`:
+Erstelle den Listener `ContractSignedListener` im Package `de.realestate.brokerage.application.listener`:
 
 ```java
 @Component
@@ -100,32 +100,32 @@ public class ContractSignedListener {
 }
 ```
 
-### Step 5: Test
+### Schritt 5: Test
 
-Write an integration test that verifies the entire flow:
+Schreibe einen Integrationstest, der den gesamten Ablauf verifiziert:
 
-1. Create a `BrokerageContract`
-2. Close it (via the use case)
-3. Verify that a `BrokerageProcess` was automatically created
+1. Erstelle einen `BrokerageContract`
+2. Schließe ihn ab (über den Use Case)
+3. Überprüfe, dass ein `BrokerageProcess` automatisch erstellt wurde
 
 ### Bonus: TransactionalEventListener
 
-Replace `@EventListener` with `@TransactionalEventListener(phase = AFTER_COMMIT)` to ensure that the event is only processed after the transaction has been successfully committed.
+Ersetze `@EventListener` durch `@TransactionalEventListener(phase = AFTER_COMMIT)`, um sicherzustellen, dass das Event erst nach dem erfolgreichen Commit der Transaktion verarbeitet wird.
 
-## Verification
+## Verifikation
 
-Run the integration test:
+Führe den Integrationstest aus:
 
 ```bash
 cd solution
 mvn test
 ```
 
-The test must confirm that after closing a BrokerageContract, a BrokerageProcess is automatically created.
+Der Test muss bestätigen, dass nach dem Abschluss eines BrokerageContract automatisch ein BrokerageProcess erstellt wird.
 
-## Tips
+## Tipps
 
-- Spring's `ApplicationEventPublisher` is well suited for communication between bounded contexts within a monolith.
-- The event belongs to the publishing BC (Acquisition) -- the consuming BC (Brokerage) imports it.
-- Make sure that the listener in the Brokerage BC has no direct dependency on the Acquisition domain model -- only on the event.
-- `@TransactionalEventListener(phase = AFTER_COMMIT)` ensures that the event is only processed when the transaction was successful.
+- Springs `ApplicationEventPublisher` eignet sich gut für die Kommunikation zwischen Bounded Contexts innerhalb eines Monolithen.
+- Das Event gehört zum publizierenden BC (Acquisition) – der konsumierende BC (Brokerage) importiert es.
+- Stelle sicher, dass der Listener im Brokerage-BC keine direkte Abhängigkeit zum Acquisition-Domain-Modell hat – nur zum Event.
+- `@TransactionalEventListener(phase = AFTER_COMMIT)` stellt sicher, dass das Event nur verarbeitet wird, wenn die Transaktion erfolgreich war.

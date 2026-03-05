@@ -1,30 +1,30 @@
-# Lab 12: Test Strategy - Tests at All Levels
+# Lab 12: Teststrategie - Tests auf allen Ebenen
 
-## Learning Objective
+## Lernziel
 
-Write domain, repository, web, and architecture tests.
+Domain-, Repository-, Web- und Architektur-Tests schreiben.
 
-## Duration
+## Dauer
 
-60 minutes
+60 Minuten
 
-## Prerequisites
+## Voraussetzungen
 
-- Lab 11 completed
-- Slides Module 15
+- Lab 11 abgeschlossen
+- Slides Modul 15
 
-## Task
+## Aufgabe
 
-Add tests at various levels to the project: unit tests for domain logic, integration tests for the repository, web tests for the REST adapter, and ArchUnit tests for architecture.
+Füge dem Projekt Tests auf verschiedenen Ebenen hinzu: Unit-Tests für Domain-Logik, Integrationstests für das Repository, Web-Tests für den REST-Adapter und ArchUnit-Tests für die Architektur.
 
-### Part 1: Domain Unit Test (no Spring context!)
+### Teil 1: Domain-Unit-Test (kein Spring-Context!)
 
-Test the invariants of the Aggregate Root `BrokerageProcess` without a Spring context -- pure JUnit 5 tests:
+Teste die Invarianten des Aggregate Root `BrokerageProcess` ohne Spring-Context – reine JUnit-5-Tests:
 
-1. **Negative test:** `setStatusToNotaryAppointment()` throws an `IllegalStateException` when no accepted offer exists
-2. **Happy path:** Accept an offer, then set status to NOTARTERMIN -- no error
-3. **Add viewing:** `addViewing()` creates a Viewing and updates the status
-4. **Accept offer:** `acceptOffer()` sets `accepted` to `true`
+1. **Negativtest:** `setStatusToNotaryAppointment()` wirft eine `IllegalStateException`, wenn kein angenommenes Angebot existiert
+2. **Happy Path:** Angebot annehmen, dann Status auf NOTARTERMIN setzen – kein Fehler
+3. **Besichtigung hinzufügen:** `addViewing()` erstellt eine Viewing und aktualisiert den Status
+4. **Angebot annehmen:** `acceptOffer()` setzt `accepted` auf `true`
 
 ```java
 class BrokerageProcessTest {
@@ -44,11 +44,11 @@ class BrokerageProcessTest {
 }
 ```
 
-**Important:** No `@SpringBootTest`, no `@ExtendWith(SpringExtension.class)` -- pure unit tests!
+**Wichtig:** Kein `@SpringBootTest`, kein `@ExtendWith(SpringExtension.class)` – reine Unit-Tests!
 
-### Part 2: Repository Integration Test
+### Teil 2: Repository-Integrationstest
 
-Create a `@DataJpaTest` for the `BrokerageProcessRepositoryAdapter`:
+Erstelle einen `@DataJpaTest` für den `BrokerageProcessRepositoryAdapter`:
 
 ```java
 @DataJpaTest
@@ -71,9 +71,9 @@ class BrokerageProcessRepositoryAdapterTest {
 }
 ```
 
-### Part 3: Web/API Test
+### Teil 3: Web-/API-Test
 
-Create a `@WebMvcTest` for the `ViewingController`:
+Erstelle einen `@WebMvcTest` für den `ViewingController`:
 
 ```java
 @WebMvcTest(ViewingController.class)
@@ -102,9 +102,9 @@ class ViewingControllerTest {
 }
 ```
 
-### Part 4: ArchUnit
+### Teil 4: ArchUnit
 
-Extend the ArchUnit tests from Lab 09 with a new rule:
+Erweitere die ArchUnit-Tests aus Lab 09 um eine neue Regel:
 
 ```java
 @ArchTest
@@ -114,32 +114,32 @@ static final ArchRule domain_events_should_be_records =
         .should().beAssignableTo(Record.class);
 ```
 
-**New rule:** "Domain events should be records" -- all classes in the `..domain.event..` package must be records.
+**Neue Regel:** „Domain Events müssen Records sein" – alle Klassen im Package `..domain.event..` müssen Records sein.
 
-### Bonus: Full Integration Test
+### Bonus: Vollständiger Integrationstest
 
-Create a `@SpringBootTest` full integration test that verifies the complete flow:
+Erstelle einen `@SpringBootTest`-Integrationstest, der den vollständigen Ablauf überprüft:
 
-1. Create a BrokerageProcess
-2. Schedule a viewing (via the use case)
-3. Verify that the process with its viewing has been saved
+1. Erstelle einen BrokerageProcess
+2. Lege eine Besichtigung an (über den Use Case)
+3. Überprüfe, dass der Prozess mit seiner Besichtigung gespeichert wurde
 
-## Verification
+## Verifikation
 
-Run all tests:
+Führe alle Tests aus:
 
 ```bash
 cd solution
 mvn test
 ```
 
-All tests must pass -- at least 8 tests.
+Alle Tests müssen grün sein – mindestens 8 Tests.
 
-## Tips
+## Tipps
 
-- **Domain tests** do not need a Spring context and are therefore very fast.
-- **`@DataJpaTest`** only starts the JPA layer with an embedded H2 database.
-- **`@WebMvcTest`** only starts the web layer and mocks all dependencies.
-- **ArchUnit** analyzes the compiled bytecode and does not need a running context.
-- Use `@MockitoBean` in `@WebMvcTest` to mock the controller's dependencies.
-- In `@DataJpaTest`, adapter classes must be explicitly added via `@Import`.
+- **Domain-Tests** benötigen keinen Spring-Context und sind daher sehr schnell.
+- **`@DataJpaTest`** startet nur die JPA-Schicht mit einer eingebetteten H2-Datenbank.
+- **`@WebMvcTest`** startet nur die Web-Schicht und mockt alle Abhängigkeiten.
+- **ArchUnit** analysiert den kompilierten Bytecode und benötigt keinen laufenden Context.
+- Verwende `@MockitoBean` in `@WebMvcTest`, um die Abhängigkeiten des Controllers zu mocken.
+- Bei `@DataJpaTest` müssen Adapter-Klassen explizit per `@Import` hinzugefügt werden.
