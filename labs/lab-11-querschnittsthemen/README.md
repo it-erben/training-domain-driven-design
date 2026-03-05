@@ -1,48 +1,48 @@
-# Lab 11: Cross-Cutting Concerns - Locking, Exception Handling, Auditing
+# Lab 11: Querschnittsthemen - Locking, Exception Handling, Auditing
 
-## Learning Objective
+## Lernziel
 
-Implement optimistic locking, global exception handling, and JPA auditing.
+Optimistic Locking, globale Fehlerbehandlung und JPA Auditing implementieren.
 
-## Duration
+## Dauer
 
-60 minutes
+60 Minuten
 
-## Prerequisites
+## Voraussetzungen
 
-- Lab 10 completed
-- Slides Module 14
+- Lab 10 abgeschlossen
+- Slides Modul 14
 
-## Task
+## Aufgabe
 
-Implement three important cross-cutting concerns for a production-ready application.
+Implementiere drei wichtige Querschnittsthemen für eine produktionsreife Anwendung.
 
-### Part 1: Optimistic Locking with @Version
+### Teil 1: Optimistic Locking mit @Version
 
-Add a version field to the JPA entity `JpaBrokerageProcess`:
+Füge ein Versionsfeld zur JPA-Entity `JpaBrokerageProcess` hinzu:
 
 ```java
 @Version
 private Long version;
 ```
 
-Write a test that provokes an `OptimisticLockException`:
+Schreibe einen Test, der eine `OptimisticLockException` provoziert:
 
-1. Load the same `BrokerageProcess` twice
-2. Modify and save the first instance
-3. Modify and save the second instance -- an `OptimisticLockException` must be thrown
+1. Lade denselben `BrokerageProcess` zweimal
+2. Ändere und speichere die erste Instanz
+3. Ändere und speichere die zweite Instanz – eine `OptimisticLockException` muss geworfen werden
 
-### Part 2: Extend Global Exception Handling
+### Teil 2: Globale Fehlerbehandlung erweitern
 
-Create or extend the `GlobalExceptionHandler` with `@RestControllerAdvice`:
+Erstelle oder erweitere den `GlobalExceptionHandler` mit `@RestControllerAdvice`:
 
-| Exception | HTTP Status | Description |
+| Exception | HTTP-Status | Beschreibung |
 |---|---|---|
-| `DomainException` | 422 Unprocessable Entity | Business errors from the domain |
-| `EntityNotFoundException` | 404 Not Found | Entity not found |
-| `OptimisticLockException` | 409 Conflict | Concurrent access |
+| `DomainException` | 422 Unprocessable Entity | Fachliche Fehler aus der Domäne |
+| `EntityNotFoundException` | 404 Not Found | Entity nicht gefunden |
+| `OptimisticLockException` | 409 Conflict | Gleichzeitiger Zugriff |
 
-Create a custom `DomainException` in the `domain.model` package:
+Erstelle eine eigene `DomainException` im Package `domain.model`:
 
 ```java
 public class DomainException extends RuntimeException {
@@ -53,9 +53,9 @@ public class DomainException extends RuntimeException {
 }
 ```
 
-### Part 3: Enable JPA Auditing
+### Teil 3: JPA Auditing aktivieren
 
-1. Enable JPA Auditing on the application class:
+1. Aktiviere JPA Auditing auf der Application-Klasse:
 
 ```java
 @SpringBootApplication
@@ -63,7 +63,7 @@ public class DomainException extends RuntimeException {
 public class RealEstateCrmApplication { ... }
 ```
 
-2. Add audit fields to the JPA entity `JpaBrokerageProcess`:
+2. Füge Audit-Felder zur JPA-Entity `JpaBrokerageProcess` hinzu:
 
 ```java
 @CreatedDate
@@ -76,7 +76,7 @@ private LocalDateTime lastModifiedDate;
 private String createdBy;
 ```
 
-3. Create an `AuditorAware<String>` bean:
+3. Erstelle eine `AuditorAware<String>`-Bean:
 
 ```java
 @Configuration
@@ -89,23 +89,23 @@ public class AuditorAwareConfig {
 }
 ```
 
-## Verification
+## Verifikation
 
-Run the tests:
+Führe die Tests aus:
 
 ```bash
 cd solution
 mvn test
 ```
 
-All tests must pass:
-- ArchUnit tests verify architecture rules
-- Integration tests verify context integration
-- JPA auditing tests verify that `createdDate` is set on save
+Alle Tests müssen grün sein:
+- ArchUnit-Tests überprüfen die Architekturregeln
+- Integrationstests überprüfen die Context-Integration
+- JPA-Auditing-Tests überprüfen, dass `createdDate` beim Speichern gesetzt wird
 
-## Tips
+## Tipps
 
-- `@Version` uses optimistic locking: on save, it checks whether the version still matches. If not, an `OptimisticLockException` is thrown.
-- `@CreatedDate` and `@LastModifiedDate` require `@EnableJpaAuditing` on the configuration and `@EntityListeners(AuditingEntityListener.class)` on the JPA entity.
-- The `GlobalExceptionHandler` with `@RestControllerAdvice` catches exceptions centrally and returns consistent HTTP responses.
-- `DomainException` is a custom exception class defined in the domain layer that remains Spring-free.
+- `@Version` nutzt Optimistic Locking: Beim Speichern wird geprüft, ob die Version noch übereinstimmt. Falls nicht, wird eine `OptimisticLockException` geworfen.
+- `@CreatedDate` und `@LastModifiedDate` benötigen `@EnableJpaAuditing` auf der Konfiguration und `@EntityListeners(AuditingEntityListener.class)` auf der JPA-Entity.
+- Der `GlobalExceptionHandler` mit `@RestControllerAdvice` fängt Exceptions zentral ab und gibt konsistente HTTP-Antworten zurück.
+- `DomainException` ist eine eigene Exception-Klasse in der Domain-Schicht, die Spring-frei bleibt.

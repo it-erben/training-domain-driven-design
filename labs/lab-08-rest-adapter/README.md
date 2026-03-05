@@ -1,25 +1,25 @@
-# Lab 08: REST Adapter - Viewings API
+# Lab 08: REST-Adapter - Viewings-API
 
-## Learning Objective
+## Lernziel
 
-Implement a `@RestController` as an inbound adapter, define DTOs for the API boundary, and implement error handling with `ProblemDetail` (RFC 9457).
+Einen `@RestController` als Inbound-Adapter implementieren, DTOs für die API-Grenze definieren und Fehlerbehandlung mit `ProblemDetail` (RFC 9457) umsetzen.
 
-## Duration
+## Dauer
 
-45 minutes
+45 Minuten
 
-## Prerequisites
+## Voraussetzungen
 
-- Lab 07 completed
-- Slides Module 10
+- Lab 07 abgeschlossen
+- Slides Modul 10
 
-## Task
+## Aufgabe
 
-Implement a REST adapter that receives HTTP requests, translates them into commands, and delegates to the use case.
+Implementiere einen REST-Adapter, der HTTP-Requests entgegennimmt, in Commands übersetzt und an den Use Case delegiert.
 
-### Step 1: Create the Request DTO
+### Schritt 1: Request-DTO erstellen
 
-Create the request DTO `CreateViewingRequest` as a Java Record in the package `de.realestate.brokerage.adapter.web`:
+Erstelle das Request-DTO `CreateViewingRequest` als Java Record im Package `de.realestate.brokerage.adapter.web`:
 
 ```java
 public record CreateViewingRequest(
@@ -28,11 +28,11 @@ public record CreateViewingRequest(
 ) {}
 ```
 
-**Note:** The validation annotations (`@NotBlank`, `@NotNull`) belong to the adapter layer - the domain model validates itself.
+**Hinweis:** Die Validierungs-Annotationen (`@NotBlank`, `@NotNull`) gehören zur Adapter-Schicht – das Domain-Modell validiert sich selbst.
 
-### Step 2: Create the Response DTO
+### Schritt 2: Response-DTO erstellen
 
-Create the response DTO `CreateViewingResponse` as a Java Record in the same package:
+Erstelle das Response-DTO `CreateViewingResponse` als Java Record im selben Package:
 
 ```java
 public record CreateViewingResponse(
@@ -41,9 +41,9 @@ public record CreateViewingResponse(
 ) {}
 ```
 
-### Step 3: Implement the Controller
+### Schritt 3: Controller implementieren
 
-Create the `ViewingController` in the package `de.realestate.brokerage.adapter.web`:
+Erstelle den `ViewingController` im Package `de.realestate.brokerage.adapter.web`:
 
 ```java
 @RestController
@@ -66,11 +66,11 @@ public class ViewingController {
 }
 ```
 
-**Important:** The controller contains no business logic. It is a pure adapter that translates between HTTP and the application layer.
+**Wichtig:** Der Controller enthält keine Geschäftslogik. Er ist ein reiner Adapter, der zwischen HTTP und der Application-Schicht übersetzt.
 
-### Step 4: Implement the Exception Handler
+### Schritt 4: Exception-Handler implementieren
 
-Create the `GlobalExceptionHandler` in the package `de.realestate.brokerage.adapter.web`:
+Erstelle den `GlobalExceptionHandler` im Package `de.realestate.brokerage.adapter.web`:
 
 ```java
 @ControllerAdvice
@@ -88,15 +88,15 @@ public class GlobalExceptionHandler {
 }
 ```
 
-**Note:** `ProblemDetail` is natively supported since Spring Boot 4 and implements RFC 9457 (formerly RFC 7807).
+**Hinweis:** `ProblemDetail` wird seit Spring Boot 4 nativ unterstützt und implementiert RFC 9457 (ehemals RFC 7807).
 
-### Step 5: Test with curl
+### Schritt 5: Mit curl testen
 
-Start the application and test the endpoints (see Verification).
+Starte die Anwendung und teste die Endpunkte (siehe Verifikation).
 
-### Bonus: GET Endpoint
+### Bonus: GET-Endpunkt
 
-Implement a GET endpoint that lists all viewings of a brokerage process:
+Implementiere einen GET-Endpunkt, der alle Besichtigungen eines Vermittlungsprozesses auflistet:
 
 ```java
 @GetMapping
@@ -105,11 +105,11 @@ public List<CreateViewingResponse> list(@PathVariable UUID processId) {
 }
 ```
 
-## Verification
+## Verifikation
 
-Start the application and run the following curl commands:
+Starte die Anwendung und führe die folgenden curl-Befehle aus:
 
-### Create viewing (expected: 201 Created)
+### Besichtigung anlegen (erwartet: 201 Created)
 
 ```bash
 curl -X POST http://localhost:8080/api/brokerage/processes/{processId}/viewings \
@@ -121,9 +121,9 @@ curl -X POST http://localhost:8080/api/brokerage/processes/{processId}/viewings 
   -w "\n%{http_code}\n"
 ```
 
-Expected response: HTTP 201, JSON with `viewingId` and `processId`.
+Erwartete Antwort: HTTP 201, JSON mit `viewingId` und `processId`.
 
-### Use a non-existing process (expected: 404 ProblemDetail)
+### Nicht existierenden Prozess verwenden (erwartet: 404 ProblemDetail)
 
 ```bash
 curl -X POST http://localhost:8080/api/brokerage/processes/00000000-0000-0000-0000-000000000000/viewings \
@@ -135,7 +135,7 @@ curl -X POST http://localhost:8080/api/brokerage/processes/00000000-0000-0000-00
   -w "\n%{http_code}\n"
 ```
 
-Expected response: HTTP 404, ProblemDetail JSON:
+Erwartete Antwort: HTTP 404, ProblemDetail-JSON:
 
 ```json
 {
@@ -146,7 +146,7 @@ Expected response: HTTP 404, ProblemDetail JSON:
 }
 ```
 
-### Validation error (expected: 422 ProblemDetail)
+### Validierungsfehler (erwartet: 422 ProblemDetail)
 
 ```bash
 curl -X POST http://localhost:8080/api/brokerage/processes/{processId}/viewings \
@@ -158,11 +158,11 @@ curl -X POST http://localhost:8080/api/brokerage/processes/{processId}/viewings 
   -w "\n%{http_code}\n"
 ```
 
-Expected response: HTTP 422, ProblemDetail JSON with validation errors.
+Erwartete Antwort: HTTP 422, ProblemDetail-JSON mit Validierungsfehlern.
 
-## Tips
+## Tipps
 
-- The controller is an inbound adapter in Clean Architecture terminology. It depends on the application layer, not the other way around.
-- DTOs (Request/Response) belong to the adapter layer and are **not** used in the domain or application layer.
-- `ProblemDetail` is the standard for error responses in REST APIs and is natively supported by Spring Boot 4.
-- The `Location` header in the 201 response tells the client where the newly created resource can be found.
+- Der Controller ist in der Clean-Architecture-Terminologie ein Inbound-Adapter. Er hängt von der Application-Schicht ab, nicht umgekehrt.
+- DTOs (Request/Response) gehören zur Adapter-Schicht und werden **nicht** in der Domain- oder Application-Schicht verwendet.
+- `ProblemDetail` ist der Standard für Fehlerantworten in REST-APIs und wird von Spring Boot 4 nativ unterstützt.
+- Der `Location`-Header in der 201-Antwort teilt dem Client mit, wo die neu erstellte Ressource zu finden ist.

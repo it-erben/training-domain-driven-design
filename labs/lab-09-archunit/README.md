@@ -1,25 +1,25 @@
-# Lab 09: ArchUnit - Architecture Rules as Tests
+# Lab 09: ArchUnit - Architekturregeln als Tests
 
-## Learning Objective
+## Lernziel
 
-Automatically verify architecture rules using ArchUnit.
+Architekturregeln mit ArchUnit automatisiert überprüfen.
 
-## Duration
+## Dauer
 
-45 minutes
+45 Minuten
 
-## Prerequisites
+## Voraussetzungen
 
-- Lab 08 completed
-- Slides Module 11
+- Lab 08 abgeschlossen
+- Slides Modul 11
 
-## Task
+## Aufgabe
 
-Add ArchUnit tests to the project that ensure Clean Architecture rules are being followed.
+Füge dem Projekt ArchUnit-Tests hinzu, die sicherstellen, dass die Clean-Architecture-Regeln eingehalten werden.
 
-### Step 1: Add ArchUnit Dependency
+### Schritt 1: ArchUnit-Dependency hinzufügen
 
-Add the ArchUnit dependency to `pom.xml`:
+Füge die ArchUnit-Dependency zur `pom.xml` hinzu:
 
 ```xml
 <dependency>
@@ -30,9 +30,9 @@ Add the ArchUnit dependency to `pom.xml`:
 </dependency>
 ```
 
-### Step 2: Create Test Class
+### Schritt 2: Testklasse erstellen
 
-Create the test class `ArchitectureTest` in the package `de.realestate.architecture` under `src/test/java`:
+Erstelle die Testklasse `ArchitectureTest` im Package `de.realestate.architecture` unter `src/test/java`:
 
 ```java
 @AnalyzeClasses(packages = "de.realestate")
@@ -41,9 +41,9 @@ class ArchitectureTest {
 }
 ```
 
-### Step 3: Rule 1 - Domain must not depend on Infrastructure or Adapter
+### Schritt 3: Regel 1 – Domain darf nicht von Infrastructure oder Adapter abhängen
 
-The domain layer must have no dependencies on the infrastructure or adapter layers:
+Die Domain-Schicht darf keine Abhängigkeiten zur Infrastruktur- oder Adapter-Schicht haben:
 
 ```java
 @ArchTest
@@ -54,9 +54,9 @@ static final ArchRule domain_should_not_depend_on_infrastructure_or_adapter =
         .resideInAnyPackage("..infrastructure..", "..adapter..");
 ```
 
-### Step 4: Rule 2 - No Spring Framework Classes in Domain
+### Schritt 4: Regel 2 – Keine Spring-Framework-Klassen in der Domain
 
-The domain layer must not use any Spring Framework classes:
+Die Domain-Schicht darf keine Spring-Framework-Klassen verwenden:
 
 ```java
 @ArchTest
@@ -67,9 +67,9 @@ static final ArchRule domain_has_no_spring_imports =
         .resideInAPackage("org.springframework..");
 ```
 
-### Step 5: Rule 3 - Adapter.Web must not access Domain.Model directly
+### Schritt 5: Regel 3 – Adapter.Web darf nicht direkt auf Domain.Model zugreifen
 
-The web adapter must not access `domain.model` directly, only through the application layer:
+Der Web-Adapter darf nicht direkt auf `domain.model` zugreifen, sondern nur über die Application-Schicht:
 
 ```java
 @ArchTest
@@ -80,9 +80,9 @@ static final ArchRule web_adapter_should_not_access_domain_model_directly =
         .resideInAPackage("..domain.model..");
 ```
 
-### Step 6: Rule 4 - Only Adapter.Web may use @RestController
+### Schritt 6: Regel 4 – Nur Adapter.Web darf @RestController verwenden
 
-Only classes in the `adapter.web` package may use the `@RestController` annotation:
+Nur Klassen im Package `adapter.web` dürfen die Annotation `@RestController` verwenden:
 
 ```java
 @ArchTest
@@ -92,9 +92,9 @@ static final ArchRule only_web_adapter_should_use_rest_controller =
         .should().resideInAPackage("..adapter.web..");
 ```
 
-### Bonus: Rule for @Transactional
+### Bonus: Regel für @Transactional
 
-Ensure that `@Transactional` is only used in `application.service`:
+Stelle sicher, dass `@Transactional` nur in `application.service` verwendet wird:
 
 ```java
 @ArchTest
@@ -104,20 +104,20 @@ static final ArchRule transactional_only_in_application_service =
         .should().beAnnotatedWith(Transactional.class);
 ```
 
-## Verification
+## Verifikation
 
-Run the tests:
+Führe die Tests aus:
 
 ```bash
 cd solution
 mvn test
 ```
 
-All ArchUnit tests must pass.
+Alle ArchUnit-Tests müssen grün sein.
 
-## Tips
+## Tipps
 
-- ArchUnit analyzes compiled bytecode, so the project must be compiled first.
-- Use `@AnalyzeClasses(packages = "de.realestate")` to analyze all classes in the project.
-- ArchUnit rules can also be defined as fields with `@ArchTest` -- this is cleaner than individual test methods.
-- If a rule fails, ArchUnit shows exactly which class violates which rule.
+- ArchUnit analysiert kompilierten Bytecode, daher muss das Projekt zuerst kompiliert werden.
+- Verwende `@AnalyzeClasses(packages = "de.realestate")`, um alle Klassen im Projekt zu analysieren.
+- ArchUnit-Regeln können auch als Felder mit `@ArchTest` definiert werden – das ist übersichtlicher als einzelne Testmethoden.
+- Wenn eine Regel verletzt wird, zeigt ArchUnit genau an, welche Klasse welche Regel verletzt.
