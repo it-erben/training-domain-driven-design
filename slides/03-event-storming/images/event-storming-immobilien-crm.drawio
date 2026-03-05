@@ -1,0 +1,312 @@
+<mxfile host="app.diagrams.net" modified="2026-03-04T10:00:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="event-storming-crm" name="Event Storming – Immobilien-CRM Prozess">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ==================== TITLE ==================== -->
+        <mxCell id="title" value="Event Storming – Immobilien-CRM Prozess" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="500" y="10" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== PHASE LABELS ==================== -->
+        <mxCell id="phase-akquise" value="Akquise" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#37474F;" vertex="1" parent="1">
+          <mxGeometry x="100" y="55" width="350" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="phase-vermarktung" value="Vermarktung" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#37474F;" vertex="1" parent="1">
+          <mxGeometry x="500" y="55" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="phase-vermittlung" value="Vermittlung" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#37474F;" vertex="1" parent="1">
+          <mxGeometry x="870" y="55" width="350" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="phase-abschluss" value="Abschluss" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#37474F;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="55" width="250" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== PHASE DIVIDERS (vertical dashed lines) ==================== -->
+        <mxCell id="divider1" value="" style="line;strokeWidth=2;strokeColor=#90A4AE;dashed=1;dashPattern=8 4;direction=south;html=1;" vertex="1" parent="1">
+          <mxGeometry x="467" y="55" width="10" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="divider2" value="" style="line;strokeWidth=2;strokeColor=#90A4AE;dashed=1;dashPattern=8 4;direction=south;html=1;" vertex="1" parent="1">
+          <mxGeometry x="837" y="55" width="10" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="divider3" value="" style="line;strokeWidth=2;strokeColor=#90A4AE;dashed=1;dashPattern=8 4;direction=south;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="55" width="10" height="760" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- PHASE 1: AKQUISE                                             -->
+        <!-- ============================================================ -->
+
+        <!-- Row 1: Kontaktiere Eigentümer → Kontakt → EigentümerKontaktiert -->
+        <mxCell id="a1-cmd" value="Kontaktiere&lt;br&gt;Eigentümer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="30" y="100" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a1-agg" value="Kontakt" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="185" y="100" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a1-evt" value="Eigentümer&lt;br&gt;Kontaktiert" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=11;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="320" y="100" width="130" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a1-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="a1-cmd" target="a1-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a1-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="a1-agg" target="a1-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 2: Erfasse Objekt → Immobilie → ObjektErfasst -->
+        <mxCell id="a2-cmd" value="Erfasse&lt;br&gt;Objekt" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="30" y="170" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a2-agg" value="Immobilie" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="185" y="170" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a2-evt" value="Objekt&lt;br&gt;Erfasst" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=11;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="320" y="170" width="130" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a2-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="a2-cmd" target="a2-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="a2-agg" target="a2-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 3: Bewerte Objekt → Immobilie → ObjektBewertet -->
+        <mxCell id="a3-cmd" value="Bewerte&lt;br&gt;Objekt" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="30" y="240" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a3-agg" value="Immobilie" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="185" y="240" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a3-evt" value="Objekt&lt;br&gt;Bewertet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=11;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="320" y="240" width="130" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a3-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="a3-cmd" target="a3-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a3-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="a3-agg" target="a3-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 4: Unterschreibe Maklervertrag → Maklerauftrag → MaklervertragUnterschrieben -->
+        <mxCell id="a4-cmd" value="Unterschreibe&lt;br&gt;Maklervertrag" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="310" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a4-agg" value="Makler-&lt;br&gt;auftrag" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="185" y="310" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a4-evt" value="Maklervertrag&lt;br&gt;Unterschrieben" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="320" y="310" width="130" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="a4-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="a4-cmd" target="a4-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="a4-agg" target="a4-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Policy: Wenn MaklervertragUnterschrieben → Erstelle Exposé -->
+        <mxCell id="a5-policy" value="Wenn MaklervertragUnterschrieben&lt;br&gt;→ Erstelle Exposé" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#7B1FA2;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="120" y="380" width="230" height="45" as="geometry" />
+        </mxCell>
+        <!-- Arrow from MaklervertragUnterschrieben event to policy -->
+        <mxCell id="a5-arr1" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#7B1FA2;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" source="a4-evt" target="a5-policy" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- PHASE 2: VERMARKTUNG                                         -->
+        <!-- ============================================================ -->
+
+        <!-- Row 1: Erstelle Exposé → Exposé → ExposéErstellt -->
+        <mxCell id="v1-cmd" value="Erstelle&lt;br&gt;Exposé" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="490" y="100" width="110" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-agg" value="Exposé" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="100" width="90" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-evt" value="Exposé&lt;br&gt;Erstellt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=11;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="750" y="100" width="70" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="v1-cmd" target="v1-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v1-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="v1-agg" target="v1-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow from policy to Erstelle Exposé command -->
+        <mxCell id="v1-policy-arr" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#7B1FA2;dashed=1;entryX=0;entryY=1;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="a5-policy" target="v1-cmd" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 2: Veröffentliche Inserat → Inserat → InseratVeröffentlicht -->
+        <mxCell id="v2-cmd" value="Veröffentliche&lt;br&gt;Inserat" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="490" y="180" width="110" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-agg" value="Inserat" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="180" width="90" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-evt" value="Inserat&lt;br&gt;Veröffentlicht" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="750" y="180" width="70" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="v2-cmd" target="v2-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v2-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="v2-agg" target="v2-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- External System: ImmoScout24 -->
+        <mxCell id="v3-ext" value="ImmoScout24" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F48FB1;strokeColor=#C2185B;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="620" y="260" width="120" height="45" as="geometry" />
+        </mxCell>
+        <!-- Arrow from InseratVeröffentlicht to ImmoScout24 -->
+        <mxCell id="v3-arr" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#C2185B;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="v2-evt" target="v3-ext" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- PHASE 3: VERMITTLUNG                                         -->
+        <!-- ============================================================ -->
+
+        <!-- Row 1: Führe Besichtigung durch → Vermittlungsvorgang → BesichtigungDurchgeführt -->
+        <mxCell id="m1-cmd" value="Führe Besichtigung&lt;br&gt;durch" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="860" y="100" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-agg" value="Vermittlungs-&lt;br&gt;vorgang" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="100" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-evt" value="Besichtigung&lt;br&gt;Durchgeführt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="100" width="110" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="m1-cmd" target="m1-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m1-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="m1-agg" target="m1-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 2: Nimm Angebot entgegen → Vermittlungsvorgang → AngebotEingegangen -->
+        <mxCell id="m2-cmd" value="Nimm Angebot&lt;br&gt;entgegen" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="860" y="180" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-agg" value="Vermittlungs-&lt;br&gt;vorgang" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="180" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-evt" value="Angebot&lt;br&gt;Eingegangen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="180" width="110" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="m2-cmd" target="m2-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m2-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="m2-agg" target="m2-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 3: Nimm Angebot an → Vermittlungsvorgang → AngebotAngenommen -->
+        <mxCell id="m3-cmd" value="Nimm Angebot&lt;br&gt;an" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="860" y="260" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m3-agg" value="Vermittlungs-&lt;br&gt;vorgang" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="260" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m3-evt" value="Angebot&lt;br&gt;Angenommen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="260" width="110" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m3-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="m3-cmd" target="m3-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m3-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="m3-agg" target="m3-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Policy: Wenn AngebotAngenommen → Vereinbare Notartermin -->
+        <mxCell id="m4-policy" value="Wenn AngebotAngenommen&lt;br&gt;→ Vereinbare Notartermin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CE93D8;strokeColor=#7B1FA2;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="950" y="340" width="220" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m4-arr" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#7B1FA2;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="m3-evt" target="m4-policy" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- PHASE 4: ABSCHLUSS                                           -->
+        <!-- ============================================================ -->
+
+        <!-- Row 1: Vereinbare Notartermin → Vermittlungsvorgang → NotarterminVereinbart -->
+        <mxCell id="ab1-cmd" value="Vereinbare&lt;br&gt;Notartermin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#90CAF9;strokeColor=#1565C0;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="100" width="110" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ab1-agg" value="Vermittlungs-&lt;br&gt;vorgang" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="100" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ab1-evt" value="Notartermin&lt;br&gt;Vereinbart" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="100" width="110" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ab1-arr1" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="ab1-cmd" target="ab1-agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ab1-arr2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#424242;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" source="ab1-agg" target="ab1-evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow from policy to Vereinbare Notartermin -->
+        <mxCell id="ab1-policy-arr" style="rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#7B1FA2;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" source="m4-policy" target="ab1-cmd" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 2: KaufvertragUnterschrieben (standalone event) -->
+        <mxCell id="ab2-evt" value="Kaufvertrag&lt;br&gt;Unterschrieben" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD54F;strokeColor=#FF8F00;fontStyle=1;fontSize=11;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="190" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Hot Spot: Wer zahlt die Provision? -->
+        <mxCell id="ab3-hotspot" value="?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#EF5350;strokeColor=#B71C1C;fontStyle=1;fontSize=18;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1570" y="185" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ab3-hotspot-label" value="Wer zahlt&lt;br&gt;die Provision?" style="text;html=1;fontSize=11;fontStyle=3;align=center;verticalAlign=top;whiteSpace=wrap;fontColor=#B71C1C;" vertex="1" parent="1">
+          <mxGeometry x="1545" y="250" width="110" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== TIMELINE ARROW (bottom) ==================== -->
+        <mxCell id="timeline-line" value="" style="endArrow=block;html=1;strokeWidth=3;strokeColor=#37474F;endFill=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="30" y="460" as="sourcePoint" />
+            <mxPoint x="1700" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="timeline-label" value="Zeit →" style="text;html=1;fontSize=14;fontStyle=3;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#37474F;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="445" width="80" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Timeline phase markers -->
+        <mxCell id="tm-akquise" value="Akquise" style="text;html=1;fontSize=11;fontStyle=2;align=center;verticalAlign=top;fontColor=#607D8B;" vertex="1" parent="1">
+          <mxGeometry x="160" y="465" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tm-vermarktung" value="Vermarktung" style="text;html=1;fontSize=11;fontStyle=2;align=center;verticalAlign=top;fontColor=#607D8B;" vertex="1" parent="1">
+          <mxGeometry x="590" y="465" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tm-vermittlung" value="Vermittlung" style="text;html=1;fontSize=11;fontStyle=2;align=center;verticalAlign=top;fontColor=#607D8B;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="465" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="tm-abschluss" value="Abschluss" style="text;html=1;fontSize=11;fontStyle=2;align=center;verticalAlign=top;fontColor=#607D8B;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="465" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Timeline tick marks -->
+        <mxCell id="tick1" value="" style="line;strokeWidth=2;strokeColor=#37474F;direction=south;html=1;" vertex="1" parent="1">
+          <mxGeometry x="467" y="452" width="10" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="tick2" value="" style="line;strokeWidth=2;strokeColor=#37474F;direction=south;html=1;" vertex="1" parent="1">
+          <mxGeometry x="837" y="452" width="10" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="tick3" value="" style="line;strokeWidth=2;strokeColor=#37474F;direction=south;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="452" width="10" height="16" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

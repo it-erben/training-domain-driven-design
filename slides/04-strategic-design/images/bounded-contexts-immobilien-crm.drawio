@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="draw.io" modified="2026-03-04T00:00:00.000Z" agent="draw.io" version="21.0.0" type="device">
+  <diagram id="bounded-contexts" name="Bounded Contexts">
+    <mxGraphModel dx="1622" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Bounded Contexts – Immobilien-CRM" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== BC 1: Objektverwaltung ==================== -->
+        <mxCell id="bc1" value="&lt;b style=&quot;font-size:14px&quot;&gt;Objektverwaltung&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=none;strokeColor=#82b366;strokeWidth=2;dashed=1;dashPattern=8 4;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="340" height="200" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Immobilie -->
+        <mxCell id="bc1a1" value="&lt;b&gt;Immobilie&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="150" width="130" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Bewertung -->
+        <mxCell id="bc1a2" value="&lt;b&gt;Bewertung&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="220" y="150" width="130" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate labels -->
+        <mxCell id="bc1note" value="Aggregates" style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=middle;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== BC 2: Kontaktmanagement ==================== -->
+        <mxCell id="bc2" value="&lt;b style=&quot;font-size:14px&quot;&gt;Kontaktmanagement&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=none;strokeColor=#82b366;strokeWidth=2;dashed=1;dashPattern=8 4;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="420" y="90" width="480" height="200" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Kontakt -->
+        <mxCell id="bc2a1" value="&lt;b&gt;Kontakt&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="445" y="150" width="120" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Eigentümer -->
+        <mxCell id="bc2a2" value="&lt;b&gt;Eigentümer&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="585" y="150" width="130" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Interessent -->
+        <mxCell id="bc2a3" value="&lt;b&gt;Interessent&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="735" y="150" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="bc2note" value="Aggregates" style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=middle;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="440" y="120" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== BC 3: Akquise/Auftrag ==================== -->
+        <mxCell id="bc3" value="&lt;b style=&quot;font-size:14px&quot;&gt;Akquise / Auftrag&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=none;strokeColor=#82b366;strokeWidth=2;dashed=1;dashPattern=8 4;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="940" y="90" width="340" height="200" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Maklerauftrag -->
+        <mxCell id="bc3a1" value="&lt;b&gt;Maklerauftrag&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="965" y="150" width="130" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Akquisition -->
+        <mxCell id="bc3a2" value="&lt;b&gt;Akquisition&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1115" y="150" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="bc3note" value="Aggregates" style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=middle;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="960" y="120" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== BC 4: Vermarktung ==================== -->
+        <mxCell id="bc4" value="&lt;b style=&quot;font-size:14px&quot;&gt;Vermarktung&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=none;strokeColor=#82b366;strokeWidth=2;dashed=1;dashPattern=8 4;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="340" height="200" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Exposé -->
+        <mxCell id="bc4a1" value="&lt;b&gt;Exposé&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="70" y="400" width="130" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Inserat -->
+        <mxCell id="bc4a2" value="&lt;b&gt;Inserat&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="220" y="400" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="bc4note" value="Aggregates" style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=middle;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="60" y="370" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== BC 5: Vermittlungsprozess ==================== -->
+        <mxCell id="bc5" value="&lt;b style=&quot;font-size:14px&quot;&gt;Vermittlungsprozess&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=none;strokeColor=#82b366;strokeWidth=2;dashed=1;dashPattern=8 4;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="420" y="340" width="480" height="200" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Vermittlungsvorgang -->
+        <mxCell id="bc5a1" value="&lt;b&gt;Vermittlungs-&lt;br&gt;vorgang&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="440" y="400" width="130" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Besichtigung -->
+        <mxCell id="bc5a2" value="&lt;b&gt;Besichtigung&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="590" y="400" width="130" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Angebot -->
+        <mxCell id="bc5a3" value="&lt;b&gt;Angebot&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="740" y="400" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="bc5note" value="Aggregates" style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=middle;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="440" y="370" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== BC 6: Aktivitäten/Kommunikation ==================== -->
+        <mxCell id="bc6" value="&lt;b style=&quot;font-size:14px&quot;&gt;Aktivitäten / Kommunikation&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=none;strokeColor=#82b366;strokeWidth=2;dashed=1;dashPattern=8 4;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="940" y="340" width="480" height="200" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Aktivität -->
+        <mxCell id="bc6a1" value="&lt;b&gt;Aktivität&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="965" y="400" width="120" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Termin -->
+        <mxCell id="bc6a2" value="&lt;b&gt;Termin&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1105" y="400" width="120" height="50" as="geometry" />
+        </mxCell>
+        <!-- Aggregate: Nachricht -->
+        <mxCell id="bc6a3" value="&lt;b&gt;Nachricht&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1245" y="400" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="bc6note" value="Aggregates" style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=middle;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="960" y="370" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;strokeWidth=1;dashed=1;dashPattern=8 4;" vertex="1" parent="1">
+          <mxGeometry x="40" y="590" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_label" value="= Bounded Context (gestrichelt)" style="text;html=1;fontSize=10;align=left;verticalAlign=middle;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="250" y="590" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_agg" value="Aggregate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="630" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_agg_label" value="= Aggregate" style="text;html=1;fontSize=10;align=left;verticalAlign=middle;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="140" y="630" width="100" height="30" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

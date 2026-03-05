@@ -2,23 +2,8 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+header: "DDD & Clean Architecture mit Spring Boot 4"
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 11 – Business Components & Spring Modulith
@@ -40,20 +25,12 @@ style: |
 
 ## Von Bounded Context zu Deployment Unit
 
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  Bounded Context│     │     Modul       │     │ Deployment Unit │
-│  (strategisch)  │────►│  (Code)         │────►│ (Artefakt)      │
-│                 │     │                 │     │                 │
-│  Problemraum /  │     │  Java-Paket,    │     │  JAR, Container,│
-│  Lösungsraum    │     │  Spring Modulith│     │  Microservice   │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-```
+![BC → Modul → Deployment Unit](images/bc-modul-deployment-unit.drawio.png)
 
 | Ebene | Beschreibung | Beispiel |
 |-------|-------------|----------|
 | **Bounded Context** | Fachliche Grenze aus DDD | Vermittlung, Kontaktmanagement |
-| **Modul** | Code-Organisation im Monolithen | `de.immobiliencrm.vermittlung` |
+| **Modul** | Code-Organisation im Monolithen | `de.realestate.brokerage` |
 | **Deployment Unit** | Auslieferbare Einheit | JAR, Docker Container |
 
 > Ein Bounded Context kann als Modul starten und **später** zum Microservice werden.
@@ -132,19 +109,19 @@ style: |
 ## Modul-Struktur-Konventionen
 
 ```
-de.immobiliencrm                      ← @SpringBootApplication
-├── vermittlung/                      ← Modul "Vermittlung"
-│   ├── VermittlungApi.java                 (public → API des Moduls)
-│   ├── BesichtigungGeplantEvent.java       (public → Event-API)
+de.realestate                      ← @SpringBootApplication
+├── brokerage/                        ← Modul "Vermittlung"
+│   ├── BrokerageApi.java                   (public → API des Moduls)
+│   ├── ViewingScheduledEvent.java          (public → Event-API)
 │   └── internal/                           (package-private → intern)
-│       ├── VermittlungService.java
-│       ├── VermittlungRepository.java
+│       ├── BrokerageService.java
+│       ├── BrokerageRepository.java
 │       └── domain/
-│           └── Vermittlungsvorgang.java
-├── kontakt/                          ← Modul "Kontaktmanagement"
-│   ├── KontaktApi.java
+│           └── BrokerageProcess.java
+├── contact/                          ← Modul "Kontaktmanagement"
+│   ├── ContactApi.java
 │   └── internal/
-└── ImmobilienCrmApplication.java
+└── RealEstateCrmApplication.java
 ```
 
 - **Top-Level-Packages** unter der Hauptklasse = Module
@@ -157,14 +134,14 @@ de.immobiliencrm                      ← @SpringBootApplication
 ## @ApplicationModule
 
 ```java
-// vermittlung/package-info.java
+// brokerage/package-info.java
 @org.springframework.modulith.ApplicationModule(
     allowedDependencies = {
-        "kontakt",
+        "contact",
         "shared"
     }
 )
-package de.immobiliencrm.vermittlung;
+package de.realestate.brokerage;
 ```
 
 - Deklariert **explizit**, welche anderen Module referenziert werden dürfen
@@ -199,18 +176,18 @@ package de.immobiliencrm.vermittlung;
 class ModulithStructureTest {
 
     ApplicationModules modules =
-        ApplicationModules.of(ImmobilienCrmApplication.class);
+        ApplicationModules.of(RealEstateCrmApplication.class);
 
     @Test
     void verifyModuleStructure() {
-        // Prüft: keine unerlaubten Zugriffe zwischen Modulen
-        // Prüft: kein Zugriff auf 'internal'-Packages von außen
+        // Checks: no unauthorized access between modules
+        // Checks: no access to 'internal' packages from outside
         modules.verify();
     }
 
     @Test
-    void dokumenteModulstruktur() {
-        // Generiert PlantUML-Diagramme in target/modulith-docs/
+    void documentModuleStructure() {
+        // Generates PlantUML diagrams in target/modulith-docs/
         new Documenter(modules)
             .writeDocumentation();
     }
@@ -228,20 +205,20 @@ class ModulithStructureTest {
 ### Schritt 1: Aggregate sammelt Events
 
 ```java
-// domain.model (kein Spring!)
-public class Vermittlungsvorgang {
+// domain.model (no Spring!)
+public class BrokerageProcess {
     private final List<Object> domainEvents = new ArrayList<>();
 
-    public BesichtigungId besichtigungPlanen(KontaktId interessent,
-                                            LocalDateTime termin) {
-        var besichtigung = new Besichtigung(
-            BesichtigungId.generate(), interessent, termin);
-        besichtigungen.add(besichtigung);
+    public ViewingId scheduleViewing(ContactId prospect,
+                                     LocalDateTime appointmentDate) {
+        var viewing = new Viewing(
+            ViewingId.generate(), prospect, appointmentDate);
+        viewings.add(viewing);
 
-        domainEvents.add(new BesichtigungGeplantEvent(
-            id, besichtigung.getId(), interessent, termin));
+        domainEvents.add(new ViewingScheduledEvent(
+            id, viewing.getId(), prospect, appointmentDate));
 
-        return besichtigung.getId();
+        return viewing.getId();
     }
 
     public List<Object> domainEvents() {
@@ -260,13 +237,13 @@ public class Vermittlungsvorgang {
 
 ```java
 @Service
-public class BesichtigungPlanenService implements BesichtigungPlanen {
+public class ScheduleViewingService implements ScheduleViewing {
 
-    private final VermittlungsvorgangRepository repository;
+    private final BrokerageProcessRepository repository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public BesichtigungPlanenService(
-            VermittlungsvorgangRepository repository,
+    public ScheduleViewingService(
+            BrokerageProcessRepository repository,
             ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
@@ -274,13 +251,13 @@ public class BesichtigungPlanenService implements BesichtigungPlanen {
 
     @Transactional
     @Override
-    public BesichtigungId planen(PlaneBesichtigungCommand cmd) {
-        var vorgang = repository.findById(cmd.vorgangId())
-            .orElseThrow(() -> new VorgangNichtGefunden(cmd.vorgangId()));
-        var id = vorgang.besichtigungPlanen(cmd.interessentId(), cmd.termin());
-        repository.save(vorgang);
-        vorgang.domainEvents().forEach(eventPublisher::publishEvent);
-        vorgang.clearDomainEvents();
+    public ViewingId schedule(ScheduleViewingCommand cmd) {
+        var process = repository.findById(cmd.processId())
+            .orElseThrow(() -> new ProcessNotFound(cmd.processId()));
+        var id = process.scheduleViewing(cmd.prospectId(), cmd.appointmentDate());
+        repository.save(process);
+        process.domainEvents().forEach(eventPublisher::publishEvent);
+        process.clearDomainEvents();
         return id;
     }
 }
@@ -294,14 +271,14 @@ public class BesichtigungPlanenService implements BesichtigungPlanen {
 ## Domain Event als Record – Öffentliche Modul-API
 
 ```java
-// Liegt im Root des Moduls (NICHT in internal/) → öffentliche API
-package de.immobiliencrm.vermittlung;
+// Located in the module root (NOT in internal/) → public API
+package de.realestate.brokerage;
 
-public record BesichtigungGeplantEvent(
-    UUID vorgangId,
-    UUID besichtigungId,
-    UUID interessentId,
-    LocalDateTime termin
+public record ViewingScheduledEvent(
+    UUID processId,
+    UUID viewingId,
+    UUID prospectId,
+    LocalDateTime appointmentDate
 ) {}
 ```
 
@@ -315,17 +292,17 @@ public record BesichtigungGeplantEvent(
 ## Events konsumieren – @EventListener
 
 ```java
-// In einem anderen Modul: kontakt
-package de.immobiliencrm.kontakt.internal;
+// In a different module: contact
+package de.realestate.contact.internal;
 
 @Component
-class BesichtigungsNotifikation {
+class ViewingNotification {
 
     @EventListener
-    public void onBesichtigungGeplant(BesichtigungGeplantEvent event) {
-        log.info("Neue Besichtigung für Vorgang {} am {}",
-            event.vorgangId(), event.termin());
-        // Interessent per E-Mail benachrichtigen
+    public void onViewingScheduled(ViewingScheduledEvent event) {
+        log.info("New viewing for process {} on {}",
+            event.processId(), event.appointmentDate());
+        // Notify prospect via email
     }
 }
 ```
@@ -343,12 +320,12 @@ class BesichtigungsNotifikation {
 
 ```java
 @Component
-class BesichtigungsNotifikation {
+class ViewingNotification {
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onBesichtigungGeplant(BesichtigungGeplantEvent event) {
-        // Wird erst NACH erfolgreichem Commit ausgeführt
-        emailService.sendeEinladung(event.interessentId(), event.termin());
+    public void onViewingScheduled(ViewingScheduledEvent event) {
+        // Only executed AFTER successful commit
+        emailService.sendInvitation(event.prospectId(), event.appointmentDate());
     }
 }
 ```
@@ -369,27 +346,14 @@ class BesichtigungsNotifikation {
 ### Problem: Was passiert, wenn der Listener nach dem Commit abstürzt?
 
 ```xml
-<!-- Event Publication Registry aktivieren -->
+<!-- Enable Event Publication Registry -->
 <dependency>
     <groupId>org.springframework.modulith</groupId>
     <artifactId>spring-modulith-events-jdbc</artifactId>
 </dependency>
 ```
 
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│ Application  │────►│  EVENT_      │────►│ Event        │
-│ Service      │     │  PUBLICATION │     │ Listener     │
-│ publishEvent │     │  (DB-Table)  │     │ @After-      │
-│              │     │  ✓ persisted │     │ Commit       │
-└──────────────┘     └──────────────┘     └──────────────┘
-                           │
-                           ▼
-                     Bei Neustart:
-                     unverarbeitete
-                     Events erneut
-                     dispatchen
-```
+![Event Publication Registry](images/event-publication-registry.drawio.png)
 
 - Events werden **in der gleichen Transaktion** in eine DB-Tabelle geschrieben
 - Nach Verarbeitung: Event wird als **completed** markiert
@@ -401,13 +365,13 @@ class BesichtigungsNotifikation {
 
 ```java
 @Component
-class BesichtigungsStatistik {
+class ViewingStatistics {
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onBesichtigungGeplant(BesichtigungGeplantEvent event) {
-        // Läuft in eigenem Thread, eigener Transaktion
-        statistikService.besichtigungErfassen(event);
+    public void onViewingScheduled(ViewingScheduledEvent event) {
+        // Runs in its own thread, its own transaction
+        statisticsService.recordViewing(event);
     }
 }
 ```
@@ -417,7 +381,7 @@ class BesichtigungsStatistik {
 ```java
 @SpringBootApplication
 @EnableAsync
-public class ImmobilienCrmApplication { }
+public class RealEstateCrmApplication { }
 ```
 
 - `@Async` + `@TransactionalEventListener` = **fire-and-forget**
@@ -429,17 +393,17 @@ public class ImmobilienCrmApplication { }
 ## @Externalized – Events nach außen leiten
 
 ```java
-@Externalized("besichtigungen::#{#this.besichtigungId()}")
-public record BesichtigungGeplantEvent(
-    UUID vorgangId,
-    UUID besichtigungId,
-    UUID interessentId,
-    LocalDateTime termin
+@Externalized("viewings::#{#this.viewingId()}")
+public record ViewingScheduledEvent(
+    UUID processId,
+    UUID viewingId,
+    UUID prospectId,
+    LocalDateTime appointmentDate
 ) {}
 ```
 
 ```xml
-<!-- z.B. Kafka-Integration -->
+<!-- e.g. Kafka integration -->
 <dependency>
     <groupId>org.springframework.modulith</groupId>
     <artifactId>spring-modulith-events-kafka</artifactId>
@@ -482,21 +446,9 @@ public record BesichtigungGeplantEvent(
 
 ## Spring Modulith Events – Übersicht
 
-![Spring Modulith Events](../diagrams/spring-modulith-events.drawio.png)
+![Spring Modulith Events](images/spring-modulith-events.drawio.png)
 
-```
-┌── Modul: Vermittlung ──────────────┐   ┌── Modul: Kontakt ──────────┐
-│                                     │   │                             │
-│  BesichtigungPlanenService          │   │  @EventListener             │
-│    │                                │   │  onBesichtigungGeplant()    │
-│    ├─ vorgang.besichtigungPlanen()  │   │    → synchron, same TX     │
-│    ├─ repository.save()            │   │                             │
-│    └─ eventPublisher.publishEvent()│──►│  @TransactionalEventListener│
-│                                     │   │  onBesichtigungGeplant()    │
-│  BesichtigungGeplantEvent          │   │    → nach Commit, async     │
-│    (öffentliche API)                │   │                             │
-└─────────────────────────────────────┘   └─────────────────────────────┘
-```
+![Spring Modulith Events Detail](images/modulith-events-detail.drawio.png)
 
 ---
 

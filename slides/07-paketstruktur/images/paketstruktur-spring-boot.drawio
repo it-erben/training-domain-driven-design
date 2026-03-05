@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="draw.io" modified="2026-03-04T00:00:00.000Z" agent="draw.io" version="21.0.0" type="device">
+  <diagram id="paketstruktur" name="Paketstruktur Spring Boot">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Clean Architecture – Paketstruktur in Spring Boot" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="550" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== Root Package ==================== -->
+        <mxCell id="rootPkg" value="&lt;b style=&quot;font-size:16px&quot;&gt;de.realestate&lt;/b&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;verticalAlign=top;spacingTop=10;tabWidth=120;tabHeight=20;tabPosition=left;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="100" y="80" width="1100" height="850" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== DOMAIN LAYER ==================== -->
+        <mxCell id="domainLayer" value="&lt;b style=&quot;font-size:15px&quot;&gt;domain&lt;/b&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;verticalAlign=top;spacingTop=10;tabWidth=80;tabHeight=18;tabPosition=left;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="140" width="460" height="350" as="geometry" />
+        </mxCell>
+
+        <!-- domain/model -->
+        <mxCell id="domainModel" value="&lt;b&gt;model&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;span style=&quot;font-size:10px&quot;&gt;Entities, Aggregate Roots,&lt;br&gt;Value Objects&lt;/span&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;verticalAlign=top;spacingTop=8;tabWidth=60;tabHeight=15;tabPosition=left;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="170" y="200" width="220" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- domain/port -->
+        <mxCell id="domainPort" value="&lt;b&gt;port&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;span style=&quot;font-size:10px&quot;&gt;Interfaces (Repositories,&lt;br&gt;Service Ports)&lt;/span&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;verticalAlign=top;spacingTop=8;tabWidth=60;tabHeight=15;tabPosition=left;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="170" y="340" width="220" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- domain/event -->
+        <mxCell id="domainEvent" value="&lt;b&gt;event&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;span style=&quot;font-size:10px&quot;&gt;Domain Events&lt;/span&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;verticalAlign=top;spacingTop=8;tabWidth=60;tabHeight=15;tabPosition=left;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="420" y="200" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Annotation for domain/model -->
+        <mxCell id="annEntity" value="@Entity" style="text;html=1;fontSize=11;fontStyle=0;align=left;verticalAlign=middle;fontColor=#82b366;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="400" y="270" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== APPLICATION LAYER ==================== -->
+        <mxCell id="appLayer" value="&lt;b style=&quot;font-size:15px&quot;&gt;application&lt;/b&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;verticalAlign=top;spacingTop=10;tabWidth=100;tabHeight=18;tabPosition=left;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="530" width="460" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- application/service -->
+        <mxCell id="appService" value="&lt;b&gt;service&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;span style=&quot;font-size:10px&quot;&gt;Use Cases, Application Services,&lt;br&gt;Command/Query Handlers&lt;/span&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;verticalAlign=top;spacingTop=8;tabWidth=60;tabHeight=15;tabPosition=left;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="170" y="590" width="260" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Annotation for application/service -->
+        <mxCell id="annService" value="@Service" style="text;html=1;fontSize=11;fontStyle=0;align=left;verticalAlign=middle;fontColor=#6c8ebf;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="450" y="630" width="90" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== INFRASTRUCTURE LAYER ==================== -->
+        <mxCell id="infraLayer" value="&lt;b style=&quot;font-size:15px&quot;&gt;infrastructure&lt;/b&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;verticalAlign=top;spacingTop=10;tabWidth=110;tabHeight=18;tabPosition=left;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="660" y="140" width="500" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- infrastructure/persistence -->
+        <mxCell id="infraPersistence" value="&lt;b&gt;persistence&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;span style=&quot;font-size:10px&quot;&gt;JPA Repositories,&lt;br&gt;DB Adapters, Entities (JPA)&lt;/span&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;verticalAlign=top;spacingTop=8;tabWidth=80;tabHeight=15;tabPosition=left;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="210" width="240" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Annotation for infrastructure/persistence -->
+        <mxCell id="annRepo" value="@Repository" style="text;html=1;fontSize=11;fontStyle=0;align=left;verticalAlign=middle;fontColor=#d6b656;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="960" y="260" width="120" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ADAPTER LAYER ==================== -->
+        <mxCell id="adapterLayer" value="&lt;b style=&quot;font-size:15px&quot;&gt;adapter&lt;/b&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;verticalAlign=top;spacingTop=10;tabWidth=80;tabHeight=18;tabPosition=left;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="660" y="410" width="500" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- adapter/web -->
+        <mxCell id="adapterWeb" value="&lt;b&gt;web&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;span style=&quot;font-size:10px&quot;&gt;REST Controllers, DTOs,&lt;br&gt;Request/Response Mappings&lt;/span&gt;" style="shape=folder;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1;verticalAlign=top;spacingTop=8;tabWidth=50;tabHeight=15;tabPosition=left;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="480" width="240" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Annotation for adapter/web -->
+        <mxCell id="annController" value="@RestController" style="text;html=1;fontSize=11;fontStyle=0;align=left;verticalAlign=middle;fontColor=#b85450;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="960" y="530" width="140" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== DEPENDENCY ARROWS (inward toward domain) ==================== -->
+
+        <!-- Application -> Domain -->
+        <mxCell id="depAppDomain" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;entryX=0.5;entryY=1;exitX=0.5;exitY=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="530" as="sourcePoint" />
+            <mxPoint x="370" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="depAppDomainLabel" value="&lt;i&gt;depends on&lt;/i&gt;" style="text;html=1;fontSize=9;align=center;verticalAlign=middle;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="380" y="498" width="70" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Infrastructure -> Domain (implements ports) -->
+        <mxCell id="depInfraDomain" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;dashed=1;dashPattern=8 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="250" as="sourcePoint" />
+            <mxPoint x="600" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="depInfraDomainLabel" value="&lt;i&gt;implements&lt;br&gt;ports&lt;/i&gt;" style="text;html=1;fontSize=9;align=center;verticalAlign=middle;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="610" y="220" width="60" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Adapter -> Application -->
+        <mxCell id="depAdapterApp" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="530" as="sourcePoint" />
+            <mxPoint x="600" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="depAdapterAppLabel" value="&lt;i&gt;calls use cases&lt;/i&gt;" style="text;html=1;fontSize=9;align=center;verticalAlign=middle;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="610" y="540" width="80" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Adapter -> Domain (uses domain types) -->
+        <mxCell id="depAdapterDomain" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;dashed=1;dashPattern=8 4;curved=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="470" as="sourcePoint" />
+            <mxPoint x="600" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Infrastructure -> Application -->
+        <mxCell id="depInfraApp" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;dashed=1;dashPattern=8 4;curved=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="340" as="sourcePoint" />
+            <mxPoint x="600" y="570" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="630" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ==================== Big Dependency Rule Arrow ==================== -->
+        <mxCell id="bigArrow" value="" style="shape=mxgraph.arrows2.arrow;dy=10;dx=30;notch=20;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;rotation=-90;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="360" width="50" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="bigArrowLabel" value="&lt;b&gt;Dependency Rule&lt;/b&gt;&lt;br&gt;Abh&amp;auml;ngigkeiten zeigen&lt;br&gt;nur nach innen (Domain)" style="text;html=1;fontSize=11;align=center;verticalAlign=middle;fontColor=#333333;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="570" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Layer labels on the right side -->
+        <mxCell id="layerLabelDomain" value="DOMAIN&lt;br&gt;(innermost)" style="text;html=1;fontSize=10;fontStyle=1;align=center;verticalAlign=middle;fontColor=#82b366;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="280" width="90" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="layerLabelInfra" value="INFRA" style="text;html=1;fontSize=10;fontStyle=1;align=center;verticalAlign=middle;fontColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="220" width="50" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="layerLabelAdapter" value="ADAPTER" style="text;html=1;fontSize=10;fontStyle=1;align=center;verticalAlign=middle;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="500" width="60" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

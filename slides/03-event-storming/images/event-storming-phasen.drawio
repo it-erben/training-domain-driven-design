@@ -1,0 +1,65 @@
+<mxfile host="app.diagrams.net" modified="2026-03-05T10:00:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="event-storming-phasen" name="Event Storming 5 Phasen">
+    <mxGraphModel dx="1400" dy="450" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="350" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Phase 1 -->
+        <mxCell id="p1" value="&lt;b&gt;Phase 1&lt;/b&gt;&lt;hr&gt;&lt;b&gt;Events&lt;br/&gt;sammeln&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;15–20'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9a825;strokeColor=#f57f17;fontSize=12;verticalAlign=middle;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="p1desc" value="chaotisch&lt;br/&gt;alles raus!" style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=top;fontColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="40" y="155" width="180" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Phase 2 -->
+        <mxCell id="p2" value="&lt;b&gt;Phase 2&lt;/b&gt;&lt;hr&gt;&lt;b&gt;Timeline&lt;br/&gt;ordnen&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;10–15'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#42a5f5;strokeColor=#1565c0;fontSize=12;verticalAlign=middle;fontColor=#ffffff;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="290" y="40" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="p2desc" value="sortieren&lt;br/&gt;Duplikate" style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=top;fontColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="290" y="155" width="180" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Phase 3 -->
+        <mxCell id="p3" value="&lt;b&gt;Phase 3&lt;/b&gt;&lt;hr&gt;&lt;b&gt;Hot Spots&lt;br/&gt;markieren&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;10'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ef5350;strokeColor=#c62828;fontSize=12;verticalAlign=middle;fontColor=#ffffff;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="540" y="40" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="p3desc" value="hinterfragen&lt;br/&gt;Lücken finden" style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=top;fontColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="540" y="155" width="180" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Phase 4 -->
+        <mxCell id="p4" value="&lt;b&gt;Phase 4&lt;/b&gt;&lt;hr&gt;&lt;b&gt;Commands&lt;br/&gt;+ Akteure&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;15'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#42a5f5;strokeColor=#1565c0;fontSize=12;verticalAlign=middle;fontColor=#ffffff;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="790" y="40" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="p4desc" value="wer löst aus?&lt;br/&gt;welche Absicht?" style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=top;fontColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="790" y="155" width="180" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Phase 5 -->
+        <mxCell id="p5" value="&lt;b&gt;Phase 5&lt;/b&gt;&lt;hr&gt;&lt;b&gt;Aggregates&lt;br/&gt;+ Policies&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;15'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff176;strokeColor=#f9a825;fontSize=12;verticalAlign=middle;arcSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="40" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="p5desc" value="Grenzen +&lt;br/&gt;Automatis." style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=top;fontColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="155" width="180" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows between phases -->
+        <mxCell id="a12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="p1" target="p2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="p2" target="p3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="p3" target="p4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="p4" target="p5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

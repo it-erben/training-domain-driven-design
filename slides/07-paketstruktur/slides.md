@@ -2,23 +2,8 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+header: "DDD & Clean Architecture mit Spring Boot 4"
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 07 – Paketstruktur
@@ -59,7 +44,7 @@ Frameworks & Drivers        →    infrastructure.persistence, infrastructure.co
 ## Paketstruktur – Übersicht
 
 ```text
-de.immobiliencrm.vermittlung          ← Bounded Context
+de.realestate.brokerage            ← Bounded Context
 ├── domain                            ← Ring 1: Entities
 │   ├── model                         ← Aggregates, Entities, Value Objects
 │   ├── event                         ← Domain Events (Records)
@@ -74,40 +59,13 @@ de.immobiliencrm.vermittlung          ← Bounded Context
     └── config                        ← Spring @Configuration
 ```
 
-![Paketstruktur](../diagrams/paketstruktur-spring-boot.drawio.png)
+![Paketstruktur](images/paketstruktur-spring-boot.drawio.png)
 
 ---
 
 ## Vertikaler Schnitt: Ein Request durch alle Schichten
 
-```
-HTTP POST /api/vermittlung/besichtigungen
-  │
-  ▼
-┌─────────────────────────────────────────────────┐
-│ adapter.web.BesichtigungController              │  Ring 3
-│   → JSON → BesichtigungRequest (DTO)            │
-│   → request.toCommand()                         │
-└────────────────────┬────────────────────────────┘
-                     │ ruft auf
-                     ▼
-┌─────────────────────────────────────────────────┐
-│ application.service.BesichtigungPlanenService   │  Ring 2
-│   → repository.findById(vorgangId)              │
-│   → vorgang.besichtigungPlanen(termin, kontakt) │
-│   → repository.save(vorgang)                    │
-└──────┬─────────────────────────────┬────────────┘
-       │ lädt / speichert           │ ruft auf
-       ▼                            ▼
-┌──────────────────┐  ┌──────────────────────────┐
-│ infrastructure   │  │ domain.model             │  Ring 1
-│ .persistence     │  │   Vermittlungsvorgang    │
-│ JpaRepository    │  │   .besichtigungPlanen()  │
-│ Adapter          │  │   → Geschäftslogik       │
-│                  │  │   → Domain Event sammeln │
-└──────────────────┘  └──────────────────────────┘
-       Ring 4
-```
+![Vertikaler Schnitt Request](images/vertikaler-schnitt-request.drawio.png)
 
 ---
 
@@ -119,25 +77,25 @@ HTTP POST /api/vermittlung/besichtigungen
 - Validierung und Invarianten leben hier
 
 ```java
-package de.immobiliencrm.vermittlung.domain.model;
+package de.realestate.brokerage.domain.model;
 
-// Kein import org.springframework.*
-// Kein import jakarta.persistence.*
+// No import org.springframework.*
+// No import jakarta.persistence.*
 
-public class Vermittlungsvorgang {
-    private final VorgangId id;
-    private VorgangStatus status;
-    private final List<Besichtigung> besichtigungen;
+public class BrokerageProcess {
+    private final ProcessId id;
+    private ProcessStatus status;
+    private final List<Viewing> viewings;
 
-    public BesichtigungId besichtigungPlanen(KontaktId interessent,
-                                            LocalDateTime termin) {
-        if (status != VorgangStatus.AKTIV) {
-            throw new VorgangNichtAktivException(id);
+    public ViewingId scheduleViewing(ContactId prospect,
+                                     LocalDateTime appointmentDate) {
+        if (status != ProcessStatus.ACTIVE) {
+            throw new ProcessNotActiveException(id);
         }
-        var besichtigung = new Besichtigung(
-            BesichtigungId.generate(), interessent, termin);
-        besichtigungen.add(besichtigung);
-        return besichtigung.getId();
+        var viewing = new Viewing(
+            ViewingId.generate(), prospect, appointmentDate);
+        viewings.add(viewing);
+        return viewing.getId();
     }
 }
 ```
@@ -151,17 +109,17 @@ public class Vermittlungsvorgang {
 - Keine Implementierungsdetails – kein JPA, kein SQL
 
 ```java
-package de.immobiliencrm.vermittlung.domain.port;
+package de.realestate.brokerage.domain.port;
 
-import de.immobiliencrm.vermittlung.domain.model.*;
+import de.realestate.brokerage.domain.model.*;
 
-public interface VermittlungsvorgangRepository {
+public interface BrokerageProcessRepository {
 
-    VorgangId nextId();
-    void save(Vermittlungsvorgang vorgang);
-    Optional<Vermittlungsvorgang> findById(VorgangId id);
-    List<Vermittlungsvorgang> findByStatus(VorgangStatus status);
-    void delete(Vermittlungsvorgang vorgang);
+    ProcessId nextId();
+    void save(BrokerageProcess process);
+    Optional<BrokerageProcess> findById(ProcessId id);
+    List<BrokerageProcess> findByStatus(ProcessStatus status);
+    void delete(BrokerageProcess process);
 }
 ```
 
@@ -176,20 +134,20 @@ public interface VermittlungsvorgangRepository {
 - Keine Framework-Abhängigkeiten
 
 ```java
-package de.immobiliencrm.vermittlung.domain.event;
+package de.realestate.brokerage.domain.event;
 
-import de.immobiliencrm.vermittlung.domain.model.*;
+import de.realestate.brokerage.domain.model.*;
 
-public record BesichtigungGeplant(
-    VorgangId vorgangId,
-    BesichtigungId besichtigungId,
-    KontaktId interessentId,
-    LocalDateTime termin,
+public record ViewingScheduled(
+    ProcessId processId,
+    ViewingId viewingId,
+    ContactId prospectId,
+    LocalDateTime appointmentDate,
     Instant occurredAt
 ) {
-    public BesichtigungGeplant {
-        Objects.requireNonNull(vorgangId);
-        Objects.requireNonNull(besichtigungId);
+    public ViewingScheduled {
+        Objects.requireNonNull(processId);
+        Objects.requireNonNull(viewingId);
     }
 }
 ```
@@ -206,23 +164,23 @@ public record BesichtigungGeplant(
 - Der Controller kennt nur das Interface, nicht die Implementierung
 
 ```java
-package de.immobiliencrm.vermittlung.application.port;
+package de.realestate.brokerage.application.port;
 
-public interface BesichtigungPlanen {
+public interface ScheduleViewing {
 
-    BesichtigungId planen(PlaneBesichtigungCommand command);
+    ViewingId schedule(ScheduleViewingCommand command);
 }
 ```
 
 ```java
-public record PlaneBesichtigungCommand(
-    VorgangId vorgangId,
-    KontaktId interessentId,
-    LocalDateTime termin
+public record ScheduleViewingCommand(
+    ProcessId processId,
+    ContactId prospectId,
+    LocalDateTime appointmentDate
 ) {
-    public PlaneBesichtigungCommand {
-        Objects.requireNonNull(vorgangId);
-        Objects.requireNonNull(termin, "Termin ist erforderlich");
+    public ScheduleViewingCommand {
+        Objects.requireNonNull(processId);
+        Objects.requireNonNull(appointmentDate, "Appointment date is required");
     }
 }
 ```
@@ -237,26 +195,26 @@ public record PlaneBesichtigungCommand(
 - Kennt die Domain, aber **nicht** die Infrastruktur-Details
 
 ```java
-package de.immobiliencrm.vermittlung.application.service;
+package de.realestate.brokerage.application.service;
 
 @Service
 @Transactional
-public class BesichtigungPlanenService implements BesichtigungPlanen {
+public class ScheduleViewingService implements ScheduleViewing {
 
-    private final VermittlungsvorgangRepository repository;
+    private final BrokerageProcessRepository repository;
 
-    public BesichtigungPlanenService(VermittlungsvorgangRepository repository) {
+    public ScheduleViewingService(BrokerageProcessRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public BesichtigungId planen(PlaneBesichtigungCommand cmd) {
-        var vorgang = repository.findById(cmd.vorgangId())
-            .orElseThrow(() -> new VorgangNichtGefunden(cmd.vorgangId()));
-        var besichtigungId = vorgang.besichtigungPlanen(
-            cmd.interessentId(), cmd.termin());
-        repository.save(vorgang);
-        return besichtigungId;
+    public ViewingId schedule(ScheduleViewingCommand cmd) {
+        var process = repository.findById(cmd.processId())
+            .orElseThrow(() -> new ProcessNotFound(cmd.processId()));
+        var viewingId = process.scheduleViewing(
+            cmd.prospectId(), cmd.appointmentDate());
+        repository.save(process);
+        return viewingId;
     }
 }
 ```
@@ -271,25 +229,25 @@ public class BesichtigungPlanenService implements BesichtigungPlanen {
 - Keine Geschäftslogik – nur Delegation an den Inbound-Port
 
 ```java
-package de.immobiliencrm.vermittlung.adapter.web;
+package de.realestate.brokerage.adapter.web;
 
 @RestController
-@RequestMapping("/api/vermittlung/besichtigungen")
-public class BesichtigungController {
+@RequestMapping("/api/brokerage/viewings")
+public class ViewingController {
 
-    private final BesichtigungPlanen useCase;
+    private final ScheduleViewing useCase;
 
-    public BesichtigungController(BesichtigungPlanen useCase) {
+    public ViewingController(ScheduleViewing useCase) {
         this.useCase = useCase;
     }
 
     @PostMapping
-    public ResponseEntity<BesichtigungResponse> planen(
-            @Valid @RequestBody BesichtigungRequest request) {
-        var id = useCase.planen(request.toCommand());
-        var uri = URI.create("/api/vermittlung/besichtigungen/" + id.value());
+    public ResponseEntity<ViewingResponse> schedule(
+            @Valid @RequestBody ViewingRequest request) {
+        var id = useCase.schedule(request.toCommand());
+        var uri = URI.create("/api/brokerage/viewings/" + id.value());
         return ResponseEntity.created(uri)
-            .body(new BesichtigungResponse(id.value()));
+            .body(new ViewingResponse(id.value()));
     }
 }
 ```
@@ -299,22 +257,22 @@ public class BesichtigungController {
 ## Adapter Layer: DTOs als Records
 
 ```java
-// Request-DTO: kommt von außen, wird validiert
-public record BesichtigungRequest(
-    @NotNull UUID vorgangId,
-    @NotNull UUID interessentId,
-    @NotNull @Future LocalDateTime termin
+// Request DTO: comes from outside, validated
+public record ViewingRequest(
+    @NotNull UUID processId,
+    @NotNull UUID prospectId,
+    @NotNull @Future LocalDateTime appointmentDate
 ) {
-    public PlaneBesichtigungCommand toCommand() {
-        return new PlaneBesichtigungCommand(
-            new VorgangId(vorgangId),
-            new KontaktId(interessentId),
-            termin);
+    public ScheduleViewingCommand toCommand() {
+        return new ScheduleViewingCommand(
+            new ProcessId(processId),
+            new ContactId(prospectId),
+            appointmentDate);
     }
 }
 
-// Response-DTO: geht nach außen
-public record BesichtigungResponse(UUID besichtigungId) {}
+// Response DTO: goes outside
+public record ViewingResponse(UUID viewingId) {}
 ```
 
 - DTOs verwenden **primitive Typen** (UUID, String) — keine Domain-Objekte
@@ -326,27 +284,27 @@ public record BesichtigungResponse(UUID besichtigungId) {}
 ## Infrastructure: JPA-Entity (separates Modell)
 
 ```java
-package de.immobiliencrm.vermittlung.infrastructure.persistence;
+package de.realestate.brokerage.infrastructure.persistence;
 
 @Entity
-@Table(name = "vermittlungsvorgang")
-public class VorgangJpaEntity {
+@Table(name = "brokerage_process")
+public class ProcessJpaEntity {
 
     @Id
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    private VorgangStatus status;
+    private ProcessStatus status;
 
-    private UUID immobilieId;
+    private UUID propertyId;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "vorgang_id")
-    private List<BesichtigungJpaEntity> besichtigungen = new ArrayList<>();
+    @JoinColumn(name = "process_id")
+    private List<ViewingJpaEntity> viewings = new ArrayList<>();
 
-    protected VorgangJpaEntity() {} // JPA braucht Default-Konstruktor
+    protected ProcessJpaEntity() {} // JPA needs default constructor
 
-    // Getter und Setter für JPA
+    // Getters and setters for JPA
 }
 ```
 
@@ -359,34 +317,34 @@ public class VorgangJpaEntity {
 
 ```java
 @Component
-public class VorgangMapper {
+public class ProcessMapper {
 
-    public VorgangJpaEntity toJpaEntity(Vermittlungsvorgang domain) {
-        var entity = new VorgangJpaEntity();
+    public ProcessJpaEntity toJpaEntity(BrokerageProcess domain) {
+        var entity = new ProcessJpaEntity();
         entity.setId(domain.getId().value());
         entity.setStatus(domain.getStatus());
-        entity.setImmobilieId(domain.getImmobilieId().value());
-        entity.setBesichtigungen(
-            domain.getBesichtigungen().stream()
-                .map(this::toBesichtigungJpa)
+        entity.setPropertyId(domain.getPropertyId().value());
+        entity.setViewings(
+            domain.getViewings().stream()
+                .map(this::toViewingJpa)
                 .toList());
         return entity;
     }
 
-    public Vermittlungsvorgang toDomain(VorgangJpaEntity entity) {
-        return Vermittlungsvorgang.reconstitute(
-            new VorgangId(entity.getId()),
+    public BrokerageProcess toDomain(ProcessJpaEntity entity) {
+        return BrokerageProcess.reconstitute(
+            new ProcessId(entity.getId()),
             entity.getStatus(),
-            new ImmobilieId(entity.getImmobilieId()),
-            entity.getBesichtigungen().stream()
-                .map(this::toBesichtigungDomain)
+            new PropertyId(entity.getPropertyId()),
+            entity.getViewings().stream()
+                .map(this::toViewingDomain)
                 .toList());
     }
 }
 ```
 
 > `reconstitute()` ist eine Factory-Methode zum Wiederherstellen aus der DB
-> — im Gegensatz zu `erstellen()`, die Geschäftsregeln prüft.
+> — im Gegensatz zu `create()`, die Geschäftsregeln prüft.
 
 ---
 
@@ -394,33 +352,33 @@ public class VorgangMapper {
 
 ```java
 @Repository
-public class JpaVermittlungsvorgangRepository
-        implements VermittlungsvorgangRepository {
+public class JpaBrokerageProcessRepository
+        implements BrokerageProcessRepository {
 
-    private final VorgangSpringDataRepository jpaRepo;
-    private final VorgangMapper mapper;
+    private final ProcessSpringDataRepository jpaRepo;
+    private final ProcessMapper mapper;
 
-    public JpaVermittlungsvorgangRepository(
-            VorgangSpringDataRepository jpaRepo,
-            VorgangMapper mapper) {
+    public JpaBrokerageProcessRepository(
+            ProcessSpringDataRepository jpaRepo,
+            ProcessMapper mapper) {
         this.jpaRepo = jpaRepo;
         this.mapper = mapper;
     }
 
     @Override
-    public void save(Vermittlungsvorgang vorgang) {
-        jpaRepo.save(mapper.toJpaEntity(vorgang));
+    public void save(BrokerageProcess process) {
+        jpaRepo.save(mapper.toJpaEntity(process));
     }
 
     @Override
-    public Optional<Vermittlungsvorgang> findById(VorgangId id) {
+    public Optional<BrokerageProcess> findById(ProcessId id) {
         return jpaRepo.findById(id.value())
             .map(mapper::toDomain);
     }
 
     @Override
-    public VorgangId nextId() {
-        return new VorgangId(UUID.randomUUID());
+    public ProcessId nextId() {
+        return new ProcessId(UUID.randomUUID());
     }
 }
 ```
@@ -430,18 +388,18 @@ public class JpaVermittlungsvorgangRepository
 ## Infrastructure: Spring Data (interne Hilfsschnittstelle)
 
 ```java
-package de.immobiliencrm.vermittlung.infrastructure.persistence;
+package de.realestate.brokerage.infrastructure.persistence;
 
-// Nicht öffentlich! Nur vom Repository-Adapter verwendet.
-interface VorgangSpringDataRepository
-        extends JpaRepository<VorgangJpaEntity, UUID> {
+// Not public! Only used by the repository adapter.
+interface ProcessSpringDataRepository
+        extends JpaRepository<ProcessJpaEntity, UUID> {
 
-    List<VorgangJpaEntity> findByStatus(VorgangStatus status);
+    List<ProcessJpaEntity> findByStatus(ProcessStatus status);
 }
 ```
 
 - Package-private (`interface` ohne `public`)
-- Wird **nur** vom `JpaVermittlungsvorgangRepository` verwendet
+- Wird **nur** vom `JpaBrokerageProcessRepository` verwendet
 - Kein Code außerhalb von `infrastructure.persistence` kennt diese Schnittstelle
 
 ---
@@ -468,18 +426,7 @@ interface VorgangSpringDataRepository
 
 ## Abhängigkeitsregeln
 
-```
-adapter.web ──────────────► application.port
-                            application.service
-                                    │
-                                    │ implements / uses
-                                    ▼
-infrastructure.persistence    domain.model
-         │                    domain.port
-         │ implements         domain.event
-         │                        ▲
-         └────────────────────────┘
-```
+![Abhängigkeitsregeln](images/abhaengigkeitsregeln.drawio.png)
 
 - `domain.*` importiert **nichts** aus `application`, `infrastructure` oder `adapter`
 - `application.*` importiert **nur** `domain.*`
@@ -493,7 +440,7 @@ infrastructure.persistence    domain.model
 ## Abhängigkeitsregeln mit ArchUnit absichern
 
 ```java
-@AnalyzeClasses(packages = "de.immobiliencrm.vermittlung")
+@AnalyzeClasses(packages = "de.realestate.brokerage")
 class ArchitectureTest {
 
     @ArchTest
@@ -534,7 +481,7 @@ static final ArchRule controllers_only_call_application_layer =
         .resideInAnyPackage(
             "..adapter.web..",
             "..application.port..",
-            "..domain.model..",     // für Result-Typen
+            "..domain.model..",     // for result types
             "java..",
             "jakarta.validation..",
             "org.springframework..");
@@ -560,11 +507,11 @@ static final ArchRule controllers_only_call_application_layer =
 
 ```xml
 <modules>
-    <module>vermittlung-domain</module>      <!-- Keine Spring-Dependency! -->
-    <module>vermittlung-application</module> <!-- Nur domain + @Service -->
-    <module>vermittlung-infrastructure</module>
-    <module>vermittlung-adapter-web</module>
-    <module>vermittlung-boot</module>        <!-- Startpunkt, alle Module -->
+    <module>brokerage-domain</module>      <!-- No Spring dependency! -->
+    <module>brokerage-application</module> <!-- Only domain + @Service -->
+    <module>brokerage-infrastructure</module>
+    <module>brokerage-adapter-web</module>
+    <module>brokerage-boot</module>        <!-- Entry point, all modules -->
 </modules>
 ```
 
@@ -576,19 +523,19 @@ static final ArchRule controllers_only_call_application_layer =
 
 ```java
 @SpringBootApplication  // = @ComponentScan + @EnableAutoConfiguration + ...
-public class ImmobilienCrmApplication {
-    // Muss im Root-Package liegen:
-    // de.immobiliencrm
+public class RealEstateCrmApplication {
+    // Must be in the root package:
+    // de.realestate
 }
 ```
 
 ```
-de.immobiliencrm                     ← @SpringBootApplication hier
-├── vermittlung
+de.realestate                     ← @SpringBootApplication hier
+├── brokerage
 │   ├── application.service          ← @Service wird gefunden ✅
 │   ├── infrastructure.persistence   ← @Repository wird gefunden ✅
 │   └── adapter.web                  ← @RestController wird gefunden ✅
-├── akquise
+├── acquisition
 │   └── ...                          ← auch gefunden ✅
 ```
 
@@ -600,21 +547,7 @@ de.immobiliencrm                     ← @SpringBootApplication hier
 
 ## Zusammenfassung
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ adapter.web                                                     │
-│   Controller → DTO → Command                                   │
-├─────────────────────────────────────────────────────────────────┤
-│ application.service                                             │
-│   @Service @Transactional → orchestriert Use Case               │
-├─────────────────────────────────────────────────────────────────┤
-│ domain.model / domain.port / domain.event                       │
-│   Reines Java: Geschäftslogik, Interfaces, Events               │
-├─────────────────────────────────────────────────────────────────┤
-│ infrastructure.persistence                                      │
-│   JPA Entities, Mapper, Repository-Adapter, Spring Data         │
-└─────────────────────────────────────────────────────────────────┘
-```
+![Zusammenfassung Schichten](images/zusammenfassung-schichten.drawio.png)
 
 - Jede Schicht hat **eigene Datenstrukturen** (DTO ≠ Command ≠ Domain ≠ JPA)
 - Abhängigkeiten zeigen **nur nach innen** (Richtung Domain)
