@@ -1,0 +1,50 @@
+<mxfile host="draw.io">
+  <diagram name="Event Flow zwischen BCs" id="event-flow-zwischen-bcs">
+    <mxGraphModel dx="1200" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="520" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- Left box: Akquise BC - blue (container) -->
+        <mxCell id="2" value="&lt;b&gt;Akquise BC&lt;/b&gt;" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=14;spacingTop=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="30" width="280" height="420" as="geometry"/>
+        </mxCell>
+        <!-- CloseContract Service content inside Akquise -->
+        <mxCell id="3" value="&lt;b&gt;CloseContractService&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font face=&quot;monospace&quot; size=&quot;2&quot;&gt;contract.close()&lt;br&gt;save()&lt;br&gt;dispatch events&lt;/font&gt;" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;align=left;verticalAlign=middle;fontSize=12;spacingTop=5;spacingBottom=5;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="55" y="70" width="230" height="140" as="geometry"/>
+        </mxCell>
+        <!-- ContractSignedEvent label inside Akquise -->
+        <mxCell id="4" value="&lt;b&gt;ContractSignedEvent&lt;/b&gt;&lt;br&gt;(public API)" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;align=center;verticalAlign=middle;fontSize=12;spacingTop=5;spacingBottom=5;" vertex="1" parent="1">
+          <mxGeometry x="65" y="340" width="210" height="70" as="geometry"/>
+        </mxCell>
+        <!-- Right box: Vermittlung BC - green (container) -->
+        <mxCell id="5" value="&lt;b&gt;Vermittlung BC&lt;/b&gt;" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;fontSize=14;spacingTop=8;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="490" y="30" width="370" height="420" as="geometry"/>
+        </mxCell>
+        <!-- ACL adapter box inside Vermittlung - yellow -->
+        <mxCell id="6" value="&lt;b&gt;adapter.acl&lt;/b&gt;" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;fontSize=12;spacingTop=5;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="515" y="65" width="320" height="175" as="geometry"/>
+        </mxCell>
+        <!-- AcquisitionEventListener content inside ACL -->
+        <mxCell id="7" value="&lt;b&gt;AcquisitionEventListener&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font face=&quot;monospace&quot; size=&quot;2&quot;&gt;translator.translate(event)&lt;br&gt;service.start()&lt;/font&gt;" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#d6b656;align=left;verticalAlign=middle;fontSize=12;spacingTop=5;spacingBottom=5;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="535" y="100" width="275" height="115" as="geometry"/>
+        </mxCell>
+        <!-- Application service box inside Vermittlung - light blue -->
+        <mxCell id="8" value="&lt;b&gt;application&lt;/b&gt;" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;fontSize=12;spacingTop=5;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="515" y="270" width="320" height="150" as="geometry"/>
+        </mxCell>
+        <!-- StartBrokerageService content inside application -->
+        <mxCell id="9" value="&lt;b&gt;StartBrokerageService&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font face=&quot;monospace&quot; size=&quot;2&quot;&gt;idempotency check&lt;br&gt;Process.create()&lt;br&gt;save()&lt;/font&gt;" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#9673a6;align=left;verticalAlign=middle;fontSize=12;spacingTop=5;spacingBottom=5;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="535" y="305" width="275" height="95" as="geometry"/>
+        </mxCell>
+        <!-- Arrow: Akquise -> ACL (publish Event) -->
+        <mxCell id="10" value="&lt;b&gt;publish Event&lt;/b&gt;" style="html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="3" target="7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <!-- Arrow: ACL -> Service -->
+        <mxCell id="11" value="" style="html=1;endArrow=block;endFill=1;strokeWidth=2;" edge="1" parent="1" source="7" target="9">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

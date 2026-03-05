@@ -1,0 +1,22 @@
+<mxfile host="draw.io">
+  <diagram name="Customer Supplier Pattern" id="customer-supplier-pattern">
+    <mxGraphModel dx="1024" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="800" pageHeight="400" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- Left box: Objektverwaltung (Upstream) - green -->
+        <mxCell id="2" value="&lt;b&gt;Objektverwaltung&lt;/b&gt;&lt;br&gt;(Upstream)&lt;br&gt;&lt;br&gt;Liefert: Lage,&lt;br&gt;Fl&amp;auml;che, Typ" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;align=center;verticalAlign=middle;fontSize=12;spacingTop=5;spacingBottom=5;" vertex="1" parent="1">
+          <mxGeometry x="60" y="60" width="220" height="140" as="geometry"/>
+        </mxCell>
+        <!-- Right box: Vermarktung (Downstream) - blue -->
+        <mxCell id="3" value="&lt;b&gt;Vermarktung&lt;/b&gt;&lt;br&gt;(Downstream)&lt;br&gt;&lt;br&gt;Braucht: Adresse,&lt;br&gt;Fotos, Merkmale" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;align=center;verticalAlign=middle;fontSize=12;spacingTop=5;spacingBottom=5;" vertex="1" parent="1">
+          <mxGeometry x="460" y="60" width="220" height="140" as="geometry"/>
+        </mxCell>
+        <!-- Arrow with U/D label -->
+        <mxCell id="4" value="U/D" style="html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=13;fontStyle=1;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="2" target="3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

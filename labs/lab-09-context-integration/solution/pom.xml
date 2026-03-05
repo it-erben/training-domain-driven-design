@@ -7,14 +7,14 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.6</version>
+        <version>4.0.3</version>
         <relativePath/>
     </parent>
 
-    <groupId>de.immobiliencrm</groupId>
-    <artifactId>immobilien-crm-lab09</artifactId>
+    <groupId>de.realestate</groupId>
+    <artifactId>realestate-crm-lab09</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Immobilien CRM - Lab 09 Context Integration</name>
+    <name>Real Estate CRM - Lab 09 Context Integration</name>
     <description>Lab 09: Context-Integration - Bounded Contexts verbinden</description>
 
     <properties>

@@ -2,23 +2,8 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+header: "DDD & Clean Architecture mit Spring Boot 4"
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 06 – Clean Architecture
@@ -55,7 +40,7 @@ style: |
 
 ## Ports & Adapters (Hexagonal Architecture)
 
-![Hexagonale Architektur](../diagrams/hexagonale-architektur.drawio.png)
+![Hexagonale Architektur](images/hexagonale-architektur.drawio.png)
 
 ---
 
@@ -87,20 +72,7 @@ style: |
 - Stellt die Schichten als **konzentrische Ringe** dar
 - Abhängigkeiten zeigen **immer nach innen**
 
-```
-┌─────────────────────────────────────────────────────┐
-│  Infrastructure (UI, DB, externe Systeme)           │
-│  ┌─────────────────────────────────────────────┐    │
-│  │  Application Services                       │    │
-│  │  ┌─────────────────────────────────────┐    │    │
-│  │  │  Domain Services                    │    │    │
-│  │  │  ┌─────────────────────────────┐    │    │    │
-│  │  │  │  Domain Model (Kern)        │    │    │    │
-│  │  │  └─────────────────────────────┘    │    │    │
-│  │  └─────────────────────────────────────┘    │    │
-│  └─────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────┘
-```
+![Onion Architecture](images/onion-architecture.drawio.png)
 
 - Der Kern (Domain Model) hat **keine** Abhängigkeiten nach außen
 
@@ -112,7 +84,7 @@ style: |
 - Vereint Hexagonal, Onion und weitere Ansätze
 - Definiert **vier Ringe** mit klaren Verantwortlichkeiten
 
-![Clean Architecture](../diagrams/clean-architecture-ringe.drawio.png)
+![Clean Architecture](images/clean-architecture-ringe.drawio.png)
 
 ---
 
@@ -126,7 +98,7 @@ style: |
 - Kein Name, kein Typ, keine Klasse, kein Interface aus dem äußeren Ring
 - **Daten** fließen in beide Richtungen — **Abhängigkeiten** nur nach innen
 
-![Dependency Rule](../diagrams/dependency-rule.drawio.png)
+![Dependency Rule](images/dependency-rule.drawio.png)
 
 ---
 
@@ -153,26 +125,7 @@ style: |
 
 ### Die Lösung
 
-```
-┌───────────────────────────────────────────────────────┐
-│  Domain (innerer Ring)                                │
-│                                                       │
-│  interface VermittlungsvorgangRepository {             │
-│      Optional<Vermittlungsvorgang> findById(UUID id); │
-│      void save(Vermittlungsvorgang vorgang);          │
-│  }                                                    │
-└────────────────────────┬──────────────────────────────┘
-                         │ implements
-┌────────────────────────┴──────────────────────────────┐
-│  Infrastructure (äußerer Ring)                        │
-│                                                       │
-│  @Component                                           │
-│  class VermittlungsvorgangRepositoryAdapter            │
-│      implements VermittlungsvorgangRepository {        │
-│      // ... JPA-Implementierung                       │
-│  }                                                    │
-└───────────────────────────────────────────────────────┘
-```
+![Dependency Inversion Principle](images/dependency-inversion-principle.drawio.png)
 
 - Der **innere Ring** definiert das Interface (Port)
 - Der **äußere Ring** liefert die Implementierung (Adapter)
@@ -184,19 +137,7 @@ style: |
 
 ### Das häufigste Missverständnis
 
-```
-Datenfluss (Request):
-[Controller] ──► [Use Case] ──► [Repository Port] ──► [DB]
-     │                │                │
-     ▼                ▼                ▼
-  Adapter          Application        Domain          Infrastructure
-
-Abhängigkeiten:
-[Controller] ──► [Use Case] ◄── [Repository Adapter]
-                      │
-                      ▼
-               [Domain Model]
-```
+![Datenfluss vs. Abhängigkeitsrichtung](images/datenfluss-vs-abhaengigkeiten.drawio.png)
 
 - Daten fließen **durch alle Schichten** (Request rein, Response raus)
 - Abhängigkeiten zeigen **nur nach innen** (Controller → Use Case ← Adapter)
@@ -209,28 +150,29 @@ Abhängigkeiten:
 ### ❌ Klassisch: Domain hängt von JPA ab
 
 ```java
-@Entity                             // ← Framework im Kern!
-public class Vermittlungsvorgang {
+@Entity                             // ← Framework in the core!
+public class BrokerageProcess {
     @Id @GeneratedValue
     private Long id;
     @OneToMany(cascade = ALL)
-    private List<Besichtigung> besichtigungen;
+    private List<Viewing> viewings;
 }
 ```
 
 ### ✅ Clean Architecture: Domain ist rein
 
 ```java
-// domain/model — kein Spring, kein JPA
-public class Vermittlungsvorgang {
+// domain/model — no Spring, no JPA
+public class BrokerageProcess {
     private final UUID id;
-    private final List<Besichtigung> besichtigungen;
+    private final List<Viewing> viewings;
 
-    public UUID besichtigungHinzufügen(String name, LocalDateTime termin) {
-        // Geschäftslogik hier, nicht im Service
+    public UUID addViewing(String name, LocalDateTime appointmentDate) {
+        // Business logic here, not in the service
     }
 }
 ```
+
 
 > Das JPA-Mapping wandert in eine **separate** Klasse in `infrastructure`.
 
@@ -240,22 +182,7 @@ public class Vermittlungsvorgang {
 
 ### Der Daten-Transformations-Flow
 
-```
-HTTP-Request            Command              Domain              JPA-Entity
-┌──────────┐    Map    ┌──────────┐   Use   ┌──────────┐  Map   ┌──────────┐
-│ Request  │ ────────► │ Besich-  │ ──Case─►│ Vermitt- │ ────►  │ JpaVer-  │
-│ DTO      │           │ tigung   │         │ lungs-   │        │ mittlung │
-│ (JSON)   │           │ Anlegen  │         │ vorgang  │        │ (DB)     │
-└──────────┘           │ Command  │         └──────────┘        └──────────┘
-                       └──────────┘
-                                                 │
-                                                 ▼
-┌──────────┐    Map    ┌──────────┐         ┌──────────┐
-│ Response │ ◄──────── │ Result   │ ◄────── │ Domain   │
-│ DTO      │           │ Record   │         │ Methode  │
-│ (JSON)   │           └──────────┘         └──────────┘
-└──────────┘
-```
+![Mapping zwischen Schichten](images/mapping-zwischen-schichten.drawio.png)
 
 - Jede Schichtgrenze hat **eigene Datenstrukturen**
 - Kein „durchreichen" von JPA-Entities bis zum Controller!
@@ -276,13 +203,13 @@ HTTP-Request            Command              Domain              JPA-Entity
 
 ```java
 @Test
-void sollte_besichtigung_anlegen() {
-    // Kein Spring-Kontext nötig!
-    var repo = new InMemoryVermittlungsvorgangRepository();
-    repo.save(Vermittlungsvorgang.erstellen(...));
-    var useCase = new BesichtigungAnlegenUseCase(repo);
-    var result = useCase.anlegen(command);
-    assertThat(result.besichtigungId()).isNotNull();
+void should_schedule_viewing() {
+    // No Spring context needed!
+    var repo = new InMemoryBrokerageProcessRepository();
+    repo.save(BrokerageProcess.create(...));
+    var useCase = new ScheduleViewingUseCase(repo);
+    var result = useCase.schedule(command);
+    assertThat(result.viewingId()).isNotNull();
 }
 ```
 

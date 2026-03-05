@@ -1,0 +1,22 @@
+<mxfile host="draw.io">
+  <diagram name="Akquise Vermittlung Event" id="akquise-vermittlung-event">
+    <mxGraphModel dx="1024" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="350" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- Left box: Akquise BC - blue -->
+        <mxCell id="2" value="&lt;b&gt;Akquise BC&lt;/b&gt;&lt;br&gt;&lt;br&gt;Maklervertrag wird&lt;br&gt;abgeschlossen" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;align=center;verticalAlign=middle;fontSize=13;spacingTop=5;spacingBottom=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="260" height="150" as="geometry"/>
+        </mxCell>
+        <!-- Right box: Vermittlung BC - green -->
+        <mxCell id="3" value="&lt;b&gt;Vermittlung BC&lt;/b&gt;&lt;br&gt;&lt;br&gt;Vermittlungsvorgang&lt;br&gt;wird automatisch&lt;br&gt;angelegt" style="html=1;rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;align=center;verticalAlign=middle;fontSize=13;spacingTop=5;spacingBottom=5;" vertex="1" parent="1">
+          <mxGeometry x="560" y="60" width="260" height="150" as="geometry"/>
+        </mxCell>
+        <!-- Arrow: Akquise -> Vermittlung with event label -->
+        <mxCell id="4" value="&lt;b&gt;MaklervertragAbgeschlossen&lt;/b&gt;&lt;br&gt;(Event)" style="html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="2" target="3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

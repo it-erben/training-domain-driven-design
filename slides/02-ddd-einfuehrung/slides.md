@@ -2,23 +2,8 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+header: "DDD & Clean Architecture mit Spring Boot 4"
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 02 – DDD Einführung
@@ -51,7 +36,7 @@ style: |
 
 ## Der Big Ball of Mud
 
-![Big Ball of Mud](../diagrams/big-ball-of-mud.drawio.png)
+![Big Ball of Mud](images/big-ball-of-mud.drawio.png)
 
 - Jede Komponente kennt jede andere
 - Keine klaren Modulgrenzen
@@ -70,14 +55,14 @@ style: |
 
 ```java
 @Entity
-public class Immobilie {
+public class Property {
     @Id @GeneratedValue
     private Long id;
-    private String bezeichnung;
-    private BigDecimal kaufpreis;
-    private String status; // "NEU", "BEWERTET", "VEROEFFENTLICHT"
+    private String title;
+    private BigDecimal purchasePrice;
+    private String status; // "NEW", "APPRAISED", "PUBLISHED"
 
-    // Nur Getter und Setter – kein Verhalten!
+    // Only getters and setters – no behavior!
 }
 ```
 
@@ -94,19 +79,19 @@ public class Immobilie {
 
 ```java
 @Service
-public class ImmobilienService {
+public class PropertyService {
 
-    public void veröffentlichen(Long id) {
-        Immobilie immo = repo.findById(id).orElseThrow();
-        if (!"BEWERTET".equals(immo.getStatus())) {
-            throw new IllegalStateException("Nur bewertete Objekte!");
+    public void publish(Long id) {
+        Property property = repo.findById(id).orElseThrow();
+        if (!"APPRAISED".equals(property.getStatus())) {
+            throw new IllegalStateException("Only appraised properties!");
         }
-        if (immo.getKaufpreis() == null) {
-            throw new IllegalStateException("Kaufpreis fehlt!");
+        if (property.getPurchasePrice() == null) {
+            throw new IllegalStateException("Purchase price missing!");
         }
-        immo.setStatus("VEROEFFENTLICHT");
-        repo.save(immo);
-        emailService.sendeNotification(immo);
+        property.setStatus("PUBLISHED");
+        repo.save(property);
+        emailService.sendNotification(property);
     }
 }
 ```
@@ -120,33 +105,33 @@ public class ImmobilienService {
 ## Das Gegenbeispiel: Rich Domain Model
 
 ```java
-public class Immobilie {
-    private ImmobilieId id;
-    private Bezeichnung bezeichnung;
-    private Kaufpreis kaufpreis;
-    private ImmobilienStatus status;
+public class Property {
+    private PropertyId id;
+    private Title title;
+    private PurchasePrice purchasePrice;
+    private PropertyStatus status;
 
-    public void veröffentlichen() {
-        if (this.status != ImmobilienStatus.BEWERTET) {
-            throw new ImmobilieNichtBereitException(this.id);
+    public void publish() {
+        if (this.status != PropertyStatus.APPRAISED) {
+            throw new PropertyNotReadyException(this.id);
         }
-        Objects.requireNonNull(this.kaufpreis, "Kaufpreis fehlt");
-        this.status = ImmobilienStatus.VEROEFFENTLICHT;
-        registerEvent(new ImmobilieVeröffentlicht(this.id));
+        Objects.requireNonNull(this.purchasePrice, "Purchase price missing");
+        this.status = PropertyStatus.PUBLISHED;
+        registerEvent(new PropertyPublished(this.id));
     }
 }
 ```
 
 - Geschäftslogik lebt **im Objekt**, nicht im Service
 - **Invarianten** werden vom Objekt selbst geschützt
-- Value Objects (`Kaufpreis`, `Bezeichnung`) statt primitiver Typen
+- Value Objects (`PurchasePrice`, `Title`) statt primitiver Typen
 - Domain Events signalisieren fachlich relevante Zustandsänderungen
 
 ---
 
 ## Anemic vs. Rich Domain Model – Gegenüberstellung
 
-![Anemic vs. Rich Domain Model](../diagrams/anemic-vs-rich-domain-model.drawio.png)
+![Anemic vs. Rich Domain Model](images/anemic-vs-rich-domain-model.drawio.png)
 
 | Aspekt | Anemic Model | Rich Domain Model |
 |--------|-------------|-------------------|
@@ -214,20 +199,7 @@ Erschienen 2003, bis heute das Standardwerk.
 
 ### Wo investieren wir unsere DDD-Energie?
 
-```
-                    ▲ Geschäftswert / Differenzierung
-                    │
-          ┌─────────┤
-          │  CORE   │  ← Volles DDD, Rich Domain Model, eigener Code
-          │         │     Vermittlungsprozess, Akquise
-          ├─────────┤
-          │SUPPORT. │  ← Solides Modell, aber weniger Aufwand
-          │         │     Vermarktung, Objektverwaltung
-          ├─────────┤
-          │ GENERIC │  ← CRUD oder Zukauf (CRM, E-Mail, Kalender)
-          │         │     Kontaktmanagement, Aktivitäten
-          └─────────┘
-```
+![Core, Supporting, Generic Pyramid](images/core-supporting-generic-pyramid.drawio.png)
 
 > Nicht jede Subdomäne braucht volle DDD-Umsetzung.
 > Die Kunst liegt in der **richtigen Zuordnung**.
@@ -272,14 +244,14 @@ public void updateStatus(Long id, String newStatus) { ... }
 ### ✅ Fachlich / ausdrucksstark
 
 ```java
-public class Vermittlungsvorgang {
-    private Preisvorstellung preisvorstellung;
-    private Adresse adresse;
-    private Provision provision;
+public class BrokerageProcess {
+    private AskingPrice askingPrice;
+    private Address address;
+    private Commission commission;
 }
 
-public void besichtigungDurchführen(BesichtigungId id) { ... }
-public void angebotAnnehmen(AngebotId id) { ... }
+public void conductViewing(ViewingId id) { ... }
+public void acceptOffer(OfferId id) { ... }
 ```
 
 > Der Code **liest** sich wie ein Fachgespräch. Neue Teammitglieder
@@ -294,8 +266,8 @@ public void angebotAnnehmen(AngebotId id) { ... }
 | Warnsignal | Beispiel |
 |-----------|---------|
 | **Technische Begriffe** im Domain-Code | `DataProcessor`, `EntityManager`, `Helper` |
-| **Abkürzungen** statt Fachbegriffe | `immo`, `vg`, `bew` statt `Immobilie`, `Vermittlungsvorgang`, `Bewertung` |
-| **Englisch/Deutsch-Mix** ohne System | `createBesichtigung()` statt `besichtigungAnlegen()` |
+| **Abkürzungen** statt Fachbegriffe | `prop`, `bp`, `val` statt `Property`, `BrokerageProcess`, `Valuation` |
+| **Englisch/Deutsch-Mix** ohne System | `createViewing()` statt `scheduleViewing()` |
 | **Gleicher Begriff, verschiedene Bedeutung** | „Objekt" meint in der Akquise etwas anderes als in der Vermarktung |
 | **Unterschiedliche Begriffe, gleiche Sache** | „Kunde", „Interessent", „Kontakt" für dieselbe Person |
 
@@ -330,7 +302,7 @@ Gutes Domänenmodell  +  Gute Architektur  =  Wartbare Software
 
 ## Strategic Design – Überblick
 
-![Strategic & Tactical Design](../diagrams/ddd-strategic-tactical-overview.drawio.png)
+![Strategic & Tactical Design](images/ddd-strategic-tactical-overview.drawio.png)
 
 ### Die Makro-Ebene
 
@@ -346,18 +318,7 @@ Gutes Domänenmodell  +  Gute Architektur  =  Wartbare Software
 
 ### Ein Modell gilt innerhalb seiner Grenze
 
-```
-┌─────────────────────────┐  ┌─────────────────────────┐
-│  BC: Objektverwaltung   │  │  BC: Vermarktung        │
-│                         │  │                         │
-│  "Immobilie" =          │  │  "Immobilie" =          │
-│  Stammdaten, Lage,      │  │  Exposé-Text, Fotos,    │
-│  Bewertung, Grundriss   │  │  Zielgruppe, Portale    │
-│                         │  │                         │
-│  → Detailliertes        │  │  → Marketingorientiert  │
-│    technisches Modell   │  │    für den Interessenten │
-└─────────────────────────┘  └─────────────────────────┘
-```
+![Bounded Context: Immobilie im Vergleich](images/bounded-context-immobilie-vergleich.drawio.png)
 
 - Derselbe Begriff kann in verschiedenen BCs **verschiedene Dinge** bedeuten
 - Jeder BC hat sein **eigenes Modell** – keine „Über-Entity", die alles kennt
@@ -424,21 +385,6 @@ Level 3: Tactical Design + Clean Architecture
 
 ---
 
-## DDD im Vergleich zum klassischen Ansatz
-
-| Aspekt | Klassisch (CRUD) | DDD |
-|--------|-----------------|-----|
-| **Fokus** | Datenbank-Tabellen | Fachliche Prozesse |
-| **Entities** | Datencontainer (Anemic) | Verhalten + Invarianten (Rich) |
-| **Geschäftslogik** | Im Service Layer | In der Domäne |
-| **Struktur** | Package by Layer | Package by Feature / Context |
-| **Sprache** | Technisch geprägt | Ubiquitous Language |
-| **Änderungen** | Kaskaden über Schichten | Lokal im Bounded Context |
-| **Modularisierung** | Schichten | Fachliche Bounded Contexts |
-| **Tests** | Spring-Kontext nötig | Domain: Plain JUnit |
-
----
-
 ## Zusammenfassung
 
 - **Ohne DDD** entsteht oft ein Anemic Domain Model mit verstreuter Logik
@@ -450,16 +396,3 @@ Level 3: Tactical Design + Clean Architecture
 - DDD ist **kein Dogma** – gezielt dort einsetzen, wo Komplexität herrscht
 
 > Im nächsten Modul erkunden wir unsere Domäne mit **Event Storming**.
-
----
-
-## 🎯 Ausblick: Event Storming (Modul 03)
-
-### Im nächsten Modul erkunden wir die Domäne gemeinsam
-
-- **Event Storming** als kollaboratives Workshop-Format
-- Ziel: Die Prozesse im Immobilien-CRM sichtbar machen
-- Events, Commands und Aggregates identifizieren
-- Grundlage für Bounded Contexts und Building Blocks
-
-> Danach folgt **Lab 02** – ihr führt selbst ein Event Storming durch.

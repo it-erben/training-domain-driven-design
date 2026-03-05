@@ -1,0 +1,36 @@
+<mxfile host="app.diagrams.net" modified="2026-03-05T10:00:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="read-model-akteur-command" name="Read Model Akteur Command">
+    <mxGraphModel dx="900" dy="300" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="250" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Read Model (green) -->
+        <mxCell id="readmodel" value="&lt;b&gt;Immobilien-&lt;br/&gt;übersicht&lt;/b&gt;&lt;br/&gt;(Read Model)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#2e7d32;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Akteur (stick figure) -->
+        <mxCell id="actor" value="Makler&lt;br/&gt;(Akteur)" style="shape=mxgraph.basic.person;whiteSpace=wrap;html=1;fillColor=#E0E0E0;strokeColor=#616161;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="330" y="40" width="60" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Command (blue) -->
+        <mxCell id="command" value="&lt;b&gt;Bewerte&lt;br/&gt;Objekt&lt;/b&gt;&lt;br/&gt;(Command)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#42a5f5;strokeColor=#1565c0;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="520" y="50" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Read Model → Akteur -->
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="readmodel" target="actor" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Akteur → Command -->
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="actor" target="command" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

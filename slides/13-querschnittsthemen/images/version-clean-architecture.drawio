@@ -1,0 +1,57 @@
+<mxfile host="draw.io">
+  <diagram name="Version in Clean Architecture" id="version-ca-1">
+    <mxGraphModel dx="1222" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="@Version in Clean Architecture" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="234" y="20" width="700" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Domain Model Box -->
+        <mxCell id="domain-box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="400" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="domain-title" value="&lt;b&gt;domain.model&lt;/b&gt;" style="text;html=1;fontSize=16;fontStyle=0;align=left;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="120" y="110" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="domain-content" value="&lt;div style='text-align:left;font-family:monospace;font-size:12px;'&gt;&lt;span style='color:#7f7f7f;'&gt;// Reines Java – keine JPA-Annotationen&lt;/span&gt;&lt;br/&gt;&lt;br/&gt;&lt;b style='color:#7b1fa2;'&gt;class&lt;/b&gt; BrokerageProcess {&lt;br/&gt;&amp;nbsp;&amp;nbsp;&lt;b style='color:#7b1fa2;'&gt;private final&lt;/b&gt; ProcessId id;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&lt;b style='color:#7b1fa2;'&gt;private int&lt;/b&gt; version;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#7f7f7f;'&gt;// Business logic&lt;/span&gt;&lt;br/&gt;}&lt;/div&gt;" style="text;html=1;fontSize=12;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="120" y="150" width="360" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="domain-badge" value="Kein @Version" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="340" y="110" width="140" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Infrastructure Persistence Box -->
+        <mxCell id="infra-box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="660" y="100" width="400" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="infra-title" value="&lt;b&gt;infrastructure.persistence&lt;/b&gt;" style="text;html=1;fontSize=16;fontStyle=0;align=left;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="680" y="110" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="infra-content" value="&lt;div style='text-align:left;font-family:monospace;font-size:12px;'&gt;&lt;span style='color:#e65100;'&gt;@Entity&lt;/span&gt;&lt;br/&gt;&lt;b style='color:#7b1fa2;'&gt;class&lt;/b&gt; ProcessJpaEntity {&lt;br/&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#e65100;'&gt;@Id&lt;/span&gt; UUID id;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#e65100;'&gt;@Version&lt;/span&gt; Long version;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#7f7f7f;'&gt;// JPA fields&lt;/span&gt;&lt;br/&gt;}&lt;/div&gt;" style="text;html=1;fontSize=12;align=left;verticalAlign=top;fillColor=none;strokeColor=none;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="680" y="150" width="360" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="infra-badge" value="@Version hier!" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;fontColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="900" y="110" width="140" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Mapper -->
+        <mxCell id="mapper-arrow" value="&lt;b&gt;Mapper&lt;/b&gt;&lt;br/&gt;version ↔ version" style="endArrow=block;endFill=1;startArrow=block;startFill=1;strokeColor=#333333;strokeWidth=2;html=1;fontSize=11;align=center;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="510" y="240" as="sourcePoint" />
+            <mxPoint x="650" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Bottom note -->
+        <mxCell id="note" value="&lt;b&gt;Kernregel:&lt;/b&gt; Die Domain hat ein einfaches &lt;code&gt;int version&lt;/code&gt; – der Mapper uebertraegt die Version in beide Richtungen.&lt;br/&gt;JPA prueft automatisch beim UPDATE: &lt;code&gt;WHERE version = ?&lt;/code&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;spacingLeft=10;spacingRight=10;" vertex="1" parent="1">
+          <mxGeometry x="200" y="430" width="760" height="60" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

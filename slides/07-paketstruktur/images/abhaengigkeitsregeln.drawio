@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="draw.io" modified="2026-03-05T00:00:00.000Z" agent="draw.io" version="21.0.0" type="device">
+  <diagram id="abhaengigkeitsregeln" name="Abhaengigkeitsregeln">
+    <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ==================== ADAPTER BOX ==================== -->
+        <mxCell id="adapterBox" value="&lt;b&gt;adapter.web&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=13;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== APPLICATION BOXES ==================== -->
+        <mxCell id="appPortBox" value="&lt;b&gt;application.port&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=13;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="420" y="60" width="220" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="appServiceBox" value="&lt;b&gt;application.service&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=13;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="420" y="120" width="220" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== DOMAIN BOXES ==================== -->
+        <mxCell id="domainModelBox" value="&lt;b&gt;domain.model&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=13;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="420" y="260" width="220" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="domainPortBox" value="&lt;b&gt;domain.port&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=13;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="420" y="320" width="220" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="domainEventBox" value="&lt;b&gt;domain.event&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=13;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="420" y="380" width="220" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== INFRASTRUCTURE BOX ==================== -->
+        <mxCell id="infraBox" value="&lt;b&gt;infrastructure.persistence&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;fontSize=13;verticalAlign=middle;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="60" y="320" width="250" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ARROWS ==================== -->
+
+        <!-- adapter.web -> application.port -->
+        <mxCell id="arrowAdapterApp" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1" source="adapterBox" target="appPortBox">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- application.service -> domain (implements / uses) -->
+        <mxCell id="arrowAppDomain" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="530" y="160" as="sourcePoint" />
+            <mxPoint x="530" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrowAppDomainLabel" value="&lt;i&gt;implements / uses&lt;/i&gt;" style="text;html=1;fontSize=10;align=left;verticalAlign=middle;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="540" y="200" width="110" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- infrastructure.persistence -> domain.port (implements) -->
+        <mxCell id="arrowInfraDomain" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="185" y="370" as="sourcePoint" />
+            <mxPoint x="185" y="460" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="185" y="430" />
+              <mxPoint x="420" y="430" />
+            </Array>
+            <mxPoint x="420" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Redraw: infrastructure -> domain (curved arrow) -->
+        <mxCell id="arrowInfraDomainCurved" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;curved=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="310" y="345" as="sourcePoint" />
+            <mxPoint x="420" y="345" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrowInfraDomainLabel" value="&lt;i&gt;implements&lt;/i&gt;" style="text;html=1;fontSize=10;align=center;verticalAlign=middle;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="325" y="323" width="80" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

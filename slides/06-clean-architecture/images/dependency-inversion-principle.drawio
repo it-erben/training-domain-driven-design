@@ -1,0 +1,74 @@
+<mxfile host="draw.io">
+  <diagram name="Dependency Inversion Principle" id="dip-1">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Dependency Inversion Principle (DIP)" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="250" y="20" width="700" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Domain Box (top, inner ring) -->
+        <mxCell id="domain-box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=3;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="200" y="80" width="800" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="domain-label" value="&lt;b&gt;Domain (innerer Ring)&lt;/b&gt;" style="text;html=1;fontSize=16;align=left;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#2d6e1e;" vertex="1" parent="1">
+          <mxGeometry x="230" y="95" width="300" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Interface code block in Domain -->
+        <mxCell id="domain-code" value="&lt;font face=&quot;monospace&quot; size=&quot;2&quot;&gt;&lt;b&gt;interface&lt;/b&gt; BrokerageProcessRepository {&lt;br&gt;    Optional&amp;lt;BrokerageProcess&amp;gt; findById(UUID id);&lt;br&gt;    void save(BrokerageProcess process);&lt;br&gt;}&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=1;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="300" y="140" width="600" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Port label -->
+        <mxCell id="port-label" value="&amp;laquo;Port&amp;raquo;" style="text;html=1;fontSize=12;fontStyle=2;align=center;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="520" y="255" width="160" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Implements arrow -->
+        <mxCell id="impl-arrow" value="" style="endArrow=block;endFill=0;strokeColor=#666666;strokeWidth=3;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="600" y="420" as="sourcePoint" />
+            <mxPoint x="600" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="impl-label" value="&lt;b&gt;implements&lt;/b&gt;" style="text;html=1;fontSize=13;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="610" y="355" width="120" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Dependency direction annotation -->
+        <mxCell id="dep-arrow" value="" style="endArrow=block;endFill=1;strokeColor=#d32f2f;strokeWidth=3;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="500" as="sourcePoint" />
+            <mxPoint x="160" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dep-arrow-label" value="&lt;b&gt;Abhängigkeitsrichtung&lt;/b&gt;" style="text;html=1;fontSize=12;align=center;fontColor=#d32f2f;rotation=-90;" vertex="1" parent="1">
+          <mxGeometry x="60" y="310" width="180" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Infrastructure Box (bottom, outer ring) -->
+        <mxCell id="infra-box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=3;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="200" y="420" width="800" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="infra-label" value="&lt;b&gt;Infrastructure (äußerer Ring)&lt;/b&gt;" style="text;html=1;fontSize=16;align=left;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="230" y="435" width="350" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Implementation code block in Infrastructure -->
+        <mxCell id="infra-code" value="&lt;font face=&quot;monospace&quot; size=&quot;2&quot;&gt;&lt;b&gt;@Component&lt;/b&gt;&lt;br&gt;class BrokerageProcessRepositoryAdapter&lt;br&gt;    &lt;b&gt;implements&lt;/b&gt; BrokerageProcessRepository {&lt;br&gt;    // ... JPA implementation&lt;br&gt;}&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="300" y="480" width="600" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Adapter label -->
+        <mxCell id="adapter-label" value="&amp;laquo;Adapter&amp;raquo;" style="text;html=1;fontSize=12;fontStyle=2;align=center;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="520" y="605" width="160" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

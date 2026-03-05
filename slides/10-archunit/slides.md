@@ -2,23 +2,8 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+header: "DDD & Clean Architecture mit Spring Boot 4"
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 10 – ArchUnit
@@ -84,11 +69,11 @@ Woche 24: "Wir müssen die Architektur neu aufsetzen"       💀
 ## Grundlegende API
 
 ```java
-@AnalyzeClasses(packages = "de.immobiliencrm")
+@AnalyzeClasses(packages = "de.realestate")
 class ArchitectureRulesTest {
 
     @ArchTest
-    static final ArchRule domain_hat_keine_spring_imports =
+    static final ArchRule domain_has_no_spring_imports =
         noClasses()
             .that().resideInAPackage("..domain..")
             .should().dependOnClassesThat()
@@ -96,7 +81,7 @@ class ArchitectureRulesTest {
                     "org.springframework..",
                     "jakarta.persistence..",
                     "jakarta.transaction..")
-            .as("Domain darf keine Spring/JPA-Abhängigkeiten haben");
+            .as("Domain must not have Spring/JPA dependencies");
 }
 ```
 
@@ -136,7 +121,7 @@ Bedingungen (.should())
 
 ```java
 @ArchTest
-static final ArchRule domain_ist_framework_frei =
+static final ArchRule domain_is_framework_free =
     noClasses()
         .that().resideInAPackage("..domain..")
         .should().dependOnClassesThat()
@@ -145,7 +130,7 @@ static final ArchRule domain_ist_framework_frei =
                 "jakarta.persistence..",
                 "jakarta.transaction..",
                 "com.fasterxml.jackson..")
-        .as("Domain darf keine Framework-Abhängigkeiten haben");
+        .as("Domain must not have framework dependencies");
 ```
 
 - Sichert die **Dependency Rule** der Clean Architecture ab
@@ -158,7 +143,7 @@ static final ArchRule domain_ist_framework_frei =
 
 ```java
 @ArchTest
-static final ArchRule domain_kennt_keine_äußeren_ringe =
+static final ArchRule domain_does_not_know_outer_rings =
     noClasses()
         .that().resideInAPackage("..domain..")
         .should().dependOnClassesThat()
@@ -166,19 +151,19 @@ static final ArchRule domain_kennt_keine_äußeren_ringe =
                 "..application..",
                 "..infrastructure..",
                 "..adapter..")
-        .as("Domain darf nicht auf äußere Ringe zugreifen");
+        .as("Domain must not access outer rings");
 ```
 
 ```java
 @ArchTest
-static final ArchRule application_kennt_keine_infrastruktur =
+static final ArchRule application_does_not_know_infrastructure =
     noClasses()
         .that().resideInAPackage("..application..")
         .should().dependOnClassesThat()
             .resideInAnyPackage(
                 "..infrastructure..",
                 "..adapter..")
-        .as("Application darf nicht auf Infrastructure/Adapter zugreifen");
+        .as("Application must not access Infrastructure/Adapter");
 ```
 
 ---
@@ -187,26 +172,26 @@ static final ArchRule application_kennt_keine_infrastruktur =
 
 ```java
 @ArchTest
-static final ArchRule rest_controller_nur_in_adapter_web =
+static final ArchRule rest_controller_only_in_adapter_web =
     noClasses()
         .that().resideOutsideOfPackage("..adapter.web..")
         .should().beAnnotatedWith(RestController.class)
-        .as("@RestController nur in adapter.web erlaubt");
+        .as("@RestController only allowed in adapter.web");
 
 @ArchTest
-static final ArchRule entity_nur_in_infrastructure =
+static final ArchRule entity_only_in_infrastructure =
     noClasses()
         .that().resideOutsideOfPackage("..infrastructure..")
         .should().beAnnotatedWith(
             jakarta.persistence.Entity.class)
-        .as("@Entity nur in infrastructure erlaubt");
+        .as("@Entity only allowed in infrastructure");
 
 @ArchTest
-static final ArchRule transactional_nur_in_application =
+static final ArchRule transactional_only_in_application =
     noClasses()
         .that().resideOutsideOfPackage("..application..")
         .should().beAnnotatedWith(Transactional.class)
-        .as("@Transactional nur in application erlaubt");
+        .as("@Transactional only allowed in application");
 ```
 
 ---
@@ -215,28 +200,28 @@ static final ArchRule transactional_nur_in_application =
 
 ```java
 @ArchTest
-static final ArchRule controller_heissen_controller =
+static final ArchRule controllers_named_controller =
     classes()
         .that().areAnnotatedWith(RestController.class)
         .should().haveSimpleNameEndingWith("Controller")
-        .as("REST-Controller sollten mit 'Controller' enden");
+        .as("REST controllers should end with 'Controller'");
 
 @ArchTest
-static final ArchRule request_dtos_heissen_request =
+static final ArchRule request_dtos_named_request =
     classes()
         .that().resideInAPackage("..adapter.web..")
         .and().haveSimpleNameEndingWith("Request")
         .should().beRecords()
-        .as("Request-DTOs sollten Records sein");
+        .as("Request DTOs should be records");
 
 @ArchTest
-static final ArchRule services_implementieren_port =
+static final ArchRule services_implement_port =
     classes()
         .that().resideInAPackage("..application.service..")
         .and().areAnnotatedWith(Service.class)
         .should().implement(
             resideInAPackage("..application.port.."))
-        .as("Application Services sollen einen Port implementieren");
+        .as("Application services should implement a port");
 ```
 
 ---
@@ -266,7 +251,7 @@ static final ArchRule onion_architecture =
 
 ```java
 @ArchTest
-static final ArchRule schichten_architektur =
+static final ArchRule layered_architecture =
     Architectures.layeredArchitecture()
         .consideringOnlyDependenciesInLayers()
         .layer("Adapter").definedBy("..adapter..")
@@ -293,20 +278,20 @@ static final ArchRule schichten_architektur =
 
 ```java
 @ArchTest
-static final ArchRule vermittlung_greift_nicht_auf_akquise_domain =
+static final ArchRule brokerage_does_not_access_acquisition_domain =
     noClasses()
-        .that().resideInAPackage("..vermittlung.domain..")
+        .that().resideInAPackage("..brokerage.domain..")
         .should().dependOnClassesThat()
-            .resideInAPackage("..akquise.domain..")
-        .as("Vermittlung-Domain darf nicht direkt auf "
-            + "Akquise-Domain zugreifen");
+            .resideInAPackage("..acquisition.domain..")
+        .as("Brokerage domain must not directly access "
+            + "Acquisition domain");
 
 @ArchTest
-static final ArchRule bcs_kommunizieren_nur_über_events =
-    slices().matching("de.immobiliencrm.(*).domain..")
+static final ArchRule bcs_communicate_only_via_events =
+    slices().matching("de.realestate.(*).domain..")
         .should().notDependOnEachOther()
-        .as("Domain-Schichten verschiedener BCs "
-            + "dürfen nicht aufeinander zugreifen");
+        .as("Domain layers of different BCs "
+            + "must not depend on each other");
 ```
 
 - Stellt sicher, dass Bounded Contexts **isoliert** bleiben
@@ -320,9 +305,9 @@ static final ArchRule bcs_kommunizieren_nur_über_events =
 ### Problem: 47 bestehende Verstöße — Build bricht sofort
 
 ```java
-// FreezingArchRule: bestehende Verstöße "einfrieren"
+// FreezingArchRule: "freeze" existing violations
 @ArchTest
-static final ArchRule domain_framework_frei =
+static final ArchRule domain_framework_free =
     FreezingArchRule.freeze(
         noClasses()
             .that().resideInAPackage("..domain..")
@@ -343,27 +328,27 @@ static final ArchRule domain_framework_frei =
 ## Alle Regeln zusammen
 
 ```java
-@AnalyzeClasses(packages = "de.immobiliencrm")
+@AnalyzeClasses(packages = "de.realestate")
 class CleanArchitectureTest {
 
-    // Abhängigkeitsregeln
-    @ArchTest static final ArchRule r1 = /* domain_ist_framework_frei */;
-    @ArchTest static final ArchRule r2 = /* domain_kennt_keine_äußeren_ringe */;
-    @ArchTest static final ArchRule r3 = /* application_kennt_keine_infrastruktur */;
+    // Dependency rules
+    @ArchTest static final ArchRule r1 = /* domain_is_framework_free */;
+    @ArchTest static final ArchRule r2 = /* domain_does_not_know_outer_rings */;
+    @ArchTest static final ArchRule r3 = /* application_does_not_know_infrastructure */;
 
-    // Annotation-Regeln
-    @ArchTest static final ArchRule r4 = /* rest_controller_nur_in_adapter_web */;
-    @ArchTest static final ArchRule r5 = /* entity_nur_in_infrastructure */;
-    @ArchTest static final ArchRule r6 = /* transactional_nur_in_application */;
+    // Annotation rules
+    @ArchTest static final ArchRule r4 = /* rest_controller_only_in_adapter_web */;
+    @ArchTest static final ArchRule r5 = /* entity_only_in_infrastructure */;
+    @ArchTest static final ArchRule r6 = /* transactional_only_in_application */;
 
-    // Namenskonventionen
-    @ArchTest static final ArchRule r7 = /* controller_heissen_controller */;
+    // Naming conventions
+    @ArchTest static final ArchRule r7 = /* controllers_named_controller */;
 
-    // Vordefinierte Architekturform
+    // Predefined architecture form
     @ArchTest static final ArchRule r8 = /* onion_architecture */;
 
-    // Cross-BC-Isolation
-    @ArchTest static final ArchRule r9 = /* bcs_kommunizieren_nur_über_events */;
+    // Cross-BC isolation
+    @ArchTest static final ArchRule r9 = /* bcs_communicate_only_via_events */;
 }
 ```
 
@@ -372,7 +357,7 @@ class CleanArchitectureTest {
 ## Integration in CI/CD
 
 ```yaml
-# azure-pipelines.yml (Auszug)
+# azure-pipelines.yml (excerpt)
 - task: Maven@4
   inputs:
     mavenPomFile: 'pom.xml'

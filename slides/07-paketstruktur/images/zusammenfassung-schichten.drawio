@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="draw.io" modified="2026-03-05T00:00:00.000Z" agent="draw.io" version="21.0.0" type="device">
+  <diagram id="zusammenfassung-schichten" name="Zusammenfassung Schichten">
+    <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ==================== ADAPTER LAYER (top) ==================== -->
+        <mxCell id="adapterBar" value="&lt;b style=&quot;font-size:14px&quot;&gt;adapter.web&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px&quot;&gt;Controller &amp;rarr; DTO &amp;rarr; Command&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;verticalAlign=middle;fontSize=12;align=left;spacingLeft=20;" vertex="1" parent="1">
+          <mxGeometry x="100" y="60" width="700" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== APPLICATION LAYER ==================== -->
+        <mxCell id="appBar" value="&lt;b style=&quot;font-size:14px&quot;&gt;application.service&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px&quot;&gt;@Service @Transactional &amp;rarr; orchestriert Use Case&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;verticalAlign=middle;fontSize=12;align=left;spacingLeft=20;" vertex="1" parent="1">
+          <mxGeometry x="100" y="130" width="700" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== DOMAIN LAYER ==================== -->
+        <mxCell id="domainBar" value="&lt;b style=&quot;font-size:14px&quot;&gt;domain.model / domain.port / domain.event&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px&quot;&gt;Reines Java: Gesch&amp;auml;ftslogik, Interfaces, Events&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;verticalAlign=middle;fontSize=12;align=left;spacingLeft=20;" vertex="1" parent="1">
+          <mxGeometry x="100" y="200" width="700" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== INFRASTRUCTURE LAYER (bottom) ==================== -->
+        <mxCell id="infraBar" value="&lt;b style=&quot;font-size:14px&quot;&gt;infrastructure.persistence&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px&quot;&gt;JPA Entities, Mapper, Repository-Adapter, Spring Data&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;verticalAlign=middle;fontSize=12;align=left;spacingLeft=20;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="100" y="270" width="700" height="70" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

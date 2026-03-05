@@ -1,0 +1,94 @@
+<mxfile host="app.diagrams.net" modified="2026-03-05T10:00:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="event-storming-board-layout" name="Event Storming Board Layout">
+    <mxGraphModel dx="1200" dy="500" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="420" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Main flow row -->
+
+        <!-- Read Model (green) -->
+        <mxCell id="rm" value="&lt;b&gt;Read Model&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#2e7d32;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Akteur -->
+        <mxCell id="actor" value="Akteur" style="shape=mxgraph.basic.person;whiteSpace=wrap;html=1;fillColor=#E0E0E0;strokeColor=#616161;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="48" width="55" height="72" as="geometry" />
+        </mxCell>
+
+        <!-- Command (blue) -->
+        <mxCell id="cmd" value="&lt;b&gt;Command&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#42a5f5;strokeColor=#1565c0;fontSize=13;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="360" y="60" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Aggregate (yellow) -->
+        <mxCell id="agg" value="&lt;b&gt;Aggregate&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff176;strokeColor=#f9a825;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="560" y="60" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Domain Event (orange) -->
+        <mxCell id="evt" value="&lt;b&gt;Domain Event&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9a825;strokeColor=#f57f17;fontSize=13;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="770" y="60" width="160" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Second row: Policy and Ext System branching from Event -->
+
+        <!-- Policy (purple) -->
+        <mxCell id="pol" value="&lt;b&gt;Policy&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ce93d8;strokeColor=#8e24aa;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="790" y="200" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Next Command from Policy -->
+        <mxCell id="cmd2" value="&lt;b&gt;Command&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#42a5f5;strokeColor=#1565c0;fontSize=13;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="990" y="200" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Ellipsis -->
+        <mxCell id="dots" value="..." style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="210" width="40" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- External System (pink) -->
+        <mxCell id="ext" value="&lt;b&gt;Ext. System&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f48fb1;strokeColor=#c62828;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="790" y="320" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows main flow -->
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="rm" target="actor" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="actor" target="cmd" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="cmd" target="agg" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="agg" target="evt" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Event → Policy -->
+        <mxCell id="a5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="evt" target="pol" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Policy → Command2 -->
+        <mxCell id="a6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="pol" target="cmd2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Command2 → dots -->
+        <mxCell id="a7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;" edge="1" source="cmd2" target="dots" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Event → Ext System -->
+        <mxCell id="a8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#424242;dashed=1;" edge="1" source="evt" target="ext" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
