@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -48,7 +48,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Herzlich Willkommen!
 
-### DDD & Clean Architecture mit Spring Boot 3
+### DDD & Clean Architecture mit Spring Boot 4
 
 Ein praxisorientierter Workshop für Java-Entwickler und
 Software-Architekten, die ihre Spring-Boot-Projekte auf ein solides
@@ -116,7 +116,7 @@ bis zum Notartermin.
 
 ### Vormittag
 
-- **Spring Boot 3 Basics** – Jakarta EE 10, Constructor Injection, Spring Data JPA, Bean Validation
+- **Spring Boot 4 Basics** – Jakarta EE 11, Constructor Injection, Spring Data JPA, Bean Validation
 - **Lab 00** – Entwicklungsumgebung einrichten (30 Min)
 - **Lab 01** – Immobilien-CRUD mit Spring Boot (45 Min)
 
@@ -218,7 +218,7 @@ Nach diesen 5 Tagen könnt ihr:
 
 - Die **Prinzipien von DDD** erklären und gezielt einsetzen
 - **Bounded Contexts** identifizieren und über eine Context Map abgrenzen
-- Eine **Clean Architecture** mit Spring Boot 3 umsetzen (Ports & Adapters)
+- Eine **Clean Architecture** mit Spring Boot 4 umsetzen (Ports & Adapters)
 - **Building Blocks** (Entity, Value Object, Aggregate) idiomatisch in Java implementieren
 - **Application Services** als Use-Case-Orchestratoren schreiben
 - **Architekturregeln** mit ArchUnit automatisiert durchsetzen

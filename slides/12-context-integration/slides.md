@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -29,14 +29,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ### Beispiel im Immobilien-CRM
 
-```
-┌── Akquise BC ──────────┐     Event      ┌── Vermittlung BC ──────┐
-│                         │               │                         │
-│  Maklervertrag wird     │──────────────►│  Vermittlungsvorgang    │
-│  abgeschlossen          │               │  wird automatisch       │
-│                         │ MaklervertragAbge-│  angelegt            │
-└─────────────────────────┘ schlossen     └─────────────────────────┘
-```
+![Akquise Vermittlung Event](images/akquise-vermittlung-event.drawio.png)
 
 - Lose Kopplung durch **Events** statt direkte Methodenaufrufe
 - Jeder BC behält seine **eigene Ubiquitous Language**
@@ -130,20 +123,7 @@ public class CloseContractService {
 
 ### Die Lösung
 
-```
-┌── Akquise BC ────┐                      ┌── Vermittlung BC ─────────────┐
-│                   │   Event              │                               │
-│  BrokerageContract│──────────────────►  │  ┌─── ACL ──────────────┐    │
-│  close()          │ ContractSigned-     │  │ AcquisitionEventTranslator│ │
-│                   │ Event               │  │   → StartBrokerage    │    │
-└───────────────────┘                      │  │     Command            │    │
-                                           │  └───────────┬────────────┘    │
-                                           │              ▼                │
-                                           │  StartBrokerageService         │
-                                           │  → BrokerageProcess.          │
-                                           │    create()                   │
-                                           └───────────────────────────────┘
-```
+![ACL Konzept](images/acl-konzept.drawio.png)
 
 ---
 
@@ -263,28 +243,7 @@ public class StartBrokerageService {
 
 ## Gesamtbild: Event Flow zwischen BCs
 
-```
-Akquise BC                        Vermittlung BC
-┌──────────────────────┐          ┌────────────────────────────────┐
-│ CloseContract        │          │                                │
-│ Service              │          │  adapter.acl                   │
-│   │                  │  publish │  ┌─────────────────────────┐   │
-│   ├─ contract        │─────────►│  │ AcquisitionEventListener│   │
-│   │  .close()        │  Event   │  │   ├─ translator         │   │
-│   ├─ save()          │          │  │   │  .translate(event)  │   │
-│   └─ dispatch events │          │  │   └─ service.start()    │   │
-│                      │          │  └─────────────────────────┘   │
-│ ContractSigned-      │          │                                │
-│ Event                │          │  application                   │
-│ (public API)         │          │  ┌─────────────────────────┐   │
-└──────────────────────┘          │  │ StartBrokerage          │   │
-                                  │  │ Service                 │   │
-                                  │  │  → idempotency check    │   │
-                                  │  │  → Process.create()     │   │
-                                  │  │  → save()               │   │
-                                  │  └─────────────────────────┘   │
-                                  └────────────────────────────────┘
-```
+![Event Flow zwischen BCs](images/event-flow-zwischen-bcs.drawio.png)
 
 ---
 

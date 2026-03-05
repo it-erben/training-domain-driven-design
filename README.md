@@ -1,11 +1,11 @@
-# DDD & Clean Architecture mit Spring Boot 3
+# DDD & Clean Architecture mit Spring Boot 4
 
 **Workshop S2090** – GFU Cyrus AG | 5 Tage
 
 Praxisorientierter Workshop für erfahrene Java-Entwickler und
 Software-Architekten. Anhand einer durchgängigen Übungsdomäne –
 einem **Immobilien-CRM für Makler** – werden Domain-Driven Design und
-Clean Architecture Schritt für Schritt mit Spring Boot 3 umgesetzt.
+Clean Architecture Schritt für Schritt mit Spring Boot 4 umgesetzt.
 
 ---
 
@@ -62,7 +62,7 @@ workshop-ddd-clean-architecture/
 │   ├── 01-spring-boot-basics/
 │   ├── ...
 │   ├── 15-reflexion-ausblick/
-│   └── diagrams/            # draw.io Diagramme
+│   └── template.html        # Marp HTML-Template
 ├── labs/                    # Hands-on Labs (00–12)
 │   ├── lab-00-setup/        # Starter-Projekt + Setup-Anleitung
 │   ├── lab-01-spring-boot-basics/
@@ -100,7 +100,7 @@ done
 
 ## Diagramme bearbeiten
 
-Die `.drawio`-Dateien im Verzeichnis `slides/diagrams/` können mit folgenden
+Die `.drawio`-Dateien in den `slides/*/images/`-Verzeichnissen können mit folgenden
 Tools geöffnet und bearbeitet werden:
 
 - **[draw.io Desktop](https://github.com/jgraph/drawio-desktop/releases)** –
@@ -132,7 +132,7 @@ Die durchgängige Übungsdomäne umfasst sechs Bounded Contexts:
 ## Technologie-Stack
 
 - **Java 17+** (Records, Sealed Classes)
-- **Spring Boot 3.3.x** (Jakarta EE 10, Virtual Threads ready)
+- **Spring Boot 4.0.x** (Jakarta EE 11, Spring Framework 7, Virtual Threads)
 - **Spring Data JPA** + **H2** (In-Memory-Datenbank)
 - **Bean Validation** (jakarta.validation)
 - **ArchUnit** (Architektur-Tests)

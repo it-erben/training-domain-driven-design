@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -31,21 +31,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Testpyramide → Clean Architecture Ringe
 
-```
-                    ┌─────────────┐
-                    │   E2E Test  │  @SpringBootTest
-                    │    (wenig)  │  Ring 1-4 komplett
-                ┌───┴─────────────┴───┐
-                │   Integration Tests  │  @DataJpaTest, @WebMvcTest
-                │    (einige)          │  Ring 3 + 4
-            ┌───┴─────────────────────┴───┐
-            │   Application Service Tests  │  JUnit + Mocks
-            │    (viele)                   │  Ring 2 (Ports gemockt)
-        ┌───┴─────────────────────────────┴───┐
-        │   Domain Unit Tests                  │  JUnit pur
-        │    (sehr viele)                      │  Ring 1: reines Java
-        └──────────────────────────────────────┘
-```
+![Testpyramide Clean Architecture](images/testpyramide-clean-architecture.drawio.png)
 
 | Ebene | Scope | Spring nötig? | Geschwindigkeit |
 |-------|-------|---------------|-----------------|
@@ -479,17 +465,7 @@ void should_calculate_commission_correctly() {
 > Wenn eure Domäne frei von Framework-Abhängigkeiten ist,
 > könnt ihr den **wertvollsten Code** mit den **schnellsten Tests** abdecken.
 
-```
-Ohne Clean Architecture        Mit Clean Architecture
-┌────────────────────┐         ┌────────────────────┐
-│ 80% @SpringBootTest│         │ 5% @SpringBootTest │
-│ 10% @WebMvcTest    │         │ 5% @WebMvcTest     │
-│ 10% Unit Tests     │         │ 10% @DataJpaTest   │
-│                    │         │ 20% App Service     │
-│ → langsam, fragil  │         │ 60% Domain Unit    │
-└────────────────────┘         │ → schnell, stabil  │
-                               └────────────────────┘
-```
+![Vergleich: Ohne vs. Mit Clean Architecture](images/vergleich-ohne-mit-clean-architecture.drawio.png)
 
 ---
 

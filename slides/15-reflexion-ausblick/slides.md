@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -47,29 +47,7 @@ Entscheidungsbaum:
 
 ## Investition nach Subdomain-Kategorie
 
-```
-                    Hohe Komplexität
-                         │
-     Supporting          │        Core Domain
-     Subdomain           │      ┌──────────────┐
-   ┌──────────────┐      │      │  Vermittlung │ ← Volles DDD
-   │  Akquise     │      │      │  Matching    │   Clean Arch
-   │  Besichtigung│      │      │  Bewertung   │   Domain Events
-   └──────────────┘      │      └──────────────┘
-     Pragmatisches DDD   │
-     @Entity in Domain ok│
-                         │
-     Generic             │        Supporting
-     Subdomain           │        Subdomain
-   ┌──────────────┐      │
-   │ Auth, Billing│      │
-   │ Notification │      │
-   └──────────────┘      │
-     CRUD / Buy / SaaS   │
-                         │
-                    Niedriger ──────────────── Hoher
-                              Strategischer Wert
-```
+![Investition nach Subdomain](images/investition-nach-subdomain.drawio.png)
 
 ---
 
@@ -101,30 +79,7 @@ Entscheidungsbaum:
 
 > *"The only thing a Big Rewrite guarantees is a Big Risk."* — Martin Fowler
 
-```
-Phase 1: Legacy          Phase 2: Erster BC     Phase 3: Weitere BCs
-┌───────────────────┐    ┌───────────────────┐  ┌───────────────────┐
-│   Legacy-System   │    │ Legacy │  Neuer   │  │ Leg. │   Neue     │
-│                   │    │        │   BC     │  │      │   BCs      │
-│  [Akquise]        │    │        │┌───────┐ │  │      │┌─────────┐ │
-│  [Vermittlung]    │ →  │ [Verm.]││Akquise│ │→ │[Bes.]││ Akquise │ │
-│  [Besichtigung]   │    │ [Bes.] ││ Clean │ │  │      ││ Vermitt.│ │
-│                   │    │        ││ Arch. │ │  │      ││ Clean   │ │
-│                   │    │        │└───────┘ │  │      │└─────────┘ │
-└───────────────────┘    └───────────────────┘  └───────────────────┘
-
-Phase 4: Komplett
-┌───────────────────┐
-│    Neue BCs       │
-│ ┌───────┐┌──────┐ │
-│ │Akquise││Verm. │ │
-│ └───────┘└──────┘ │
-│ ┌────────────────┐│
-│ │  Besichtigung  ││
-│ └────────────────┘│
-│  Alles Clean Arch │
-└───────────────────┘
-```
+![Strangler Fig Pattern](images/strangler-fig-pattern.drawio.png)
 
 ---
 

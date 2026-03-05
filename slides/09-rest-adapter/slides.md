@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -18,33 +18,14 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - DTOs als Records gestalten – niemals Domain-Objekte exponieren
 - Mapping zwischen DTOs, Commands und Domain sicher umsetzen
 - REST-Endpunkte für CRUD korrekt mit HTTP-Statuscodes modellieren
-- Problem Details (RFC 9457) mit Spring Boot 3 implementieren
+- Problem Details (RFC 9457) mit Spring Boot 4 implementieren
 - Integration Tests mit `@WebMvcTest` schreiben
 
 ---
 
 ## Der REST Adapter in Clean Architecture
 
-```
-  Außenwelt (HTTP-Client, Browser, anderer Service)
-       │
-  ┌────▼─────────────────────────────────────────┐
-  │  adapter.web                                  │  Ring 3: Interface Adapter
-  │    @RestController                            │
-  │    Request-DTO → Command (Value Objects)      │
-  │    Result → Response-DTO (primitive Typen)    │
-  └────┬─────────────────────────────────────────┘
-       │ ruft Inbound-Port auf
-  ┌────▼─────────────────────────────────────────┐
-  │  application.port / application.service       │  Ring 2: Use Case
-  │    ScheduleViewing.schedule(command)           │
-  └────┬─────────────────────────────────────────┘
-       │
-  ┌────▼─────────────────────────────────────────┐
-  │  domain.model                                 │  Ring 1: Entities
-  │    BrokerageProcess.scheduleViewing()          │
-  └──────────────────────────────────────────────┘
-```
+![REST Adapter in Clean Architecture](images/rest-adapter-clean-architecture.drawio.png)
 
 - Der Controller ist ein **Adapter** – er übersetzt HTTP in Domain-Sprache
 - Er kennt `application.port`, aber **nicht** `infrastructure`
@@ -218,7 +199,7 @@ public ResponseEntity<Void> delete(@PathVariable UUID id) {
 
 ## Problem Details – RFC 9457
 
-Spring Boot 3 unterstützt RFC 9457 nativ mit der `ProblemDetail`-Klasse:
+Spring Boot 4 unterstützt RFC 9457 nativ mit der `ProblemDetail`-Klasse:
 
 ```json
 {
@@ -341,23 +322,7 @@ void should_return_404_when_process_does_not_exist() throws Exception {
 
 ## Gesamtbild: Request → Response
 
-```
-HTTP POST /api/v1/brokerage/viewings
-  │
-  ├─ Spring: Jackson deserializes JSON → CreateViewingRequest
-  │
-  ├─ @Valid → Bean Validation
-  │    └─ Error? → MethodArgumentNotValidException → 400 Bad Request
-  │
-  ├─ Controller.create()
-  │    ├─ request.toCommand()           ← DTO → Command (Value Objects)
-  │    ├─ createUseCase.schedule(cmd)   ← call inbound port
-  │    │    ├─ ProcessNotFoundException?→ @RestControllerAdvice → 404
-  │    │    └─ DomainException?         → @RestControllerAdvice → 422
-  │    └─ ViewingResponse.from()        ← Result → Response-DTO
-  │
-  └─ ResponseEntity.created(uri).body(response) → 201 Created
-```
+![Gesamtbild Request Response](images/request-response-gesamtbild.drawio.png)
 
 ---
 

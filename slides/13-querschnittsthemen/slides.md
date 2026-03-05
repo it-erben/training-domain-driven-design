@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
@@ -47,17 +47,7 @@ Querschnittsthemen betreffen **mehrere Schichten** — sie müssen sauber integr
 
 ### Szenario im Immobilien-CRM
 
-```
-Makler A                              Makler B
-   │                                     │
-   ├─ lädt Vorgang #42 (Version 1)       ├─ lädt Vorgang #42 (Version 1)
-   │                                     │
-   ├─ ändert Besichtigung                │
-   ├─ speichert → Version 2 ✅           │
-   │                                     ├─ ändert Angebot
-   │                                     ├─ speichert → ❌ Konflikt!
-   │                                     │   (erwartet V1, ist aber V2)
-```
+![Optimistic Locking Szenario](images/optimistic-locking-szenario.drawio.png)
 
 ---
 
@@ -65,16 +55,7 @@ Makler A                              Makler B
 
 ### Wo lebt die Version?
 
-```
-┌── domain.model ──────────────────┐    ┌── infrastructure.persistence ──┐
-│                                   │    │                                │
-│ class BrokerageProcess {           │    │ @Entity                        │
-│   private final ProcessId id;     │    │ class ProcessJpaEntity {       │
-│   private int version;            │    │   @Id UUID id;                 │
-│   // Business logic               │    │   @Version Long version;       │
-│ }                                 │    │   // JPA fields                │
-└───────────────────────────────────┘    └────────────────────────────────┘
-```
+![Version in Clean Architecture](images/version-clean-architecture.drawio.png)
 
 - Die Domain hat ein **einfaches `version`-Feld** (int) — ohne JPA-Annotation
 - Die JPA-Entity hat `@Version` — JPA prüft automatisch beim UPDATE
@@ -301,26 +282,7 @@ public class ProcessJpaEntity {
 
 ## Einordnung: Querschnittsthemen in Clean Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ adapter.web                                                  │
-│   @RestControllerAdvice → ProblemDetail (Modul 09)          │
-│   OptimisticLockingFailureException → 409 Conflict          │
-├─────────────────────────────────────────────────────────────┤
-│ application.service                                          │
-│   @Transactional → Unit of Work                             │
-│   Kein Wissen über Locking, Auditing, Tenancy               │
-├─────────────────────────────────────────────────────────────┤
-│ domain.model                                                 │
-│   version-Feld (int) → aber KEINE @Version-Annotation       │
-│   Kein Auditing, kein Soft Delete, kein Tenant               │
-├─────────────────────────────────────────────────────────────┤
-│ infrastructure.persistence                                   │
-│   @Version, @CreatedDate, @LastModifiedDate                  │
-│   @SQLRestriction, @Filter (Multi-Tenancy)                  │
-│   AuditableJpaEntity (MappedSuperclass)                     │
-└─────────────────────────────────────────────────────────────┘
-```
+![Querschnittsthemen in Schichten](images/querschnittsthemen-schichten.drawio.png)
 
 > **Faustregel:** Wenn es eine JPA/Hibernate-Annotation braucht,
 > gehört es in `infrastructure.persistence`.

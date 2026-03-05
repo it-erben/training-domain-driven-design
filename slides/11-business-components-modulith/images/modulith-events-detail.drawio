@@ -1,0 +1,77 @@
+<mxfile host="draw.io">
+  <diagram name="Modulith Events Detail" id="modulith-events-detail-1">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ==================== Brokerage Module (Left, blue) ==================== -->
+        <mxCell id="brokerage-module" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="580" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="brokerage-label" value="Modul: Brokerage" style="text;html=1;fontSize=18;fontStyle=1;align=left;verticalAlign=top;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="60" y="70" width="280" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ScheduleViewingService box -->
+        <mxCell id="svc-box" value="&lt;b&gt;ScheduleViewingService&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;&amp;#x251c; process.scheduleViewing()&lt;br/&gt;&amp;#x251c; repository.save()&lt;br/&gt;&amp;#x2514; eventPublisher.publishEvent()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;strokeWidth=1;fontSize=13;verticalAlign=middle;align=left;overflow=fill;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="130" width="500" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- ViewingScheduledEvent box -->
+        <mxCell id="event-box" value="&lt;b&gt;ViewingScheduledEvent&lt;/b&gt;&lt;br/&gt;(&amp;ouml;ffentliche API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=13;verticalAlign=middle;align=center;" vertex="1" parent="1">
+          <mxGeometry x="140" y="420" width="320" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Service publishes Event -->
+        <mxCell id="svc-to-event" value="publishes" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;endArrow=open;endFill=0;fontSize=11;" edge="1" source="svc-box" target="event-box" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== Contact Module (Right, green) ==================== -->
+        <mxCell id="contact-module" value="" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="740" y="60" width="580" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="contact-label" value="Modul: Contact" style="text;html=1;fontSize=18;fontStyle=1;align=left;verticalAlign=top;fontColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="760" y="70" width="280" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- @EventListener box (synchron) -->
+        <mxCell id="sync-listener" value="&lt;b&gt;@EventListener&lt;/b&gt;&lt;br/&gt;onViewingScheduled()&lt;hr size=&quot;1&quot;/&gt;&amp;#x2192; synchron, same TX" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;strokeWidth=1;fontSize=13;verticalAlign=middle;align=center;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="800" y="130" width="440" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- @TransactionalEventListener box (async) -->
+        <mxCell id="async-listener" value="&lt;b&gt;@TransactionalEventListener&lt;/b&gt;&lt;br/&gt;onViewingScheduled()&lt;hr size=&quot;1&quot;/&gt;&amp;#x2192; nach Commit, async" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#82b366;strokeWidth=1;fontSize=13;verticalAlign=middle;align=center;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="800" y="350" width="440" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Service to sync listener -->
+        <mxCell id="arrow-svc-sync" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=3;endArrow=block;endFill=1;" edge="1" source="svc-box" target="sync-listener" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="690" y="200" />
+              <mxPoint x="690" y="190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow: Service to async listener -->
+        <mxCell id="arrow-svc-async" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=3;endArrow=block;endFill=1;" edge="1" source="svc-box" target="async-listener" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="690" y="200" />
+              <mxPoint x="690" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Event flow label -->
+        <mxCell id="event-flow-label" value="&lt;i&gt;ViewingScheduledEvent&lt;/i&gt;" style="text;html=1;fontSize=12;fontStyle=2;align=center;fontColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="645" y="280" width="180" height="25" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

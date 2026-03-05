@@ -1,6 +1,6 @@
 package de.realestate.brokerage.adapter.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import de.realestate.brokerage.application.command.CreateViewingCommand;
 import de.realestate.brokerage.application.command.CreateViewingResult;
 import de.realestate.brokerage.application.service.CreateViewingUseCase;
@@ -8,8 +8,8 @@ import de.realestate.brokerage.domain.model.ProcessNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Web layer test using @WebMvcTest -- only the controller and its dependencies are loaded.
- * The use case is mocked via @MockBean.
+ * The use case is mocked via @MockitoBean.
  */
 @WebMvcTest(ViewingController.class)
 class ViewingControllerTest {
@@ -34,7 +34,7 @@ class ViewingControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private CreateViewingUseCase useCase;
 
     @Test

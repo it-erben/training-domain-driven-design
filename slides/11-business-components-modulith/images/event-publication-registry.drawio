@@ -1,0 +1,46 @@
+<mxfile host="draw.io">
+  <diagram name="Event Publication Registry" id="event-pub-registry-1">
+    <mxGraphModel dx="1200" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Application Service Box (blue) -->
+        <mxCell id="app-service" value="&lt;b&gt;Application&lt;br/&gt;Service&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;publishEvent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=14;verticalAlign=middle;align=center;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="220" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- EVENT_PUBLICATION DB Table Box (gray) -->
+        <mxCell id="db-table" value="&lt;b&gt;EVENT_&lt;br/&gt;PUBLICATION&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;(DB-Tabelle)&lt;br/&gt;&amp;#x2713; persisted" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;fontSize=14;verticalAlign=middle;align=center;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="440" y="90" width="220" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Event Listener Box (green) -->
+        <mxCell id="event-listener" value="&lt;b&gt;Event&lt;br/&gt;Listener&lt;/b&gt;&lt;hr size=&quot;1&quot;/&gt;@After-&lt;br/&gt;Commit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=14;verticalAlign=middle;align=center;overflow=fill;" vertex="1" parent="1">
+          <mxGeometry x="800" y="100" width="220" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: App Service to DB Table -->
+        <mxCell id="arrow-svc-db" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="app-service" target="db-table" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: DB Table to Event Listener -->
+        <mxCell id="arrow-db-listener" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#333333;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="db-table" target="event-listener" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Note below DB table about restart behavior -->
+        <mxCell id="restart-note" value="Bei Neustart:&lt;br/&gt;unverarbeitete Events&lt;br/&gt;erneut dispatchen" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#ffffcc;strokeColor=#d6b656;fontSize=13;fontStyle=2;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="410" y="340" width="280" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: DB Table to restart note -->
+        <mxCell id="arrow-db-restart" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#666666;strokeWidth=2;endArrow=block;endFill=1;dashed=1;dashPattern=5 3;" edge="1" source="db-table" target="restart-note" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

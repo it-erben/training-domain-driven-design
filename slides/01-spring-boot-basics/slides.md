@@ -2,17 +2,17 @@
 marp: true
 theme: default
 paginate: true
-header: "DDD & Clean Architecture mit Spring Boot 3"
+header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
-# Modul 01 – Spring Boot 3 Basics
+# Modul 01 – Spring Boot 4 Basics
 
 **Geschätzte Dauer: 90 Minuten**
 
 ### Lernziele
 
-- Spring Boot 3 kennen lernen
+- Spring Boot 4 kennen lernen
 - Auto-Configuration und den Spring Application Context verstehen
 - Dependency Injection mit Constructor Injection anwenden
 - Spring Data JPA für einfache Persistenz nutzen
@@ -42,28 +42,29 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 <style scoped>section { font-size: 1.8em; }</style>
 
-## Spring Boot 3 – Was ist neu?
+## Spring Boot 4 – Was ist neu?
 
-### Die drei großen Änderungen
+### Die großen Änderungen gegenüber Spring Boot 3
 
 | Änderung | Detail |
 |----------|--------|
-| **Jakarta EE 10** | `javax.*` → `jakarta.*` (Persistence, Validation, Servlet) |
-| **Java 17+ Baseline** | Records, Sealed Classes, Text Blocks, Pattern Matching |
-| **GraalVM Native Image** | Ahead-of-Time Compilation für Startup < 100 ms |
+| **Spring Framework 7** | Neues Major-Release als Basis |
+| **Jakarta EE 11** | Servlet 6.1, JPA 3.2, Bean Validation 3.1 |
+| **Java 17+ Baseline** | Unverändert – Java 21 empfohlen |
+| **@MockBean entfernt** | Ersetzt durch `@MockitoBean` aus Spring Framework |
 
 ### Weitere Highlights
 
-- **Micrometer Observability API** – einheitliches Tracing und Metrics
-- **Problem Details (RFC 9457)** – standardisiertes Fehlerformat
-- **Verbesserte Docker-Image-Erstellung** – Cloud Native Buildpacks
-- **Virtual Threads** (ab Spring Boot 3.2) – Project Loom Support
+- **Strukturierte Logging-Unterstützung** – JSON-Logs out of the box
+- **Virtual Threads** standardmäßig nutzbar (seit 3.2, jetzt stabil)
+- **Verbesserte GraalVM Native Image** Unterstützung
+- **RestClient** als moderner Ersatz für RestTemplate
 
 ---
 
 <style scoped>section { font-size: 1.8em; }</style>
 
-## Jakarta EE 10 – Namespace-Migration
+## Jakarta EE – Namespace-Migration
 
 ### Vorher (Spring Boot 2.x)
 
@@ -73,7 +74,7 @@ import javax.validation.constraints.NotBlank;
 import javax.servlet.http.HttpServletRequest;
 ```
 
-### Nachher (Spring Boot 3.x)
+### Seit Spring Boot 3.x / 4.x (Jakarta EE)
 
 ```java
 import jakarta.persistence.Entity;
@@ -285,7 +286,7 @@ spring:
 
 ## Bean Validation – Eingaben prüfen
 
-### Request als Java Record (Spring Boot 3 / Java 17+)
+### Request als Java Record (Spring Boot 4 / Java 17+)
 
 ```java
 public record PropertyRequest(
@@ -405,7 +406,7 @@ public ResponseEntity<PropertyResponse> create(
 
 | Thema | Kernpunkte |
 |-------|-----------|
-| **Spring Boot 3** | Jakarta EE 10, Java 17+, Native Image, Auto-Configuration |
+| **Spring Boot 4** | Jakarta EE 11, Java 17+, Spring Framework 7, Auto-Configuration |
 | **IoC Container** | Application Context, Beans, Stereotyp-Annotationen |
 | **DI** | Constructor Injection, `final` Felder, testbar |
 | **Spring Data JPA** | `@Entity`, `JpaRepository`, Query Methods, H2 |
