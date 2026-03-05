@@ -13,11 +13,11 @@ Clean Architecture Schritt für Schritt mit Spring Boot 4 umgesetzt.
 
 | Tag | Thema | Slides | Labs | Zeitplan |
 |-----|-------|--------|------|----------|
-| **1** | Grundlagen & Domänenverständnis | 00-intro, 01-spring-boot-basics, 02-ddd-einfuehrung, 03-event-storming | Lab 00 (Setup), Lab 01 (Spring Boot CRUD), Lab 02 (Event Storming) | Intro 45 Min → Spring Basics 90 Min → DDD Einführung 90 Min → Event Storming 120 Min |
-| **2** | Strategisches & Taktisches Design | 04-strategic-design, 05-building-blocks, 06-clean-architecture | Lab 03 (Strategic Design), Lab 04 (Building Blocks), Lab 05 (Clean Architecture Refactoring) | Strategic Design 90 Min → Building Blocks 120 Min → Clean Architecture 90 Min |
-| **3** | Implementierung & Adapter | 07-paketstruktur, 08-use-cases-application-services, 09-rest-adapter | Lab 05 (Fortsetzung), Lab 06 (Use Case), Lab 07 (REST Adapter) | Paketstruktur 60 Min → Use Cases 60 Min → REST Adapter 90 Min |
-| **4** | Architektur-Governance & Integration | 10-archunit, 11-business-components-modulith, 12-context-integration, 13-querschnittsthemen | Lab 08 (ArchUnit), Lab 09 (Context Integration), Lab 10 (Querschnittsthemen) | ArchUnit 60 Min → Modulith 90 Min → Integration 60 Min → Querschnitt 60 Min |
-| **5** | Testing, Vertiefung & Reflexion | 14-teststrategie, 15-reflexion-ausblick | Lab 11 (Testing), Lab 12 (Freie Implementierung) | Teststrategie 90 Min → Freie Implementierung 120 Min → Reflexion 60 Min |
+| **1** | Grundlagen & Domänenverständnis | 01-intro, 02-spring-boot-basics, 03-ddd-einfuehrung, 04-event-storming | Lab 01 (Setup), Lab 02 (Spring Boot CRUD), Lab 03 (Event Storming) | Intro 45 Min → Spring Basics 90 Min → DDD Einführung 90 Min → Event Storming 120 Min |
+| **2** | Strategisches & Taktisches Design | 05-strategic-design, 06-building-blocks, 07-clean-architecture | Lab 04 (Strategic Design), Lab 05 (Building Blocks), Lab 06 (Clean Architecture Refactoring) | Strategic Design 90 Min → Building Blocks 120 Min → Clean Architecture 90 Min |
+| **3** | Implementierung & Adapter | 08-paketstruktur, 09-use-cases-application-services, 10-rest-adapter | Lab 06 (Fortsetzung), Lab 07 (Use Case), Lab 08 (REST Adapter) | Paketstruktur 60 Min → Use Cases 60 Min → REST Adapter 90 Min |
+| **4** | Architektur-Governance & Integration | 11-archunit, 12-business-components-modulith, 13-context-integration, 14-querschnittsthemen | Lab 09 (ArchUnit), Lab 10 (Context Integration), Lab 11 (Querschnittsthemen) | ArchUnit 60 Min → Modulith 90 Min → Integration 60 Min → Querschnitt 60 Min |
+| **5** | Testing, Vertiefung & Reflexion | 15-teststrategie, 16-reflexion-ausblick | Lab 12 (Testing), Lab 13 (Freie Implementierung) | Teststrategie 90 Min → Freie Implementierung 120 Min → Reflexion 60 Min |
 
 ---
 
@@ -29,7 +29,7 @@ Clean Architecture Schritt für Schritt mit Spring Boot 4 umgesetzt.
 | Maven | 3.9+ | `mvn -version` zur Prüfung |
 | IDE | – | IntelliJ IDEA empfohlen (Community oder Ultimate) |
 | Git | 2.x | Zum Klonen des Repositories |
-| Docker | optional | Für optionale Kafka-Übung in Lab 12 |
+| Docker | optional | Für optionale Kafka-Übung in Lab 13 |
 | Browser | – | Für H2-Console und draw.io |
 
 ---
@@ -42,7 +42,7 @@ git clone <repository-url>
 cd workshop-ddd-clean-architecture
 
 # Starter-Projekt bauen und starten
-cd labs/lab-00-setup/initial-project
+cd labs/lab-01-setup/initial-project
 mvn clean verify
 mvn spring-boot:run
 
@@ -57,17 +57,17 @@ curl http://localhost:8080/actuator/health
 
 ```
 workshop-ddd-clean-architecture/
-├── slides/                  # MARP Slide-Decks (Module 00–15)
-│   ├── 00-intro/
-│   ├── 01-spring-boot-basics/
+├── slides/                  # MARP Slide-Decks (Module 01–16)
+│   ├── 01-intro/
+│   ├── 02-spring-boot-basics/
 │   ├── ...
-│   ├── 15-reflexion-ausblick/
+│   ├── 16-reflexion-ausblick/
 │   └── template.html        # Marp HTML-Template
-├── labs/                    # Hands-on Labs (00–12)
-│   ├── lab-00-setup/        # Starter-Projekt + Setup-Anleitung
-│   ├── lab-01-spring-boot-basics/
+├── labs/                    # Hands-on Labs (01–13)
+│   ├── lab-01-setup/        # Starter-Projekt + Setup-Anleitung
+│   ├── lab-02-spring-boot-basics/
 │   ├── ...
-│   └── lab-12-freie-implementierung/
+│   └── lab-13-freie-implementierung/
 └── README.md                # Diese Datei
 ```
 
@@ -83,10 +83,10 @@ können als HTML oder PDF gerendert werden.
 npm install -g @marp-team/marp-cli
 
 # Einzelnes Modul als HTML rendern
-marp --html slides/00-intro/slides.md
+marp --html slides/01-intro/slides.md
 
 # Einzelnes Modul als PDF rendern
-marp --html --pdf slides/00-intro/slides.md
+marp --html --pdf slides/01-intro/slides.md
 
 # Alle Module rendern
 for dir in slides/*/; do
