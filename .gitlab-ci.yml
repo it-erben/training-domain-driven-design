@@ -12,6 +12,10 @@ stages:
   - release
   - deploy
 
+lint:lychee:
+  script:
+    - lychee --accept 429,200 --exclude "http://localhost.*" --exclude ".*\.drawio\.png" --exclude-path ".npm-cache" --max-concurrency 4 --retry-wait-time 2 --timeout 20 --cache '**/*.md' | tee lychee-results.md
+
 maven-test:
   stage: build
   image: maven:3.9-eclipse-temurin-17

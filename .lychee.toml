@@ -1,3 +1,0 @@
-# Lychee Link-Checker Konfiguration
-# .drawio.png Dateien werden erst im Build aus .drawio generiert
-exclude = [".*\\.drawio\\.png$"]
