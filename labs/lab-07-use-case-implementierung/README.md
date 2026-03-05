@@ -103,7 +103,7 @@ Schreibe einen Unit-Test für den Use Case mit einem gemockten Repository:
 2. **Nicht gefunden:** BrokerageProcess existiert nicht, `ProcessNotFoundException` wird geworfen
 
 ```bash
-cd solution
+cd ../../solutions/lab-07-use-case-implementierung
 mvn test
 ```
 

@@ -94,7 +94,7 @@ public class AuditorAwareConfig {
 Führe die Tests aus:
 
 ```bash
-cd solution
+cd ../../solutions/lab-11-querschnittsthemen
 mvn test
 ```
 

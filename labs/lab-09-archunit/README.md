@@ -109,7 +109,7 @@ static final ArchRule transactional_only_in_application_service =
 Führe die Tests aus:
 
 ```bash
-cd solution
+cd ../../solutions/lab-09-archunit
 mvn test
 ```
 

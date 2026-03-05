@@ -53,18 +53,6 @@ Beschreibe jeden identifizierten Bounded Context kurz:
 |---|---|---|---|
 | *Name* | *Was ist die Aufgabe?* | *Welche Aggregates?* | *Welche Events?* |
 
-### Erwartete Bounded Contexts
-
-Die folgenden Bounded Contexts sind typische Ergebnisse für eine Immobilien-CRM-Domäne. Dein Ergebnis muss nicht exakt übereinstimmen - es gibt verschiedene sinnvolle Aufteilungen.
-
-| Bounded Context | Verantwortlichkeit |
-|---|---|
-| **Objektverwaltung** | Stammdaten der Immobilien pflegen (Adresse, Fläche, Ausstattung, Zustand) |
-| **Kontaktmanagement** | Eigentümer, Interessenten und weitere Kontakte verwalten |
-| **Akquise/Auftrag** | Neukundengewinnung, Bewertung, Maklervertrag |
-| **Vermarktung** | Expose erstellen, Portale bestücken, Vermarktungsstrategie |
-| **Vermittlungsprozess** | Besichtigungen, Angebote, Verhandlungen, Kaufvertrag, Übergabe |
-| **Aktivitäten/Kommunikation** | Termine, Anrufe, E-Mails, Aufgaben dokumentieren |
 
 ### Phase 3: Context Map erstellen (20 Min)
 
