@@ -1,0 +1,43 @@
+include:
+  - component: "gitlab.com/it-erben/components/pdf-publisher/build-publish@1.6.0"
+  - component: "gitlab.com/it-erben/components/linters/lychee-lint@1.3.0"
+  - component: "gitlab.com/it-erben/components/linters/yaml-lint@1.3.0"
+  - component: "gitlab.com/it-erben/components/linters/markdown-lint@1.3.0"
+  - component: "gitlab.com/it-erben/components/release/release@1.0.0"
+
+stages:
+  - lint
+  - build
+  - verify
+  - release
+  - deploy
+
+lint:lychee:
+  script:
+    - lychee --accept 429,200 --exclude "http://localhost.*" --exclude ".*\.drawio\.png" --exclude-path ".npm-cache" --max-concurrency 4 --retry-wait-time 2 --timeout 20 --cache '**/*.md' | tee lychee-results.md
+
+maven-test:
+  stage: build
+  image: maven:3.9-eclipse-temurin-17
+  parallel:
+    matrix:
+      - PROJECT_DIR:
+          - labs/lab-00-setup/initial-project
+          - labs/lab-01-spring-boot-basics/solution
+          - labs/lab-04-building-blocks/solution
+          - labs/lab-05-clean-architecture-refactoring/solution
+          - labs/lab-06-use-case-implementierung/solution
+          - labs/lab-07-rest-adapter/solution
+          - labs/lab-08-archunit/solution
+          - labs/lab-09-context-integration/solution
+          - labs/lab-10-querschnittsthemen/solution
+          - labs/lab-11-testing/solution
+  script:
+    - cd "$PROJECT_DIR"
+    - mvn --batch-mode verify
+  cache:
+    key: maven-$PROJECT_DIR
+    paths:
+      - .m2/repository
+  variables:
+    MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
