@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 13 – Querschnittsthemen
@@ -83,11 +68,11 @@ Makler A                              Makler B
 ```
 ┌── domain.model ──────────────────┐    ┌── infrastructure.persistence ──┐
 │                                   │    │                                │
-│ class Vermittlungsvorgang {       │    │ @Entity                        │
-│   private final VorgangId id;     │    │ class VorgangJpaEntity {       │
+│ class BrokerageProcess {           │    │ @Entity                        │
+│   private final ProcessId id;     │    │ class ProcessJpaEntity {       │
 │   private int version;            │    │   @Id UUID id;                 │
-│   // Geschäftslogik               │    │   @Version Long version;       │
-│ }                                 │    │   // JPA-Felder                │
+│   // Business logic               │    │   @Version Long version;       │
+│ }                                 │    │   // JPA fields                │
 └───────────────────────────────────┘    └────────────────────────────────┘
 ```
 
@@ -100,11 +85,11 @@ Makler A                              Makler B
 ## @Version auf der JPA-Entity
 
 ```java
-package de.immobiliencrm.vermittlung.infrastructure.persistence;
+package de.realestate.brokerage.infrastructure.persistence;
 
 @Entity
-@Table(name = "vermittlungsvorgang")
-public class VorgangJpaEntity {
+@Table(name = "brokerage_process")
+public class ProcessJpaEntity {
 
     @Id
     private UUID id;
@@ -113,15 +98,15 @@ public class VorgangJpaEntity {
     private Long version;
 
     @Enumerated(EnumType.STRING)
-    private VorgangStatus status;
+    private ProcessStatus status;
 
-    private UUID immobilieId;
+    private UUID propertyId;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "vorgang_id")
-    private List<BesichtigungJpaEntity> besichtigungen = new ArrayList<>();
+    @JoinColumn(name = "process_id")
+    private List<ViewingJpaEntity> viewings = new ArrayList<>();
 
-    protected VorgangJpaEntity() {}
+    protected ProcessJpaEntity() {}
     // Getter, Setter
 }
 ```
@@ -131,11 +116,11 @@ public class VorgangJpaEntity {
 ## Was passiert bei einem Konflikt?
 
 ```sql
-- JPA generiert automatisch:
-UPDATE vermittlungsvorgang
-SET status = ?, immobilie_id = ?, version = 2
+- JPA generates automatically:
+UPDATE brokerage_process
+SET status = ?, property_id = ?, version = 2
 WHERE id = ? AND version = 1;
-- Wenn 0 Rows affected → OptimisticLockException
+- If 0 rows affected → OptimisticLockException
 ```
 
 ### Exception-Kette
@@ -149,15 +134,15 @@ Spring Data: OptimisticLockingFailureException
 ```
 
 ```java
-// Im @RestControllerAdvice (bereits aus Modul 09)
+// In @RestControllerAdvice (from Module 09)
 @ExceptionHandler(OptimisticLockingFailureException.class)
 public ProblemDetail handleConflict(
         OptimisticLockingFailureException ex) {
     var problem = ProblemDetail.forStatusAndDetail(
         HttpStatus.CONFLICT,
-        "Die Daten wurden zwischenzeitlich geändert. "
-        + "Bitte laden Sie die aktuelle Version neu.");
-    problem.setTitle("Konflikt: gleichzeitige Änderung");
+        "The data has been modified in the meantime. "
+        + "Please reload the current version.");
+    problem.setTitle("Conflict: concurrent modification");
     return problem;
 }
 ```
@@ -173,7 +158,7 @@ public ProblemDetail handleConflict(
 ### Aktivierung
 
 ```java
-package de.immobiliencrm.infrastructure.config;
+package de.realestate.infrastructure.config;
 
 @Configuration
 @EnableJpaAuditing
@@ -195,7 +180,7 @@ public class JpaAuditingConfig {
 ## Auditable Base Entity
 
 ```java
-package de.immobiliencrm.infrastructure.persistence;
+package de.realestate.infrastructure.persistence;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -215,7 +200,7 @@ public abstract class AuditableJpaEntity {
     @LastModifiedBy
     private String updatedBy;
 
-    // Getter
+    // Getters
 }
 ```
 
@@ -229,8 +214,8 @@ public abstract class AuditableJpaEntity {
 
 ```java
 @Entity
-@Table(name = "vermittlungsvorgang")
-public class VorgangJpaEntity extends AuditableJpaEntity {
+@Table(name = "brokerage_process")
+public class ProcessJpaEntity extends AuditableJpaEntity {
 
     @Id
     private UUID id;
@@ -239,7 +224,7 @@ public class VorgangJpaEntity extends AuditableJpaEntity {
     private Long version;
 
     @Enumerated(EnumType.STRING)
-    private VorgangStatus status;
+    private ProcessStatus status;
 
     // ...
 }
@@ -247,7 +232,7 @@ public class VorgangJpaEntity extends AuditableJpaEntity {
 
 - `createdAt` / `createdBy` werden beim **Anlegen** gesetzt
 - `updatedAt` / `updatedBy` werden bei **jeder Änderung** aktualisiert
-- Die Domain-Klasse `Vermittlungsvorgang` **weiß davon nichts**
+- Die Domain-Klasse `BrokerageProcess` **weiß davon nichts**
 - Auditing ist ein **rein technisches Concern** der Infrastruktur
 
 ---
@@ -262,9 +247,9 @@ public class VorgangJpaEntity extends AuditableJpaEntity {
 
 ```java
 @Entity
-@Table(name = "vermittlungsvorgang")
+@Table(name = "brokerage_process")
 @SQLRestriction("deleted = false")  // Hibernate 6.4+
-public class VorgangJpaEntity extends AuditableJpaEntity {
+public class ProcessJpaEntity extends AuditableJpaEntity {
 
     @Id private UUID id;
     @Version private Long version;
@@ -302,7 +287,7 @@ Mandantenfähigkeit: Mehrere Maklerbüros auf einer Plattform
     parameters = @ParamDef(name = "tenantId", type = String.class))
 @Filter(name = "tenantFilter",
     condition = "tenant_id = :tenantId")
-public class VorgangJpaEntity {
+public class ProcessJpaEntity {
 
     @Column(name = "tenant_id", nullable = false)
     private String tenantId;
@@ -362,7 +347,7 @@ public class VorgangJpaEntity {
 
 ### Aufgabe
 
-1. `@Version` auf der JPA-Entity `VorgangJpaEntity` ergänzen
+1. `@Version` auf der JPA-Entity `ProcessJpaEntity` ergänzen
 2. `version`-Feld im Domain-Model und Mapper hinzufügen
 3. `AuditableJpaEntity` als MappedSuperclass erstellen (in `infrastructure`)
 4. JPA Auditing aktivieren (`@EnableJpaAuditing`)

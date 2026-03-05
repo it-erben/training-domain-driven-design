@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 00 – Willkommen & Einführung
@@ -31,6 +16,33 @@ style: |
 - Die Übungsdomäne „Immobilien-CRM" kennenlernen
 - Erwartungen und Vorkenntnisse der Teilnehmer abgleichen
 - Organisatorische Rahmenbedingungen und Methodik verstehen
+
+---
+
+## 💬 Vorstellungsrunde
+
+### Erzählt uns kurz:
+
+1. Euer **Name** und eure aktuelle **Rolle**
+2. Erfahrung mit **Spring Boot**: Einsteiger / Fortgeschritten / Experte?
+3. Hattet ihr bereits Berührungspunkte mit **DDD**?
+4. Was ist eure größte **architektonische Herausforderung** im aktuellen Projekt?
+5. Was erhofft ihr euch **konkret** von diesem Workshop?
+
+> Wir sammeln eure Herausforderungen und greifen sie gezielt im Workshop auf.
+
+---
+
+### Zeitrahmen
+
+| | |
+|---|---|
+| **Beginn** | 09:00 Uhr |
+| **Kaffeepausen** | ca. alle 90 Minuten |
+| **Mittagspause** | 12:00 – 13:00 Uhr |
+| **Ende** | 16:00 Uhr |
+
+> Fragen jederzeit – bitte nicht aufsparen!
 
 ---
 
@@ -48,9 +60,7 @@ architektonisches Fundament stellen wollen.
 
 ---
 
-## Unsere Übungsdomäne: Immobilien-CRM
-
-![Bounded Contexts Immobilien-CRM](../diagrams/bounded-contexts-immobilien-crm.drawio.png)
+## Übungsdomäne: Immobilien-CRM
 
 Ein Maklerunternehmen benötigt ein CRM-System, das den gesamten
 Vermittlungsprozess abbildet – vom ersten Kontakt mit dem Eigentümer
@@ -58,9 +68,15 @@ bis zum Notartermin.
 
 ---
 
+![bg center w:1000](images/bounded-contexts-immobilien-crm.drawio.svg)
+
+---
+
+<style scoped>section { font-size: 1.8em; }</style>
+
 ## Die sechs Fachbereiche im Überblick
 
-| Bounded Context | Was passiert hier? |
+| Fachbereich | Was passiert hier? |
 |---|---|
 | **Objektverwaltung** | Immobilien erfassen, bewerten, Stammdaten pflegen |
 | **Kontaktmanagement** | Eigentümer, Interessenten, Kontakthistorie |
@@ -77,20 +93,10 @@ bis zum Notartermin.
 
 ### Ausgewogener Mix aus Theorie und Praxis
 
-```
-┌──────────────────────────────────────────────────────┐
-│  ██████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  │
-│  ◄── 37 % ──►  ◄─────────── 63 % ──────────────►    │
-│  Trainer-Input         Eigenarbeit (Labs)             │
-└──────────────────────────────────────────────────────┘
-```
-
-- **Slides & Live-Coding** – Konzepte vorstellen, Muster demonstrieren
-- **Hands-on Labs** – Selbst implementieren, ausprobieren, Fehler machen
-- **Diskussionsrunden** – Erfahrungen austauschen, Fragen klären
-- **Freie Implementierung** – Am letzten Tag eigenständig vertiefen
+![Workshop-Methodik](images/workshop-methodik.drawio.svg)
 
 ---
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Agenda – 5-Tage-Überblick
 
@@ -103,6 +109,8 @@ bis zum Notartermin.
 | **5** | Vertiefen & Reflektieren | 14 Teststrategie · 15 Reflexion & Ausblick | Lab 11–12 |
 
 ---
+
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Tag 1 – Fundament legen
 
@@ -122,6 +130,8 @@ bis zum Notartermin.
 
 ---
 
+<style scoped>section { font-size: 1.8em; }</style>
+
 ## Tag 2 – Architektur gestalten
 
 ### Vormittag
@@ -140,6 +150,8 @@ bis zum Notartermin.
 
 ---
 
+<style scoped>section { font-size: 1.8em; }</style>
+
 ## Tag 3 – Implementierung starten
 
 ### Vormittag
@@ -157,6 +169,8 @@ bis zum Notartermin.
 ### 🎯 Tagesziel: Vollständiger Vertical Slice vom REST-Endpoint bis zur Domäne
 
 ---
+
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Tag 4 – Qualität sichern
 
@@ -177,6 +191,8 @@ bis zum Notartermin.
 
 ---
 
+<style scoped>section { font-size: 1.8em; }</style>
+
 ## Tag 5 – Vertiefen & Reflektieren
 
 ### Vormittag
@@ -194,41 +210,7 @@ bis zum Notartermin.
 
 ---
 
-## 💬 Vorstellungsrunde
-
-### Erzählt uns kurz:
-
-1. Euer **Name** und eure aktuelle **Rolle**
-2. Erfahrung mit **Spring Boot**: Einsteiger / Fortgeschritten / Experte?
-3. Hattet ihr bereits Berührungspunkte mit **DDD**?
-4. Was ist eure größte **architektonische Herausforderung** im aktuellen Projekt?
-5. Was erhofft ihr euch **konkret** von diesem Workshop?
-
-> Wir sammeln eure Herausforderungen und greifen sie gezielt im Workshop auf.
-
----
-
-## Organisatorisches
-
-### Tools & Setup
-
-- **IDE:** IntelliJ IDEA (empfohlen) oder VS Code mit Java Extensions
-- **JDK:** Java 17+ (empfohlen: Java 21)
-- **Build-Tool:** Maven 3.9+
-- **Git-Repository:** wird zu Beginn geteilt
-
-### Zeitrahmen
-
-| | |
-|---|---|
-| **Beginn** | 09:00 Uhr |
-| **Kaffeepausen** | ca. alle 90 Minuten |
-| **Mittagspause** | 12:30 – 13:30 Uhr |
-| **Ende** | 17:00 Uhr |
-
-> Fragen jederzeit – bitte nicht aufsparen!
-
----
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Lernziele des Gesamtworkshops
 
@@ -247,18 +229,7 @@ Nach diesen 5 Tagen könnt ihr:
 
 ## Der Lernpfad: Vom CRUD zur Clean Architecture
 
-```
-Tag 1          Tag 2              Tag 3             Tag 4            Tag 5
-┌─────┐      ┌──────────┐      ┌──────────┐      ┌──────────┐    ┌──────────┐
-│CRUD │ ───► │ DDD      │ ───► │ Clean    │ ───► │ Modulith │──► │ Testing  │
-│Basis│      │ Modell   │      │ Archit.  │      │ Integr.  │    │ Eigenes  │
-│     │      │ Bounded  │      │ Ports &  │      │ ArchUnit │    │ Feature  │
-│     │      │ Contexts │      │ Adapters │      │          │    │          │
-└─────┘      └──────────┘      └──────────┘      └──────────┘    └──────────┘
-  ▲               ▲                  ▲                 ▲               ▲
-  │               │                  │                 │               │
-Lab 00–02      Lab 03–05         Lab 05–07         Lab 08–10       Lab 11–12
-```
+![Lernpfad](images/lernpfad.drawio.svg)
 
 > Jeder Tag baut auf dem vorherigen auf – am Ende steht ein vollständiges,
 > architektonisch sauberes System.
@@ -273,6 +244,15 @@ Lab 00–02      Lab 03–05         Lab 05–07         Lab 08–10       Lab 1
 - Nehmt euch **2 Minuten** Zeit zum Nachdenken
 - Teilt eure Gedanken in der Runde
 - Wir sammeln die Punkte auf dem Whiteboard und greifen sie im Workshop auf
+
+---
+
+## Tools & Setup
+
+- **IDE:** IntelliJ IDEA (empfohlen) oder VS Code mit Java Extensions
+- **JDK:** Java 17+ (empfohlen: Java 21)
+- **Build-Tool:** Maven 3.9+
+- **Git-Repository:** wird zu Beginn geteilt
 
 ---
 

@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.immobiliencrm</groupId>
-    <artifactId>immobilien-crm-lab08</artifactId>
+    <groupId>de.realestate</groupId>
+    <artifactId>realestate-crm-lab08</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Immobilien CRM - Lab 08 ArchUnit</name>
+    <name>Real Estate CRM - Lab 08 ArchUnit</name>
     <description>Lab 08: ArchUnit - Architekturregeln als Tests</description>
 
     <properties>

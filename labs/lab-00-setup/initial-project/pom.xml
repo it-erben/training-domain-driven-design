@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.immobiliencrm</groupId>
+    <groupId>de.realestate</groupId>
     <artifactId>immobilien-crm</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>immobilien-crm</name>

@@ -1,24 +1,24 @@
 # Lab 05: Clean Architecture Refactoring
 
-## Lernziel
+## Learning Objective
 
-Code aus Lab-04 in die Clean-Architecture-Paketstruktur überführen.
+Refactor the code from Lab 04 into a Clean Architecture package structure.
 
-## Dauer
+## Duration
 
-60 Minuten
+60 minutes
 
-## Voraussetzungen
+## Prerequisites
 
-- Lab 04 abgeschlossen
-- Slides Modul 06 und 07
+- Lab 04 completed
+- Slides Module 06 and 07
 
-## Aufgabe
+## Task
 
-Refaktoriere den Code aus Lab-04 in folgende Paketstruktur:
+Refactor the code from Lab 04 into the following package structure:
 
 ```
-de.immobiliencrm.vermittlung/
+de.realestate.brokerage/
 ├── domain/
 │   ├── model/        (Aggregate Root, Entities, Value Objects, Enum)
 │   ├── port/         (Repository Interface = Outbound Port)
@@ -26,75 +26,75 @@ de.immobiliencrm.vermittlung/
 ├── application/
 │   └── service/      (Application Services)
 └── infrastructure/
-    └── persistence/  (JPA Implementierung des Repository)
+    └── persistence/  (JPA implementation of the Repository)
 ```
 
-### Schritt 1: Paketstruktur anlegen
+### Step 1: Create Package Structure
 
-Erstelle die oben gezeigte Paketstruktur unter `de.immobiliencrm.vermittlung`.
+Create the package structure shown above under `de.realestate.brokerage`.
 
-### Schritt 2: Domain-Schicht befüllen
+### Step 2: Populate the Domain Layer
 
-Übernimm die folgenden Klassen aus Lab-04 in die entsprechenden Pakete:
+Move the following classes from Lab 04 into the corresponding packages:
 
-- `domain/model/`: `Adresse`, `Preisvorstellung`, `Provision`, `VermittlungsvorgangStatus`, `Besichtigung`, `Angebot`, `Vermittlungsvorgang`
-- `domain/port/`: `VermittlungsvorgangRepository` (reines Java-Interface)
-- `domain/event/`: `BesichtigungDurchgeführt`, `AngebotEingegangen`, `AngebotAngenommen`
+- `domain/model/`: `Address`, `AskingPrice`, `Commission`, `ProcessStatus`, `Viewing`, `Offer`, `BrokerageProcess`
+- `domain/port/`: `BrokerageProcessRepository` (pure Java interface)
+- `domain/event/`: `ViewingCompleted`, `OfferReceived`, `OfferAccepted`
 
-**Wichtig:** KEINE Spring-Imports in der gesamten `domain`-Schicht! Die Domain-Schicht darf ausschließlich Standard-Java-Klassen verwenden.
+**Important:** NO Spring imports in the entire `domain` layer! The domain layer must use only standard Java classes.
 
-### Schritt 3: JPA-Mapping in Infrastructure erstellen
+### Step 3: Create JPA Mapping in Infrastructure
 
-Erstelle die folgenden Klassen im Package `infrastructure/persistence/`:
+Create the following classes in the `infrastructure/persistence/` package:
 
-**JpaVermittlungsvorgang** - JPA `@Entity` mit Jakarta Persistence Annotations:
+**JpaBrokerageProcess** - JPA `@Entity` with Jakarta Persistence annotations:
 
-- Alle Felder des Domain-Modells als JPA-kompatible Felder
-- `@Id` und `@GeneratedValue` für die ID
-- `@ElementCollection` für `besichtigungen` und `angebote`
-- Methoden `toModel()` und `static fromModel()` für die Konvertierung zwischen Domain-Modell und JPA-Entity
+- All fields from the domain model as JPA-compatible fields
+- `@Id` and `@GeneratedValue` for the ID
+- `@ElementCollection` for `viewings` and `offers`
+- Methods `toModel()` and `static fromModel()` for converting between domain model and JPA entity
 
-**JpaBesichtigung** - `@Embeddable` mit JPA-Feldern
+**JpaViewing** - `@Embeddable` with JPA fields
 
-**JpaAngebot** - `@Embeddable` mit JPA-Feldern
+**JpaOffer** - `@Embeddable` with JPA fields
 
-**JpaVermittlungsvorgangRepository** - Interface, das `JpaRepository<JpaVermittlungsvorgang, UUID>` erweitert
+**JpaBrokerageProcessRepository** - Interface extending `JpaRepository<JpaBrokerageProcess, UUID>`
 
-**VermittlungsvorgangRepositoryAdapter** - `@Component`, implementiert das Domain-Interface `VermittlungsvorgangRepository`:
+**BrokerageProcessRepositoryAdapter** - `@Component`, implements the domain interface `BrokerageProcessRepository`:
 
-- Injiziert `JpaVermittlungsvorgangRepository`
-- Mappt zwischen Domain-Objekten und JPA-Entities
+- Injects `JpaBrokerageProcessRepository`
+- Maps between domain objects and JPA entities
 
-### Schritt 4: Application Service erstellen
+### Step 4: Create the Application Service
 
-Erstelle `VermittlungsvorgangApplicationService` im Package `application/service/`:
+Create `BrokerageProcessApplicationService` in the `application/service/` package:
 
 - `@Service`, `@Transactional`
-- Injiziert `VermittlungsvorgangRepository` (Domain-Port-Interface) per Constructor Injection
-- Methoden:
-  - `erstellen(UUID immobilieId, Adresse adresse, Preisvorstellung preis, Provision provision)` - erstellt und speichert einen neuen Vermittlungsvorgang
-  - `findById(UUID id)` - gibt `Optional<Vermittlungsvorgang>` zurück
+- Injects `BrokerageProcessRepository` (domain port interface) via constructor injection
+- Methods:
+  - `create(UUID propertyId, Address address, AskingPrice askingPrice, Commission commission)` - creates and persists a new BrokerageProcess
+  - `findById(UUID id)` - returns `Optional<BrokerageProcess>`
 
-## Verifikation
+## Verification
 
-1. Projekt kompiliert:
+1. Project compiles:
 
 ```bash
 cd solution
 mvn compile
 ```
 
-2. Keine Spring-Imports in `domain/`:
+2. No Spring imports in `domain/`:
 
 ```bash
-grep -r "org.springframework" src/main/java/de/immobiliencrm/vermittlung/domain/
+grep -r "org.springframework" src/main/java/de/realestate/brokerage/domain/
 ```
 
-Dieser Befehl darf keine Treffer liefern.
+This command must return no results.
 
-3. Application Service kann über Constructor Injection den Repository-Port injiziert bekommen.
+3. The Application Service can receive the repository port via constructor injection.
 
-4. Tests laufen durch:
+4. Tests pass:
 
 ```bash
 mvn test
@@ -102,18 +102,18 @@ mvn test
 
 ## Bonus
 
-Prüfe mit einem einfachen Grep/Find, dass keine `org.springframework`-Imports in `domain/` existieren:
+Verify with a simple grep/find that no `org.springframework` imports exist in `domain/`:
 
 ```bash
-find src/main/java/de/immobiliencrm/vermittlung/domain -name "*.java" \
+find src/main/java/de/realestate/brokerage/domain -name "*.java" \
   -exec grep -l "org.springframework" {} \;
 ```
 
-Das Ergebnis muss leer sein - kein einziger Treffer.
+The result must be empty -- no matches at all.
 
-## Tipps
+## Tips
 
-- Die Domain-Schicht kennt weder Spring noch JPA. Sie enthält reines Java.
-- Die Infrastructure-Schicht implementiert die Ports der Domain-Schicht und kümmert sich um die technische Persistenz.
-- Die Application-Schicht orchestriert die Use Cases und nutzt die Ports der Domain-Schicht.
-- Der Adapter in der Infrastructure-Schicht übernimmt das Mapping zwischen Domain-Modell und JPA-Entity. Dadurch bleibt das Domain-Modell frei von technischen Annotationen.
+- The domain layer knows neither Spring nor JPA. It contains pure Java.
+- The infrastructure layer implements the domain layer's ports and handles technical persistence.
+- The application layer orchestrates use cases and uses the domain layer's ports.
+- The adapter in the infrastructure layer handles the mapping between domain model and JPA entity. This keeps the domain model free from technical annotations.

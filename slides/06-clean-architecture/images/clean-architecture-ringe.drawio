@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="draw.io" modified="2026-03-04T00:00:00.000Z" agent="draw.io" version="21.0.0" type="device">
+  <diagram id="clean-arch-rings" name="Clean Architecture">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Clean Architecture (Robert C. Martin)" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Ring 4 (outermost): Frameworks &amp; Drivers -->
+        <mxCell id="ring4" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;opacity=80;" vertex="1" parent="1">
+          <mxGeometry x="200" y="80" width="600" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="ring4label" value="&lt;b&gt;Frameworks &amp; Drivers&lt;/b&gt;&lt;br&gt;(Web, UI, DB, External Interfaces)" style="text;html=1;fontSize=12;align=center;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="390" y="100" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Ring 3: Interface Adapters -->
+        <mxCell id="ring3" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;opacity=85;" vertex="1" parent="1">
+          <mxGeometry x="280" y="160" width="440" height="440" as="geometry" />
+        </mxCell>
+        <mxCell id="ring3label" value="&lt;b&gt;Interface Adapters&lt;/b&gt;&lt;br&gt;(Controllers, Gateways, Presenters)" style="text;html=1;fontSize=11;align=center;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="400" y="180" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Ring 2: Use Cases -->
+        <mxCell id="ring2" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;opacity=90;" vertex="1" parent="1">
+          <mxGeometry x="350" y="230" width="300" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="ring2label" value="&lt;b&gt;Use Cases&lt;/b&gt;&lt;br&gt;(Application Business Rules)" style="text;html=1;fontSize=11;align=center;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="420" y="250" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Ring 1 (innermost): Entities -->
+        <mxCell id="ring1" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;opacity=95;" vertex="1" parent="1">
+          <mxGeometry x="415" y="295" width="170" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="ring1label" value="&lt;b&gt;Entities&lt;/b&gt;&lt;br&gt;(Enterprise&lt;br&gt;Business Rules)" style="text;html=1;fontSize=12;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="435" y="335" width="130" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Dependency Rule Arrows (pointing inward) -->
+        <!-- Arrow from Frameworks to Adapters (right side) -->
+        <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;entryX=1;entryY=0.5;exitX=1;exitY=0.5;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="780" y="380" as="sourcePoint" />
+            <mxPoint x="720" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow from Adapters to Use Cases (right side) -->
+        <mxCell id="arrow2" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="700" y="380" as="sourcePoint" />
+            <mxPoint x="650" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow from Use Cases to Entities (right side) -->
+        <mxCell id="arrow3" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="630" y="380" as="sourcePoint" />
+            <mxPoint x="585" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow from Frameworks to Adapters (left side) -->
+        <mxCell id="arrow4" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="380" as="sourcePoint" />
+            <mxPoint x="280" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow from Adapters to Use Cases (left side) -->
+        <mxCell id="arrow5" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="380" as="sourcePoint" />
+            <mxPoint x="350" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow from Use Cases to Entities (left side) -->
+        <mxCell id="arrow6" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="370" y="380" as="sourcePoint" />
+            <mxPoint x="415" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow from Frameworks to Adapters (top) -->
+        <mxCell id="arrow7" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="100" as="sourcePoint" />
+            <mxPoint x="500" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Arrow from Adapters to Use Cases (top) -->
+        <mxCell id="arrow8" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="500" y="180" as="sourcePoint" />
+            <mxPoint x="500" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Dependency Rule label -->
+        <mxCell id="deprulelabel" value="&lt;b&gt;Dependency Rule:&lt;/b&gt;&lt;br&gt;Dependencies only point inward" style="text;html=1;fontSize=11;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="830" y="340" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Large arrow annotation for Dependency Rule -->
+        <mxCell id="bigarrow" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#333333;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1000" y="360" as="sourcePoint" />
+            <mxPoint x="830" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

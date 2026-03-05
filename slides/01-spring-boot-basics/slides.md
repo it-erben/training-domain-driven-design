@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 01 – Spring Boot 3 Basics
@@ -27,7 +12,7 @@ style: |
 
 ### Lernziele
 
-- Die wichtigsten Neuerungen von Spring Boot 3 kennen
+- Spring Boot 3 kennen lernen
 - Auto-Configuration und den Spring Application Context verstehen
 - Dependency Injection mit Constructor Injection anwenden
 - Spring Data JPA für einfache Persistenz nutzen
@@ -35,6 +20,7 @@ style: |
 - REST-Endpoints mit Spring Web MVC erstellen
 
 ---
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Warum Spring Boot?
 
@@ -54,6 +40,8 @@ style: |
 
 ---
 
+<style scoped>section { font-size: 1.8em; }</style>
+
 ## Spring Boot 3 – Was ist neu?
 
 ### Die drei großen Änderungen
@@ -72,6 +60,8 @@ style: |
 - **Virtual Threads** (ab Spring Boot 3.2) – Project Loom Support
 
 ---
+
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Jakarta EE 10 – Namespace-Migration
 
@@ -96,7 +86,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 ---
 
-## Auto-Configuration – Die Magie hinter Spring Boot
+## Auto-Configuration – Die "Magie" hinter Spring Boot
 
 ### Wie funktioniert es?
 
@@ -111,7 +101,9 @@ spring-boot-starter-data-jpa  →  DataSource, EntityManagerFactory
 h2 (runtime)                  →  H2 DataSource (jdbc:h2:mem:...)
 ```
 
-### Wichtige Conditional-Annotationen
+---
+
+## Wichtige Conditional-Annotationen
 
 | Annotation | Wirkt wenn… |
 |-----------|-------------|
@@ -127,30 +119,18 @@ h2 (runtime)                  →  H2 DataSource (jdbc:h2:mem:...)
 
 ### Der IoC Container
 
-```
-┌─────────────────────────────────────────────────┐
-│              Application Context                │
-│                                                 │
-│  ┌──────────────┐  ┌──────────────────────┐     │
-│  │ @Service     │  │ @Repository          │     │
-│  │ Immobilien   │──│ ImmobilienRepository │     │
-│  │ Service      │  │                      │     │
-│  └──────────────┘  └──────────────────────┘     │
-│         │                     │                 │
-│         ▼                     ▼                 │
-│  ┌──────────────┐  ┌──────────────────────┐     │
-│  │ @Controller  │  │ Auto-Configured      │     │
-│  │ Immobilien   │  │ DataSource,          │     │
-│  │ Controller   │  │ EntityManagerFactory │     │
-│  └──────────────┘  └──────────────────────┘     │
-└─────────────────────────────────────────────────┘
-```
+![Der IoC Container – Application Context](images/ioc-container.drawio.png)
+
+---
+
+### Der IoC Container
 
 - Spring verwaltet Objekte als **Beans** im Application Context
 - Abhängigkeiten werden automatisch aufgelöst (**Inversion of Control**)
 - Default-Scope: **Singleton** – eine Instanz pro Bean
 
 ---
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Stereotyp-Annotationen
 
@@ -165,13 +145,15 @@ h2 (runtime)                  →  H2 DataSource (jdbc:h2:mem:...)
 | `@RestController` | REST-Controller | `@Controller` + `@ResponseBody` |
 | `@Configuration` | Konfigurations-Klasse | Bean-Factory-Methoden |
 
-### Classpath Scanning
+---
+
+## Classpath Scanning
 
 ```java
-@SpringBootApplication  // enthält @ComponentScan
-public class ImmobilienCrmApplication {
+@SpringBootApplication  // contains @ComponentScan
+public class RealEstateCrmApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ImmobilienCrmApplication.class, args);
+        SpringApplication.run(RealEstateCrmApplication.class, args);
     }
 }
 ```
@@ -184,21 +166,24 @@ public class ImmobilienCrmApplication {
 
 ```java
 @Service
-public class ImmobilienService {
+public class PropertyService {
 
-    private final ImmobilienRepository repository;
-    private final BewertungsService bewertungsService;
+    private final PropertyRepository repository;
+    private final ValuationService valuationService;
 
-    // Bei einem Konstruktor ist @Autowired optional
-    public ImmobilienService(ImmobilienRepository repository,
-                             BewertungsService bewertungsService) {
+    // With a single constructor, @Autowired is optional
+    public PropertyService(PropertyRepository repository,
+                           ValuationService valuationService) {
         this.repository = repository;
-        this.bewertungsService = bewertungsService;
+        this.valuationService = valuationService;
     }
 }
 ```
 
-### Warum Constructor Injection?
+---
+
+
+## Warum Constructor Injection?
 
 - Felder sind `final` → **unveränderlich** nach Konstruktion
 - **Pflichtabhängigkeiten** sind sofort sichtbar
@@ -207,29 +192,35 @@ public class ImmobilienService {
 
 ---
 
+<style scoped>section { font-size: 1.8em; }</style>
+
 ## Spring Data JPA – Entity definieren
 
 ```java
 @Entity
-@Table(name = "immobilien")
-public class Immobilie {
+@Table(name = "properties")
+public class Property {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String bezeichnung;
+    private String title;
 
-    private String strasse;
-    private String plz;
-    private String ort;
-    private BigDecimal wohnfläche;
-    private BigDecimal kaufpreis;
+    private String street;
+    private String postalCode;
+    private String city;
+    private BigDecimal livingArea;
+    private BigDecimal purchasePrice;
 
-    protected Immobilie() {} // JPA benötigt No-Arg-Konstruktor
+    protected Property() {} // JPA requires no-arg constructor
 }
 ```
+
+---
+
+## Spring Data JPA – Entity definieren
 
 - `jakarta.persistence.*` – JPA-Annotationen im Jakarta-Namespace
 - No-Arg-Konstruktor kann `protected` sein (nicht zwingend `public`)
@@ -237,21 +228,23 @@ public class Immobilie {
 
 ---
 
+<style scoped>section { font-size: 1.8em; }</style>
+
 ## Spring Data JPA – Repository
 
 ```java
-public interface ImmobilienRepository
-        extends JpaRepository<Immobilie, Long> {
+public interface PropertyRepository
+        extends JpaRepository<Property, Long> {
 
-    List<Immobilie> findByOrt(String ort);
+    List<Property> findByCity(String city);
 
-    List<Immobilie> findByKaufpreisLessThan(BigDecimal maxPreis);
+    List<Property> findByPurchasePriceLessThan(BigDecimal maxPrice);
 
-    Optional<Immobilie> findByBezeichnung(String bezeichnung);
+    Optional<Property> findByTitle(String title);
 
-    @Query("SELECT i FROM Immobilie i WHERE i.kaufpreis BETWEEN :min AND :max")
-    List<Immobilie> findInPreisbereich(@Param("min") BigDecimal min,
-                                       @Param("max") BigDecimal max);
+    @Query("SELECT p FROM Property p WHERE p.purchasePrice BETWEEN :min AND :max")
+    List<Property> findInPriceRange(@Param("min") BigDecimal min,
+                                    @Param("max") BigDecimal max);
 }
 ```
 
@@ -260,6 +253,7 @@ public interface ImmobilienRepository
 - `@Query` für komplexere JPQL-Abfragen
 
 ---
+<style scoped>section { font-size: 1.7em; }</style>
 
 ## H2 In-Memory-Datenbank
 
@@ -268,7 +262,7 @@ public interface ImmobilienRepository
 ```yaml
 spring:
   datasource:
-    url: jdbc:h2:mem:immobiliencrm
+    url: jdbc:h2:mem:realestate
     driver-class-name: org.h2.Driver
   jpa:
     hibernate:
@@ -287,24 +281,26 @@ spring:
 
 ---
 
+<style scoped>section { font-size: 1.6em; }</style>
+
 ## Bean Validation – Eingaben prüfen
 
 ### Request als Java Record (Spring Boot 3 / Java 17+)
 
 ```java
-public record ImmobilieRequest(
-        @NotBlank(message = "Bezeichnung darf nicht leer sein")
-        String bezeichnung,
+public record PropertyRequest(
+        @NotBlank(message = "Title must not be blank")
+        String title,
 
-        @NotBlank String strasse,
-        @NotBlank String plz,
-        @NotBlank String ort,
+        @NotBlank String street,
+        @NotBlank String postalCode,
+        @NotBlank String city,
 
-        @Positive(message = "Wohnfläche muss positiv sein")
-        BigDecimal wohnfläche,
+        @Positive(message = "Living area must be positive")
+        BigDecimal livingArea,
 
-        @NotNull @Positive(message = "Kaufpreis muss positiv sein")
-        BigDecimal kaufpreis
+        @NotNull @Positive(message = "Purchase price must be positive")
+        BigDecimal purchasePrice
 ) {}
 ```
 
@@ -314,28 +310,30 @@ public record ImmobilieRequest(
 
 ---
 
+<style scoped>section { font-size: 1.6em; }</style>
+
 ## REST-Controller – GET-Endpunkte
 
 ```java
 @RestController
-@RequestMapping("/api/immobilien")
-public class ImmobilienController {
+@RequestMapping("/api/properties")
+public class PropertyController {
 
-    private final ImmobilienService service;
+    private final PropertyService service;
 
-    public ImmobilienController(ImmobilienService service) {
+    public PropertyController(PropertyService service) {
         this.service = service;
     }
 
     @GetMapping
-    public List<ImmobilieResponse> alleAbrufen() {
-        return service.findeAlle();
+    public List<PropertyResponse> findAll() {
+        return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ImmobilieResponse> nachIdSuchen(
+    public ResponseEntity<PropertyResponse> findById(
             @PathVariable Long id) {
-        return service.findeNachId(id)
+        return service.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -348,17 +346,19 @@ public class ImmobilienController {
 
 ```java
 @PostMapping
-public ResponseEntity<ImmobilieResponse> erstellen(
-        @Valid @RequestBody ImmobilieRequest request) {
+public ResponseEntity<PropertyResponse> create(
+        @Valid @RequestBody PropertyRequest request) {
 
-    ImmobilieResponse response = service.erstellen(request);
+    PropertyResponse response = service.create(request);
 
-    URI location = URI.create("/api/immobilien/" + response.id());
+    URI location = URI.create("/api/properties/" + response.id());
     return ResponseEntity.created(location).body(response);
 }
 ```
 
-### HTTP-Statuscodes
+---
+
+## HTTP-Statuscodes
 
 | Methode | Erfolg | Fehler |
 |---------|--------|--------|
@@ -370,14 +370,13 @@ public ResponseEntity<ImmobilieResponse> erstellen(
 
 ---
 
+![bg center h:450](images/spring-boot-classic-layers.drawio.svg)
+
+---
+
 ## Zusammenspiel der Schichten
 
-![Klassische Spring-Boot-Schichtarchitektur](../diagrams/spring-boot-classic-layers.drawio.png)
-
-```
-HTTP Request  →  @RestController  →  @Service  →  @Repository  →  DB
-HTTP Response ←  (JSON/Jackson)   ←  (Logik)   ←  (JPA)        ←  DB
-```
+![Zusammenspiel der Schichten](images/zusammenspiel-schichten.drawio.png)
 
 - **Controller** empfängt HTTP-Request, validiert Eingabe, delegiert
 - **Service** enthält Geschäftslogik (im klassischen Spring-Stil)
@@ -386,19 +385,11 @@ HTTP Response ←  (JSON/Jackson)   ←  (Logik)   ←  (JPA)        ←  DB
 
 ---
 
-## Kritischer Blick: Grenzen dieser Architektur
+## Grenzen dieser Architektur
 
 ### Was passiert, wenn die Geschäftslogik wächst?
 
-```
-┌────────────┐    ┌────────────────────────────┐    ┌────────────┐
-│ Controller │───►│ Service                    │───►│ Repository │
-│            │    │                            │    │            │
-│  Validiert │    │  ✗ Wächst unkontrolliert   │    │  JPA       │
-│  Input     │    │  ✗ Gemischte Concerns      │    │  Queries   │
-│            │    │  ✗ Schwer testbar           │    │            │
-└────────────┘    └────────────────────────────┘    └────────────┘
-```
+![Grenzen der Schichtarchitektur](images/grenzen-schichtarchitektur.drawio.png)
 
 - Services werden zu **God Classes** mit hunderten Zeilen
 - **Geschäftslogik** mischt sich mit Transaktions- und Infrastrukturcode
@@ -427,9 +418,9 @@ HTTP Response ←  (JSON/Jackson)   ←  (Logik)   ←  (JPA)        ←  DB
 
 ### Immobilien-CRUD mit Spring Boot
 
-- Eine `Immobilie`-Entity mit JPA-Annotations anlegen
-- Ein `ImmobilienRepository` mit Query Methods erstellen
-- Einen `ImmobilienService` mit CRUD-Methoden implementieren
+- Eine `Property`-Entity mit JPA-Annotations anlegen
+- Ein `PropertyRepository` mit Query Methods erstellen
+- Einen `PropertyService` mit CRUD-Methoden implementieren
 - Einen `@RestController` mit GET, POST, PUT, DELETE bauen
 - Bean Validation für Pflichtfelder einbauen
 

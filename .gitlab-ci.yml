@@ -19,6 +19,9 @@ lint:lychee:
 maven-test:
   stage: build
   image: maven:3.9-eclipse-temurin-17
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH
   parallel:
     matrix:
       - PROJECT_DIR:

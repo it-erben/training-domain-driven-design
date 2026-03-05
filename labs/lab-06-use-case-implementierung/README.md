@@ -1,117 +1,117 @@
-# Lab 06: Use-Case-Implementierung - Besichtigung anlegen
+# Lab 06: Use Case Implementation - Create Viewing
 
-## Lernziel
+## Learning Objective
 
-Application Service als Use-Case-Orchestrator implementieren.
+Implement an Application Service as a use case orchestrator.
 
-## Dauer
+## Duration
 
-45 Minuten
+45 minutes
 
-## Voraussetzungen
+## Prerequisites
 
-- Lab 05 abgeschlossen
-- Slides Modul 08
+- Lab 05 completed
+- Slides Module 08
 
-## Aufgabe
+## Task
 
-Implementiere den Use Case "Besichtigung anlegen" als Application Service. Der Use Case orchestriert den Aufruf der Domain-Logik und kümmert sich um die Persistenz.
+Implement the "Create Viewing" use case as an Application Service. The use case orchestrates the domain logic invocation and handles persistence.
 
-### Schritt 1: Command-Objekt erstellen
+### Step 1: Create the Command Object
 
-Erstelle das Command-Objekt `BesichtigungAnlegenCommand` als Java Record im Package `de.immobiliencrm.vermittlung.application.command`:
+Create the command object `CreateViewingCommand` as a Java Record in the package `de.realestate.brokerage.application.command`:
 
 ```java
-public record BesichtigungAnlegenCommand(
-    UUID vermittlungsvorgangId,
-    String interessentName,
-    LocalDateTime zeitpunkt
+public record CreateViewingCommand(
+    UUID processId,
+    String prospectName,
+    LocalDateTime appointmentDate
 ) {}
 ```
 
-Das Command repräsentiert die Intention des Aufrufers und enthält alle Daten, die der Use Case benötigt.
+The command represents the caller's intention and contains all the data the use case needs.
 
-### Schritt 2: Ergebnis-Objekt erstellen
+### Step 2: Create the Result Object
 
-Erstelle das Ergebnis-Objekt `BesichtigungAnlegenResult` als Java Record im selben Package:
+Create the result object `CreateViewingResult` as a Java Record in the same package:
 
 ```java
-public record BesichtigungAnlegenResult(
-    UUID besichtigungId,
-    UUID vermittlungsvorgangId
+public record CreateViewingResult(
+    UUID viewingId,
+    UUID processId
 ) {}
 ```
 
-### Schritt 3: Use Case implementieren
+### Step 3: Implement the Use Case
 
-Erstelle den Application Service `BesichtigungAnlegenUseCase` als `@Service` im Package `de.immobiliencrm.vermittlung.application.service`:
+Create the Application Service `CreateViewingUseCase` as a `@Service` in the package `de.realestate.brokerage.application.service`:
 
 ```java
 @Service
-public class BesichtigungAnlegenUseCase {
+public class CreateViewingUseCase {
 
-    private final VermittlungsvorgangRepository repository;
+    private final BrokerageProcessRepository repository;
 
     // Constructor Injection
 
     @Transactional
-    public BesichtigungAnlegenResult anlegen(BesichtigungAnlegenCommand command) {
-        // 1. Vermittlungsvorgang aus dem Repository laden
-        // 2. Domain-Methode besichtigungHinzufügen() aufrufen
-        // 3. Vermittlungsvorgang speichern
-        // 4. Ergebnis zurückgeben
+    public CreateViewingResult create(CreateViewingCommand command) {
+        // 1. Load the BrokerageProcess from the repository
+        // 2. Call the domain method addViewing()
+        // 3. Save the BrokerageProcess
+        // 4. Return the result
     }
 }
 ```
 
 **Flow:**
 
-1. Lade den `Vermittlungsvorgang` anhand der ID aus dem Repository
-2. Wenn nicht gefunden: wirf eine `VermittlungsvorgangNichtGefundenException`
-3. Rufe die Domain-Methode `besichtigungHinzufügen(interessentName, zeitpunkt)` auf dem Aggregate Root auf
-4. Speichere den aktualisierten `Vermittlungsvorgang` über das Repository
-5. Gib ein `BesichtigungAnlegenResult` mit der neuen Besichtigungs-ID zurück
+1. Load the `BrokerageProcess` by ID from the repository
+2. If not found: throw a `ProcessNotFoundException`
+3. Call the domain method `addViewing(prospectName, appointmentDate)` on the Aggregate Root
+4. Save the updated `BrokerageProcess` via the repository
+5. Return a `CreateViewingResult` with the new viewing ID
 
-**Wichtig:** Der Use Case verwendet `@Transactional`, um die Konsistenz sicherzustellen. Die Geschäftslogik bleibt im Domain-Modell - der Use Case orchestriert nur.
+**Important:** The use case uses `@Transactional` to ensure consistency. The business logic remains in the domain model - the use case only orchestrates.
 
-### Schritt 4: Exception für nicht-gefundenen Vermittlungsvorgang
+### Step 4: Exception for Process Not Found
 
-Erstelle die Exception `VermittlungsvorgangNichtGefundenException` im Package `de.immobiliencrm.vermittlung.domain.model`:
+Create the exception `ProcessNotFoundException` in the package `de.realestate.brokerage.domain.model`:
 
 ```java
-public class VermittlungsvorgangNichtGefundenException extends RuntimeException {
-    public VermittlungsvorgangNichtGefundenException(UUID id) {
-        super("Vermittlungsvorgang mit ID " + id + " nicht gefunden");
+public class ProcessNotFoundException extends RuntimeException {
+    public ProcessNotFoundException(UUID id) {
+        super("BrokerageProcess with ID " + id + " not found");
     }
 }
 ```
 
-**Hinweis:** Die Exception liegt im Domain-Package, da sie ein fachliches Konzept repräsentiert ("es gibt keinen Vermittlungsvorgang mit dieser ID").
+**Note:** The exception resides in the domain package because it represents a domain concept ("there is no brokerage process with this ID").
 
-### Bonus: Zweiter Use Case
+### Bonus: Second Use Case
 
-Implementiere einen zweiten Use Case `BesichtigungDurchführenUseCase`:
+Implement a second use case `CompleteViewingUseCase`:
 
-- Command: `BesichtigungDurchführenCommand(UUID vermittlungsvorgangId, UUID besichtigungId)`
-- Lädt den Vermittlungsvorgang, ruft `besichtigungDurchführen(besichtigungId)` auf und speichert
+- Command: `CompleteViewingCommand(UUID processId, UUID viewingId)`
+- Loads the BrokerageProcess, calls `completeViewing(viewingId)`, and saves
 
-## Verifikation
+## Verification
 
-Schreibe einen Unit-Test des Use Case mit gemocktem Repository:
+Write a unit test for the use case with a mocked repository:
 
-1. **Happy Path:** Vermittlungsvorgang existiert, Besichtigung wird angelegt, Ergebnis wird zurückgegeben
-2. **Not Found:** Vermittlungsvorgang existiert nicht, `VermittlungsvorgangNichtGefundenException` wird geworfen
+1. **Happy Path:** BrokerageProcess exists, viewing is created, result is returned
+2. **Not Found:** BrokerageProcess does not exist, `ProcessNotFoundException` is thrown
 
 ```bash
 cd solution
 mvn test
 ```
 
-Alle Tests müssen grün sein.
+All tests must pass.
 
-## Tipps
+## Tips
 
-- Der Use Case ist bewusst dünn gehalten - die Geschäftslogik steckt im Domain-Modell.
-- Commands und Results sind immutable (Records) und gehören zur Application-Schicht.
-- `@Transactional` sorgt dafür, dass bei einer Exception ein Rollback stattfindet.
-- Das Repository-Interface stammt aus der Domain-Schicht - der Use Case hängt nur von der Abstraktion ab, nicht von der konkreten Implementierung.
+- The use case is intentionally kept thin - the business logic resides in the domain model.
+- Commands and Results are immutable (Records) and belong to the application layer.
+- `@Transactional` ensures a rollback occurs in case of an exception.
+- The repository interface comes from the domain layer - the use case depends only on the abstraction, not on the concrete implementation.

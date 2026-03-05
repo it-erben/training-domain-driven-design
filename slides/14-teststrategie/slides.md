@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 14 – Teststrategie
@@ -40,7 +25,7 @@ style: |
 
 ## Die Testpyramide
 
-![Teststrategie](../diagrams/teststrategie-pyramide.drawio.png)
+![Teststrategie](images/teststrategie-pyramide.drawio.png)
 
 ---
 
@@ -91,34 +76,34 @@ style: |
 ## Domain Unit Test: Aggregate Root
 
 ```java
-class VermittlungsvorgangTest {
+class BrokerageProcessTest {
 
     @Test
-    void sollte_besichtigung_planen() {
+    void should_schedule_viewing() {
         // Arrange
-        var vorgang = Vermittlungsvorgang.erstellen(
-            VorgangId.generate(),
-            new ImmobilieId(UUID.randomUUID()),
-            new KontaktId(UUID.randomUUID()));
+        var process = BrokerageProcess.create(
+            ProcessId.generate(),
+            new PropertyId(UUID.randomUUID()),
+            new ContactId(UUID.randomUUID()));
 
         // Act
-        var besichtigungId = vorgang.besichtigungPlanen(
-            new KontaktId(UUID.randomUUID()),
+        var viewingId = process.scheduleViewing(
+            new ContactId(UUID.randomUUID()),
             LocalDateTime.now().plusDays(3));
 
         // Assert
-        assertThat(besichtigungId).isNotNull();
-        assertThat(vorgang.getBesichtigungen()).hasSize(1);
+        assertThat(viewingId).isNotNull();
+        assertThat(process.getViewings()).hasSize(1);
     }
 
     @Test
-    void sollte_fehler_werfen_wenn_vorgang_nicht_aktiv() {
-        var vorgang = VermittlungsvorgangFixture.abgeschlossen();
+    void should_throw_error_when_process_not_active() {
+        var process = BrokerageProcessFixture.completed();
 
-        assertThatThrownBy(() -> vorgang.besichtigungPlanen(
-                new KontaktId(UUID.randomUUID()),
+        assertThatThrownBy(() -> process.scheduleViewing(
+                new ContactId(UUID.randomUUID()),
                 LocalDateTime.now().plusDays(1)))
-            .isInstanceOf(VorgangNichtAktivException.class);
+            .isInstanceOf(ProcessNotActiveException.class);
     }
 }
 ```
@@ -128,30 +113,30 @@ class VermittlungsvorgangTest {
 ## Domain Unit Test: Value Object
 
 ```java
-class AdresseTest {
+class AddressTest {
 
     @Test
-    void sollte_leere_strasse_ablehnen() {
-        assertThatThrownBy(() -> new Adresse("", "50667", "Köln"))
+    void should_reject_empty_street() {
+        assertThatThrownBy(() -> new Address("", "50667", "Köln"))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("Straße");
+            .hasMessageContaining("street");
     }
 
     @Test
-    void sollte_gleiche_adressen_als_equal_erkennen() {
-        var a1 = new Adresse("Domstraße 1", "50667", "Köln");
-        var a2 = new Adresse("Domstraße 1", "50667", "Köln");
+    void should_recognize_equal_addresses() {
+        var a1 = new Address("Domstraße 1", "50667", "Köln");
+        var a2 = new Address("Domstraße 1", "50667", "Köln");
         assertThat(a1).isEqualTo(a2);
     }
 }
 
-class PreisvorstellungTest {
+class AskingPriceTest {
 
     @Test
-    void sollte_provision_korrekt_berechnen() {
-        var preis = new Preisvorstellung(BigDecimal.valueOf(300_000));
-        var provision = preis.berechneProvision(new Provisionssatz(3.57));
-        assertThat(provision.betrag())
+    void should_calculate_commission_correctly() {
+        var price = new AskingPrice(BigDecimal.valueOf(300_000));
+        var commission = price.calculateCommission(new CommissionRate(3.57));
+        assertThat(commission.amount())
             .isEqualByComparingTo(BigDecimal.valueOf(10_710.00));
     }
 }
@@ -163,17 +148,17 @@ class PreisvorstellungTest {
 
 ```java
 @Test
-void sollte_domain_event_erzeugen_bei_besichtigungsplanung() {
-    var vorgang = VermittlungsvorgangFixture.aktiv();
+void should_produce_domain_event_when_scheduling_viewing() {
+    var process = BrokerageProcessFixture.active();
 
-    vorgang.besichtigungPlanen(
-        new KontaktId(UUID.randomUUID()),
+    process.scheduleViewing(
+        new ContactId(UUID.randomUUID()),
         LocalDateTime.now().plusDays(3));
 
-    assertThat(vorgang.domainEvents())
+    assertThat(process.domainEvents())
         .hasSize(1)
         .first()
-        .isInstanceOf(BesichtigungGeplantEvent.class);
+        .isInstanceOf(ViewingScheduledEvent.class);
 }
 ```
 
@@ -192,22 +177,22 @@ void sollte_domain_event_erzeugen_bei_besichtigungsplanung() {
 - **Kein Spring Context** nötig — plain JUnit + Mockito
 
 ```java
-class BesichtigungAnlegenUseCaseTest {
+class CreateViewingUseCaseTest {
 
-    private final VermittlungsvorgangRepository repository =
-        new InMemoryVermittlungsvorgangRepository();
+    private final BrokerageProcessRepository repository =
+        new InMemoryBrokerageProcessRepository();
     private final DomainEventDispatcher eventDispatcher =
         mock(DomainEventDispatcher.class);
-    private final BesichtigungAnlegenUseCase useCase =
-        new BesichtigungAnlegenUseCase(repository, eventDispatcher);
+    private final CreateViewingUseCase useCase =
+        new CreateViewingUseCase(repository, eventDispatcher);
 
     @Test
-    void sollte_besichtigung_anlegen() {
-        var vorgang = VermittlungsvorgangFixture.aktiv();
-        repository.save(vorgang);
+    void should_create_viewing() {
+        var process = BrokerageProcessFixture.active();
+        repository.save(process);
 
-        var result = useCase.execute(new BesichtigungAnlegenCommand(
-            vorgang.getId(), new KontaktId(UUID.randomUUID()),
+        var result = useCase.execute(new CreateViewingCommand(
+            process.getId(), new ContactId(UUID.randomUUID()),
             LocalDateTime.now().plusDays(3)));
 
         assertThat(result).isNotNull();
@@ -221,35 +206,35 @@ class BesichtigungAnlegenUseCaseTest {
 ## InMemory-Repository als Test-Double
 
 ```java
-public class InMemoryVermittlungsvorgangRepository
-        implements VermittlungsvorgangRepository {
+public class InMemoryBrokerageProcessRepository
+        implements BrokerageProcessRepository {
 
-    private final Map<VorgangId, Vermittlungsvorgang> store =
+    private final Map<ProcessId, BrokerageProcess> store =
         new ConcurrentHashMap<>();
 
     @Override
-    public void save(Vermittlungsvorgang vorgang) {
-        store.put(vorgang.getId(), vorgang);
+    public void save(BrokerageProcess process) {
+        store.put(process.getId(), process);
     }
 
     @Override
-    public Optional<Vermittlungsvorgang> findById(VorgangId id) {
+    public Optional<BrokerageProcess> findById(ProcessId id) {
         return Optional.ofNullable(store.get(id));
     }
 
     @Override
-    public List<Vermittlungsvorgang> findByStatus(VorgangStatus status) {
+    public List<BrokerageProcess> findByStatus(ProcessStatus status) {
         return store.values().stream()
             .filter(v -> v.getStatus() == status)
             .toList();
     }
 
     @Override
-    public VorgangId nextId() { return VorgangId.generate(); }
+    public ProcessId nextId() { return ProcessId.generate(); }
 
     @Override
-    public void delete(Vermittlungsvorgang vorgang) {
-        store.remove(vorgang.getId());
+    public void delete(BrokerageProcess process) {
+        store.remove(process.getId());
     }
 }
 ```
@@ -263,15 +248,15 @@ public class InMemoryVermittlungsvorgangRepository
 
 ```java
 @Test
-void sollte_fehler_werfen_wenn_vorgang_nicht_existiert() {
-    // Repository ist leer — findById gibt Optional.empty()
+void should_throw_error_when_process_not_found() {
+    // Repository is empty — findById returns Optional.empty()
 
     assertThatThrownBy(() -> useCase.execute(
-            new BesichtigungAnlegenCommand(
-                new VorgangId(UUID.randomUUID()),
-                new KontaktId(UUID.randomUUID()),
+            new CreateViewingCommand(
+                new ProcessId(UUID.randomUUID()),
+                new ContactId(UUID.randomUUID()),
                 LocalDateTime.now().plusDays(1))))
-        .isInstanceOf(VorgangNichtGefunden.class);
+        .isInstanceOf(ProcessNotFoundException.class);
 
     verifyNoInteractions(eventDispatcher);
 }
@@ -279,7 +264,7 @@ void sollte_fehler_werfen_wenn_vorgang_nicht_existiert() {
 
 - Kein Spring Context, kein `@MockitoBean`
 - Test läuft in **< 50 ms**
-- InMemory-Repo liefert `Optional.empty()` → Exception
+- InMemory repo returns `Optional.empty()` → Exception
 - Prüft, dass **keine Events dispatched** werden bei Fehler
 
 ---
@@ -292,28 +277,28 @@ void sollte_fehler_werfen_wenn_vorgang_nicht_existiert() {
 
 ```java
 @DataJpaTest
-@Import(VorgangMapper.class)
-class JpaVermittlungsvorgangRepositoryTest {
+@Import(ProcessMapper.class)
+class JpaBrokerageProcessRepositoryTest {
 
-    @Autowired private VorgangSpringDataRepository springDataRepo;
-    @Autowired private VorgangMapper mapper;
+    @Autowired private ProcessSpringDataRepository springDataRepo;
+    @Autowired private ProcessMapper mapper;
 
-    private JpaVermittlungsvorgangRepository repository;
+    private JpaBrokerageProcessRepository repository;
 
     @BeforeEach
     void setUp() {
-        repository = new JpaVermittlungsvorgangRepository(
+        repository = new JpaBrokerageProcessRepository(
             springDataRepo, mapper);
     }
 
     @Test
-    void sollte_vorgang_speichern_und_laden() {
-        var vorgang = VermittlungsvorgangFixture.aktiv();
-        repository.save(vorgang);
+    void should_save_and_load_process() {
+        var process = BrokerageProcessFixture.active();
+        repository.save(process);
 
-        var result = repository.findById(vorgang.getId());
+        var result = repository.findById(process.getId());
         assertThat(result).isPresent();
-        assertThat(result.get().getStatus()).isEqualTo(VorgangStatus.AKTIV);
+        assertThat(result.get().getStatus()).isEqualTo(ProcessStatus.ACTIVE);
     }
 }
 ```
@@ -323,29 +308,29 @@ class JpaVermittlungsvorgangRepositoryTest {
 ## Level 4: Web/API Tests mit @WebMvcTest
 
 ```java
-@WebMvcTest(BesichtigungController.class)
-class BesichtigungControllerTest {
+@WebMvcTest(ViewingController.class)
+class ViewingControllerTest {
 
     @Autowired private MockMvc mockMvc;
-    @MockitoBean private BesichtigungPlanen anlegenUseCase;
+    @MockitoBean private ScheduleViewing scheduleUseCase;
 
     @Test
-    void sollte_besichtigung_anlegen_und_201_liefern() throws Exception {
-        var expectedId = new BesichtigungId(UUID.randomUUID());
-        when(anlegenUseCase.planen(any())).thenReturn(expectedId);
+    void should_create_viewing_and_return_201() throws Exception {
+        var expectedId = new ViewingId(UUID.randomUUID());
+        when(scheduleUseCase.schedule(any())).thenReturn(expectedId);
 
-        mockMvc.perform(post("/api/v1/vermittlung/besichtigungen")
+        mockMvc.perform(post("/api/v1/brokerage/viewings")
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
-                      "vorgangId": "550e8400-e29b-41d4-a716-446655440000",
-                      "interessentId": "660e8400-e29b-41d4-a716-446655440000",
-                      "termin": "2026-04-15T14:00:00"
+                      "processId": "550e8400-e29b-41d4-a716-446655440000",
+                      "prospectId": "660e8400-e29b-41d4-a716-446655440000",
+                      "appointmentDate": "2026-04-15T14:00:00"
                     }
                     """))
             .andExpect(status().isCreated())
             .andExpect(header().exists("Location"))
-            .andExpect(jsonPath("$.besichtigungId")
+            .andExpect(jsonPath("$.viewingId")
                 .value(expectedId.value().toString()));
     }
 }
@@ -363,27 +348,27 @@ class BesichtigungControllerTest {
 
 ```java
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class VermittlungIntegrationTest {
+class BrokerageIntegrationTest {
 
     @Autowired private TestRestTemplate restTemplate;
 
     @Test
-    void sollte_besichtigung_anlegen_und_abrufen() {
-        // Arrange: Vorgang über API erstellen
-        var vorgangResponse = restTemplate.postForEntity(
-            "/api/v1/vermittlung/vorgaenge", createVorgangRequest(),
-            VorgangResponse.class);
-        assertThat(vorgangResponse.getStatusCode())
+    void should_create_viewing_and_retrieve() {
+        // Arrange: Create process via API
+        var processResponse = restTemplate.postForEntity(
+            "/api/v1/brokerage/processes", createProcessRequest(),
+            ProcessResponse.class);
+        assertThat(processResponse.getStatusCode())
             .isEqualTo(HttpStatus.CREATED);
 
-        // Act: Besichtigung für den Vorgang anlegen
-        var besichtigungResponse = restTemplate.postForEntity(
-            "/api/v1/vermittlung/besichtigungen",
-            createBesichtigungRequest(vorgangResponse.getBody().id()),
-            BesichtigungResponse.class);
+        // Act: Create viewing for the process
+        var viewingResponse = restTemplate.postForEntity(
+            "/api/v1/brokerage/viewings",
+            createViewingRequest(processResponse.getBody().id()),
+            ViewingResponse.class);
 
         // Assert
-        assertThat(besichtigungResponse.getStatusCode())
+        assertThat(viewingResponse.getStatusCode())
             .isEqualTo(HttpStatus.CREATED);
     }
 }
@@ -394,28 +379,28 @@ class VermittlungIntegrationTest {
 ## Test Fixtures – Wiederverwendbare Testdaten
 
 ```java
-public class VermittlungsvorgangFixture {
+public class BrokerageProcessFixture {
 
-    public static Vermittlungsvorgang aktiv() {
-        return Vermittlungsvorgang.erstellen(
-            VorgangId.generate(),
-            new ImmobilieId(UUID.randomUUID()),
-            new KontaktId(UUID.randomUUID()));
+    public static BrokerageProcess active() {
+        return BrokerageProcess.create(
+            ProcessId.generate(),
+            new PropertyId(UUID.randomUUID()),
+            new ContactId(UUID.randomUUID()));
     }
 
-    public static Vermittlungsvorgang mitBesichtigung() {
-        var vorgang = aktiv();
-        vorgang.besichtigungPlanen(
-            new KontaktId(UUID.randomUUID()),
+    public static BrokerageProcess withViewing() {
+        var process = active();
+        process.scheduleViewing(
+            new ContactId(UUID.randomUUID()),
             LocalDateTime.now().plusDays(3));
-        return vorgang;
+        return process;
     }
 
-    public static Vermittlungsvorgang abgeschlossen() {
-        var vorgang = aktiv();
-        // Vorgang durch alle Phasen führen...
-        vorgang.abschließen();
-        return vorgang;
+    public static BrokerageProcess completed() {
+        var process = active();
+        // Move process through all phases...
+        process.close();
+        return process;
     }
 }
 ```
@@ -428,19 +413,19 @@ public class VermittlungsvorgangFixture {
 
 ## Test-Namenskonventionen
 
-### Empfohlenes Schema (deutsch)
+### Empfohlenes Schema
 
 ```
-sollte_[erwartetes Verhalten]_wenn_[Bedingung]
+should_[expected behavior]_when_[condition]
 ```
 
 | Testname | Beschreibung |
 |----------|-------------|
-| `sollte_besichtigung_planen()` | Happy Path |
-| `sollte_fehler_werfen_wenn_vorgang_nicht_aktiv()` | Invariante |
-| `sollte_domain_event_erzeugen_bei_besichtigung()` | Event-Prüfung |
-| `sollte_404_liefern_wenn_vorgang_nicht_existiert()` | HTTP-Kontrakt |
-| `sollte_409_bei_optimistic_locking_konflikt()` | Locking |
+| `should_schedule_viewing()` | Happy Path |
+| `should_throw_error_when_process_not_active()` | Invariante |
+| `should_produce_domain_event_when_scheduling_viewing()` | Event-Prüfung |
+| `should_return_404_when_process_not_found()` | HTTP-Kontrakt |
+| `should_return_409_on_optimistic_locking_conflict()` | Locking |
 
 - Tests als **lebende Dokumentation** der Geschäftsregeln
 - Konsistente Sprache im gesamten Team
@@ -452,16 +437,16 @@ sollte_[erwartetes Verhalten]_wenn_[Bedingung]
 
 ```java
 @Test
-void sollte_provision_korrekt_berechnen() {
-    // Arrange – Testdaten vorbereiten
-    var preis = new Preisvorstellung(BigDecimal.valueOf(300_000));
-    var satz = new Provisionssatz(3.57);
+void should_calculate_commission_correctly() {
+    // Arrange – prepare test data
+    var price = new AskingPrice(BigDecimal.valueOf(300_000));
+    var rate = new CommissionRate(3.57);
 
-    // Act – genau EINE Aktion ausführen
-    var provision = preis.berechneProvision(satz);
+    // Act – execute exactly ONE action
+    var commission = price.calculateCommission(rate);
 
-    // Assert – Ergebnis prüfen
-    assertThat(provision.betrag())
+    // Assert – verify result
+    assertThat(commission.amount())
         .isEqualByComparingTo(BigDecimal.valueOf(10_710.00));
 }
 ```
@@ -512,7 +497,7 @@ Ohne Clean Architecture        Mit Clean Architecture
 
 ### Aufgabe
 
-1. Domain Unit Test: `Vermittlungsvorgang` Zustandsübergang testen
+1. Domain Unit Test: `BrokerageProcess` Zustandsübergang testen
 2. Domain Unit Test: Value Object Validierung und Gleichheit testen
 3. Application Service Test: Use Case mit InMemory-Repository testen
 4. Repository Integration Test: Custom Query mit `@DataJpaTest`

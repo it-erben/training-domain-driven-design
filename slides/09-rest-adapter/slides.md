@@ -3,22 +3,7 @@ marp: true
 theme: default
 paginate: true
 header: "DDD & Clean Architecture mit Spring Boot 3"
-footer: "© 2026 – Workshop S2090"
-style: |
-  section {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  h1 {
-    color: #2d6a4f;
-  }
-  h2 {
-    color: #40916c;
-  }
-  code {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    padding: 2px 6px;
-  }
+footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
 # Modul 09 – REST Adapter
@@ -52,12 +37,12 @@ style: |
        │ ruft Inbound-Port auf
   ┌────▼─────────────────────────────────────────┐
   │  application.port / application.service       │  Ring 2: Use Case
-  │    BesichtigungPlanen.planen(command)         │
+  │    ScheduleViewing.schedule(command)           │
   └────┬─────────────────────────────────────────┘
        │
   ┌────▼─────────────────────────────────────────┐
   │  domain.model                                 │  Ring 1: Entities
-  │    Vermittlungsvorgang.besichtigungPlanen()   │
+  │    BrokerageProcess.scheduleViewing()          │
   └──────────────────────────────────────────────┘
 ```
 
@@ -77,10 +62,10 @@ style: |
 | **Zirkuläre Deps** | Domain kennt plötzlich `com.fasterxml.jackson` |
 
 ```java
-// NIEMALS:
+// NEVER:
 @GetMapping("/{id}")
-public Vermittlungsvorgang getById(@PathVariable UUID id) {
-    return repository.findById(new VorgangId(id)).orElseThrow();
+public BrokerageProcess getById(@PathVariable UUID id) {
+    return repository.findById(new ProcessId(id)).orElseThrow();
 }
 ```
 
@@ -91,19 +76,19 @@ public Vermittlungsvorgang getById(@PathVariable UUID id) {
 ## Record-basierte DTOs – Request
 
 ```java
-package de.immobiliencrm.vermittlung.adapter.web;
+package de.realestate.brokerage.adapter.web;
 
-public record BesichtigungAnlegenRequest(
-    @NotNull UUID vorgangId,
-    @NotNull @Future LocalDateTime termin,
-    @NotNull UUID interessentId
+public record CreateViewingRequest(
+    @NotNull UUID processId,
+    @NotNull @Future LocalDateTime appointmentDate,
+    @NotNull UUID prospectId
 ) {
-    // Mapping: DTO → Command (primitive Typen → Value Objects)
-    public PlaneBesichtigungCommand toCommand() {
-        return new PlaneBesichtigungCommand(
-            new VorgangId(vorgangId),
-            new KontaktId(interessentId),
-            termin);
+    // Mapping: DTO → Command (primitive types → value objects)
+    public ScheduleViewingCommand toCommand() {
+        return new ScheduleViewingCommand(
+            new ProcessId(processId),
+            new ContactId(prospectId),
+            appointmentDate);
     }
 }
 ```
@@ -118,29 +103,29 @@ public record BesichtigungAnlegenRequest(
 ## Record-basierte DTOs – Response
 
 ```java
-public record BesichtigungResponse(
-    UUID besichtigungId,
-    UUID vorgangId,
-    LocalDateTime termin,
+public record ViewingResponse(
+    UUID viewingId,
+    UUID processId,
+    LocalDateTime appointmentDate,
     String status
 ) {
-    // Factory: Domain-Result → Response-DTO
-    public static BesichtigungResponse from(
-            BesichtigungId id,
-            VorgangId vorgangId,
-            LocalDateTime termin) {
-        return new BesichtigungResponse(
-            id.value(), vorgangId.value(), termin, "GEPLANT");
+    // Factory: domain result → response DTO
+    public static ViewingResponse from(
+            ViewingId id,
+            ProcessId processId,
+            LocalDateTime appointmentDate) {
+        return new ViewingResponse(
+            id.value(), processId.value(), appointmentDate, "SCHEDULED");
     }
 }
 ```
 
 ```java
-public record VorgangDetailResponse(
-    UUID id, String status, int anzahlBesichtigungen,
-    List<BesichtigungKurzResponse> besichtigungen
+public record ProcessDetailResponse(
+    UUID id, String status, int viewingCount,
+    List<ViewingSummaryResponse> viewings
 ) {
-    public static VorgangDetailResponse from(VorgangDetails details) { /* ... */ }
+    public static ProcessDetailResponse from(ProcessDetails details) { /* ... */ }
 }
 ```
 
@@ -153,27 +138,27 @@ public record VorgangDetailResponse(
 
 ```java
 @RestController
-@RequestMapping("/api/v1/vermittlung/besichtigungen")
-public class BesichtigungController {
+@RequestMapping("/api/v1/brokerage/viewings")
+public class ViewingController {
 
-    private final BesichtigungPlanen anlegenUseCase;
-    private final VorgangAbfragen abfragenUseCase;
+    private final ScheduleViewing createUseCase;
+    private final QueryProcess queryUseCase;
 
-    public BesichtigungController(BesichtigungPlanen anlegenUseCase,
-                                  VorgangAbfragen abfragenUseCase) {
-        this.anlegenUseCase = anlegenUseCase;
-        this.abfragenUseCase = abfragenUseCase;
+    public ViewingController(ScheduleViewing createUseCase,
+                             QueryProcess queryUseCase) {
+        this.createUseCase = createUseCase;
+        this.queryUseCase = queryUseCase;
     }
 
     @PostMapping
-    public ResponseEntity<BesichtigungResponse> anlegen(
-            @Valid @RequestBody BesichtigungAnlegenRequest request) {
+    public ResponseEntity<ViewingResponse> create(
+            @Valid @RequestBody CreateViewingRequest request) {
         var command = request.toCommand();
-        var id = anlegenUseCase.planen(command);
-        var uri = URI.create("/api/v1/vermittlung/besichtigungen/"
+        var id = createUseCase.schedule(command);
+        var uri = URI.create("/api/v1/brokerage/viewings/"
             + id.value());
-        var response = BesichtigungResponse.from(
-            id, command.vorgangId(), command.termin());
+        var response = ViewingResponse.from(
+            id, command.processId(), command.appointmentDate());
         return ResponseEntity.created(uri).body(response);
     }
 }
@@ -185,26 +170,26 @@ public class BesichtigungController {
 
 ```java
 @GetMapping("/{id}")
-public ResponseEntity<VorgangDetailResponse> getById(
+public ResponseEntity<ProcessDetailResponse> getById(
         @PathVariable UUID id) {
-    return abfragenUseCase.findById(new VorgangId(id))
-        .map(VorgangDetailResponse::from)
+    return queryUseCase.findById(new ProcessId(id))
+        .map(ProcessDetailResponse::from)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
 }
 
 @PutMapping("/{id}/status")
-public ResponseEntity<Void> statusÄndern(
+public ResponseEntity<Void> changeStatus(
         @PathVariable UUID id,
-        @Valid @RequestBody StatusÄndernRequest request) {
-    statusÄndernUseCase.execute(
-        new StatusÄndernCommand(new VorgangId(id), request.neuerStatus()));
+        @Valid @RequestBody ChangeStatusRequest request) {
+    changeStatusUseCase.execute(
+        new ChangeStatusCommand(new ProcessId(id), request.newStatus()));
     return ResponseEntity.noContent().build();
 }
 
 @DeleteMapping("/{id}")
-public ResponseEntity<Void> löschen(@PathVariable UUID id) {
-    löschenUseCase.execute(new VorgangId(id));
+public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    deleteUseCase.execute(new ProcessId(id));
     return ResponseEntity.noContent().build();
 }
 ```
@@ -225,7 +210,7 @@ public ResponseEntity<Void> löschen(@PathVariable UUID id) {
 | Kategorie | HTTP-Status | Beispiel |
 |-----------|------------|---------|
 | Syntaktisch ungültig | `400 Bad Request` | Bean Validation fehlgeschlagen |
-| Ressource nicht gefunden | `404 Not Found` | Unbekannte VorgangId |
+| Ressource nicht gefunden | `404 Not Found` | Unbekannte ProcessId |
 | Fachliche Regel verletzt | `422 Unprocessable Entity` | Max. Besichtigungen erreicht |
 | Interner Fehler | `500 Internal Server Error` | Unerwarteter Datenbankfehler |
 
@@ -237,11 +222,11 @@ Spring Boot 3 unterstützt RFC 9457 nativ mit der `ProblemDetail`-Klasse:
 
 ```json
 {
-  "type": "https://api.immo-crm.de/errors/vorgang-nicht-gefunden",
-  "title": "Vermittlungsvorgang nicht gefunden",
+  "type": "https://api.immo-crm.de/errors/process-not-found",
+  "title": "BrokerageProcess not found",
   "status": 404,
-  "detail": "Kein Vorgang mit ID 550e8400-e29b-41d4-a716-446655440000",
-  "instance": "/api/v1/vermittlung/besichtigungen"
+  "detail": "No process with ID 550e8400-e29b-41d4-a716-446655440000",
+  "instance": "/api/v1/brokerage/viewings"
 }
 ```
 
@@ -266,13 +251,13 @@ spring:
 @RestControllerAdvice
 public class DomainExceptionHandler {
 
-    @ExceptionHandler(VorgangNichtGefunden.class)
-    public ProblemDetail handleNotFound(VorgangNichtGefunden ex) {
+    @ExceptionHandler(ProcessNotFoundException.class)
+    public ProblemDetail handleNotFound(ProcessNotFoundException ex) {
         var problem = ProblemDetail.forStatusAndDetail(
             HttpStatus.NOT_FOUND, ex.getMessage());
-        problem.setTitle("Vermittlungsvorgang nicht gefunden");
+        problem.setTitle("BrokerageProcess not found");
         problem.setType(URI.create(
-            "https://api.immo-crm.de/errors/vorgang-nicht-gefunden"));
+            "https://api.immo-crm.de/errors/process-not-found"));
         return problem;
     }
 
@@ -280,7 +265,7 @@ public class DomainExceptionHandler {
     public ProblemDetail handleDomainViolation(DomainException ex) {
         var problem = ProblemDetail.forStatusAndDetail(
             HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
-        problem.setTitle("Fachliche Regel verletzt");
+        problem.setTitle("Domain rule violated");
         problem.setType(URI.create(
             "https://api.immo-crm.de/errors/domain-violation"));
         return problem;
@@ -293,30 +278,30 @@ public class DomainExceptionHandler {
 ## Integration Test mit @WebMvcTest
 
 ```java
-@WebMvcTest(BesichtigungController.class)
-class BesichtigungControllerTest {
+@WebMvcTest(ViewingController.class)
+class ViewingControllerTest {
 
     @Autowired private MockMvc mockMvc;
-    @MockitoBean private BesichtigungPlanen anlegenUseCase;
-    @MockitoBean private VorgangAbfragen abfragenUseCase;
+    @MockitoBean private ScheduleViewing createUseCase;
+    @MockitoBean private QueryProcess queryUseCase;
 
     @Test
-    void sollte_besichtigung_anlegen() throws Exception {
-        var expectedId = new BesichtigungId(UUID.randomUUID());
-        when(anlegenUseCase.planen(any())).thenReturn(expectedId);
+    void should_create_viewing() throws Exception {
+        var expectedId = new ViewingId(UUID.randomUUID());
+        when(createUseCase.schedule(any())).thenReturn(expectedId);
 
-        mockMvc.perform(post("/api/v1/vermittlung/besichtigungen")
+        mockMvc.perform(post("/api/v1/brokerage/viewings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
-                      "vorgangId": "550e8400-e29b-41d4-a716-446655440000",
-                      "interessentId": "660e8400-e29b-41d4-a716-446655440000",
-                      "termin": "2026-04-15T14:00:00"
+                      "processId": "550e8400-e29b-41d4-a716-446655440000",
+                      "prospectId": "660e8400-e29b-41d4-a716-446655440000",
+                      "appointmentDate": "2026-04-15T14:00:00"
                     }
                     """))
             .andExpect(status().isCreated())
             .andExpect(header().exists("Location"))
-            .andExpect(jsonPath("$.besichtigungId").value(
+            .andExpect(jsonPath("$.viewingId").value(
                 expectedId.value().toString()));
     }
 }
@@ -328,23 +313,23 @@ class BesichtigungControllerTest {
 
 ```java
 @Test
-void sollte_404_liefern_wenn_vorgang_nicht_existiert() throws Exception {
-    when(anlegenUseCase.planen(any()))
-        .thenThrow(new VorgangNichtGefunden(
-            new VorgangId(UUID.randomUUID())));
+void should_return_404_when_process_does_not_exist() throws Exception {
+    when(createUseCase.schedule(any()))
+        .thenThrow(new ProcessNotFoundException(
+            new ProcessId(UUID.randomUUID())));
 
-    mockMvc.perform(post("/api/v1/vermittlung/besichtigungen")
+    mockMvc.perform(post("/api/v1/brokerage/viewings")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
-                  "vorgangId": "550e8400-e29b-41d4-a716-446655440000",
-                  "interessentId": "660e8400-e29b-41d4-a716-446655440000",
-                  "termin": "2026-04-15T14:00:00"
+                  "processId": "550e8400-e29b-41d4-a716-446655440000",
+                  "prospectId": "660e8400-e29b-41d4-a716-446655440000",
+                  "appointmentDate": "2026-04-15T14:00:00"
                 }
                 """))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.title")
-            .value("Vermittlungsvorgang nicht gefunden"));
+            .value("BrokerageProcess not found"));
 }
 ```
 
@@ -357,19 +342,19 @@ void sollte_404_liefern_wenn_vorgang_nicht_existiert() throws Exception {
 ## Gesamtbild: Request → Response
 
 ```
-HTTP POST /api/v1/vermittlung/besichtigungen
+HTTP POST /api/v1/brokerage/viewings
   │
-  ├─ Spring: Jackson deserialisiert JSON → BesichtigungAnlegenRequest
+  ├─ Spring: Jackson deserializes JSON → CreateViewingRequest
   │
   ├─ @Valid → Bean Validation
-  │    └─ Fehler? → MethodArgumentNotValidException → 400 Bad Request
+  │    └─ Error? → MethodArgumentNotValidException → 400 Bad Request
   │
-  ├─ Controller.anlegen()
+  ├─ Controller.create()
   │    ├─ request.toCommand()           ← DTO → Command (Value Objects)
-  │    ├─ anlegenUseCase.planen(cmd)    ← Inbound-Port aufrufen
-  │    │    ├─ VorgangNichtGefunden?    → @RestControllerAdvice → 404
+  │    ├─ createUseCase.schedule(cmd)   ← call inbound port
+  │    │    ├─ ProcessNotFoundException?→ @RestControllerAdvice → 404
   │    │    └─ DomainException?         → @RestControllerAdvice → 422
-  │    └─ BesichtigungResponse.from()   ← Result → Response-DTO
+  │    └─ ViewingResponse.from()        ← Result → Response-DTO
   │
   └─ ResponseEntity.created(uri).body(response) → 201 Created
 ```
@@ -410,7 +395,7 @@ HTTP POST /api/v1/vermittlung/besichtigungen
 Implementiert den REST Adapter für das Immobilien-CRM:
 
 1. Request- und Response-DTOs als Java Records erstellen
-2. `BesichtigungController` mit POST und GET Endpunkt implementieren
+2. `ViewingController` mit POST und GET Endpunkt implementieren
 3. Manuelles Mapping: `toCommand()` und `from()` Methoden
 4. `@RestControllerAdvice` mit Problem Details (RFC 9457) einrichten
 5. Integration Test mit `@WebMvcTest` schreiben

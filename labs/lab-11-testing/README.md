@@ -1,110 +1,110 @@
-# Lab 11: Teststrategie - Tests auf allen Ebenen
+# Lab 11: Test Strategy - Tests at All Levels
 
-## Lernziel
+## Learning Objective
 
-Domain-, Repository-, Web- und Architektur-Tests schreiben.
+Write domain, repository, web, and architecture tests.
 
-## Dauer
+## Duration
 
-60 Minuten
+60 minutes
 
-## Voraussetzungen
+## Prerequisites
 
-- Lab 10 abgeschlossen
-- Slides Modul 14
+- Lab 10 completed
+- Slides Module 14
 
-## Aufgabe
+## Task
 
-Ergänze das Projekt um Tests auf verschiedenen Ebenen: Unit-Tests für die Domain-Logik, Integrationstests für das Repository, Web-Tests für den REST-Adapter und ArchUnit-Tests für die Architektur.
+Add tests at various levels to the project: unit tests for domain logic, integration tests for the repository, web tests for the REST adapter, and ArchUnit tests for architecture.
 
-### Teil 1: Domain Unit Test (kein Spring-Kontext!)
+### Part 1: Domain Unit Test (no Spring context!)
 
-Teste die Invariante des Aggregate Root `Vermittlungsvorgang` ohne Spring-Kontext - reine JUnit-5-Tests:
+Test the invariants of the Aggregate Root `BrokerageProcess` without a Spring context -- pure JUnit 5 tests:
 
-1. **Negativtest:** `statusAufNotarterminSetzen()` wirft eine `IllegalStateException`, wenn kein angenommenes Angebot vorliegt
-2. **Happy Path:** Angebot annehmen, dann Status auf NOTARTERMIN setzen - kein Fehler
-3. **Besichtigung hinzufügen:** `besichtigungHinzufügen()` erstellt eine Besichtigung und setzt den Status
-4. **Angebot annehmen:** `angebotAnnehmen()` setzt `angenommen` auf `true`
+1. **Negative test:** `setStatusToNotaryAppointment()` throws an `IllegalStateException` when no accepted offer exists
+2. **Happy path:** Accept an offer, then set status to NOTARTERMIN -- no error
+3. **Add viewing:** `addViewing()` creates a Viewing and updates the status
+4. **Accept offer:** `acceptOffer()` sets `accepted` to `true`
 
 ```java
-class VermittlungsvorgangTest {
+class BrokerageProcessTest {
 
     @Test
-    void test_statusAufNotartermin_ohneAngenommenesAngebot_wirftException() {
-        // Arrange: neuen Vermittlungsvorgang erstellen
-        // Act & Assert: statusAufNotarterminSetzen() -> IllegalStateException
+    void test_setStatusToNotaryAppointment_withoutAcceptedOffer_throwsException() {
+        // Arrange: create a new BrokerageProcess
+        // Act & Assert: setStatusToNotaryAppointment() -> IllegalStateException
     }
 
     @Test
-    void test_statusAufNotartermin_mitAngenommenemAngebot_erfolgreich() {
-        // Arrange: Angebot hinzufügen und annehmen
-        // Act: statusAufNotarterminSetzen()
-        // Assert: Status ist NOTARTERMIN
+    void test_setStatusToNotaryAppointment_withAcceptedOffer_succeeds() {
+        // Arrange: add and accept an offer
+        // Act: setStatusToNotaryAppointment()
+        // Assert: status is NOTARTERMIN
     }
 }
 ```
 
-**Wichtig:** Kein `@SpringBootTest`, kein `@ExtendWith(SpringExtension.class)` - reine Unit-Tests!
+**Important:** No `@SpringBootTest`, no `@ExtendWith(SpringExtension.class)` -- pure unit tests!
 
-### Teil 2: Repository Integration Test
+### Part 2: Repository Integration Test
 
-Erstelle einen `@DataJpaTest` für den `VermittlungsvorgangRepositoryAdapter`:
+Create a `@DataJpaTest` for the `BrokerageProcessRepositoryAdapter`:
 
 ```java
 @DataJpaTest
-@Import(VermittlungsvorgangRepositoryAdapter.class)
-class VermittlungsvorgangRepositoryAdapterTest {
+@Import(BrokerageProcessRepositoryAdapter.class)
+class BrokerageProcessRepositoryAdapterTest {
 
     @Autowired
-    private VermittlungsvorgangRepositoryAdapter repository;
+    private BrokerageProcessRepositoryAdapter repository;
 
     @Test
     void test_saveAndFindById() {
-        // Vermittlungsvorgang speichern und laden
+        // Save and load a BrokerageProcess
     }
 
     @Test
-    void test_besichtigungenWerdenPersistiert() {
-        // Vermittlungsvorgang mit Besichtigung speichern
-        // Laden und prüfen, dass Besichtigung vorhanden
+    void test_viewingsArePersisted() {
+        // Save a BrokerageProcess with a Viewing
+        // Load and verify the Viewing is present
     }
 }
 ```
 
-### Teil 3: Web/API Test
+### Part 3: Web/API Test
 
-Erstelle einen `@WebMvcTest` für den `BesichtigungController`:
+Create a `@WebMvcTest` for the `ViewingController`:
 
 ```java
-@WebMvcTest(BesichtigungController.class)
-class BesichtigungControllerTest {
+@WebMvcTest(ViewingController.class)
+class ViewingControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private BesichtigungAnlegenUseCase useCase;
+    private CreateViewingUseCase useCase;
 
     @Test
-    void test_besichtigungAnlegen_gueltigerRequest_201() {
-        // POST /api/vermittlungsvorgaenge/{id}/besichtigungen mit gueltigem Body -> 201
+    void test_createViewing_validRequest_201() {
+        // POST /api/brokerage-processes/{id}/viewings with valid body -> 201
     }
 
     @Test
-    void test_besichtigungAnlegen_ungueltigerRequest_422() {
-        // POST mit ungueltigem Body -> 422
+    void test_createViewing_invalidRequest_422() {
+        // POST with invalid body -> 422
     }
 
     @Test
-    void test_besichtigungAnlegen_vorgangNichtGefunden_404() {
-        // POST mit unbekanntem vorgangId -> 404
+    void test_createViewing_processNotFound_404() {
+        // POST with unknown processId -> 404
     }
 }
 ```
 
-### Teil 4: ArchUnit
+### Part 4: ArchUnit
 
-Erweitere die ArchUnit-Tests aus Lab-08 um eine neue Regel:
+Extend the ArchUnit tests from Lab 08 with a new rule:
 
 ```java
 @ArchTest
@@ -114,32 +114,32 @@ static final ArchRule domain_events_should_be_records =
         .should().beAssignableTo(Record.class);
 ```
 
-**Neue Regel:** "Domain events should be records" - alle Klassen im Package `..domain.event..` müssen Records sein.
+**New rule:** "Domain events should be records" -- all classes in the `..domain.event..` package must be records.
 
-### Bonus: Full-Integration-Test
+### Bonus: Full Integration Test
 
-Erstelle einen `@SpringBootTest` Full-Integration-Test, der den kompletten Flow testet:
+Create a `@SpringBootTest` full integration test that verifies the complete flow:
 
-1. Vermittlungsvorgang erstellen
-2. Besichtigung anlegen (über den Use Case)
-3. Prüfen, dass der Vorgang mit Besichtigung gespeichert wurde
+1. Create a BrokerageProcess
+2. Schedule a viewing (via the use case)
+3. Verify that the process with its viewing has been saved
 
-## Verifikation
+## Verification
 
-Führe alle Tests aus:
+Run all tests:
 
 ```bash
 cd solution
 mvn test
 ```
 
-Alle Tests müssen grün sein - mindestens 8 Tests.
+All tests must pass -- at least 8 tests.
 
-## Tipps
+## Tips
 
-- **Domain-Tests** brauchen keinen Spring-Kontext und sind daher sehr schnell.
-- **`@DataJpaTest`** startet nur den JPA-Layer mit einer eingebetteten H2-Datenbank.
-- **`@WebMvcTest`** startet nur den Web-Layer und mockt alle Abhängigkeiten.
-- **ArchUnit** analysiert den kompilierten Bytecode und braucht keinen laufenden Kontext.
-- Verwende `@MockBean` in `@WebMvcTest`, um die Abhängigkeiten des Controllers zu mocken.
-- In `@DataJpaTest` müssen Adapter-Klassen explizit mit `@Import` hinzugefügt werden.
+- **Domain tests** do not need a Spring context and are therefore very fast.
+- **`@DataJpaTest`** only starts the JPA layer with an embedded H2 database.
+- **`@WebMvcTest`** only starts the web layer and mocks all dependencies.
+- **ArchUnit** analyzes the compiled bytecode and does not need a running context.
+- Use `@MockBean` in `@WebMvcTest` to mock the controller's dependencies.
+- In `@DataJpaTest`, adapter classes must be explicitly added via `@Import`.

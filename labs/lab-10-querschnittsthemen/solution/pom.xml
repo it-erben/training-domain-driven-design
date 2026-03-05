@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.immobiliencrm</groupId>
+    <groupId>de.realestate</groupId>
     <artifactId>immobilien-crm-lab10</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Immobilien CRM - Lab 10 Querschnittsthemen</name>

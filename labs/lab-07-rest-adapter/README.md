@@ -1,168 +1,168 @@
-# Lab 07: REST-Adapter - API für Besichtigungen
+# Lab 07: REST Adapter - Viewings API
 
-## Lernziel
+## Learning Objective
 
-`@RestController` als Inbound-Adapter implementieren, DTOs für die API-Grenze definieren und Fehlerbehandlung mit `ProblemDetail` (RFC 9457) umsetzen.
+Implement a `@RestController` as an inbound adapter, define DTOs for the API boundary, and implement error handling with `ProblemDetail` (RFC 9457).
 
-## Dauer
+## Duration
 
-45 Minuten
+45 minutes
 
-## Voraussetzungen
+## Prerequisites
 
-- Lab 06 abgeschlossen
-- Slides Modul 09
+- Lab 06 completed
+- Slides Module 09
 
-## Aufgabe
+## Task
 
-Implementiere einen REST-Adapter, der die HTTP-Requests entgegennimmt, in Commands übersetzt und an den Use Case delegiert.
+Implement a REST adapter that receives HTTP requests, translates them into commands, and delegates to the use case.
 
-### Schritt 1: Request-DTO erstellen
+### Step 1: Create the Request DTO
 
-Erstelle das Request-DTO `BesichtigungAnlegenRequest` als Java Record im Package `de.immobiliencrm.vermittlung.adapter.web`:
+Create the request DTO `CreateViewingRequest` as a Java Record in the package `de.realestate.brokerage.adapter.web`:
 
 ```java
-public record BesichtigungAnlegenRequest(
-    @NotBlank String interessentName,
-    @NotNull LocalDateTime zeitpunkt
+public record CreateViewingRequest(
+    @NotBlank String prospectName,
+    @NotNull LocalDateTime appointmentDate
 ) {}
 ```
 
-**Hinweis:** Die Validierungs-Annotationen (`@NotBlank`, `@NotNull`) gehören zur Adapter-Schicht - das Domain-Modell validiert sich selbst.
+**Note:** The validation annotations (`@NotBlank`, `@NotNull`) belong to the adapter layer - the domain model validates itself.
 
-### Schritt 2: Response-DTO erstellen
+### Step 2: Create the Response DTO
 
-Erstelle das Response-DTO `BesichtigungAnlegenResponse` als Java Record im selben Package:
+Create the response DTO `CreateViewingResponse` as a Java Record in the same package:
 
 ```java
-public record BesichtigungAnlegenResponse(
-    UUID besichtigungId,
-    UUID vermittlungsvorgangId
+public record CreateViewingResponse(
+    UUID viewingId,
+    UUID processId
 ) {}
 ```
 
-### Schritt 3: Controller implementieren
+### Step 3: Implement the Controller
 
-Erstelle den `BesichtigungController` im Package `de.immobiliencrm.vermittlung.adapter.web`:
+Create the `ViewingController` in the package `de.realestate.brokerage.adapter.web`:
 
 ```java
 @RestController
-@RequestMapping("/api/vermittlungsvorgaenge/{vorgangId}/besichtigungen")
-public class BesichtigungController {
+@RequestMapping("/api/brokerage/processes/{processId}/viewings")
+public class ViewingController {
 
-    private final BesichtigungAnlegenUseCase besichtigungAnlegenUseCase;
+    private final CreateViewingUseCase createViewingUseCase;
 
     // Constructor Injection
 
     @PostMapping
-    public ResponseEntity<BesichtigungAnlegenResponse> anlegen(
-            @PathVariable UUID vorgangId,
-            @Valid @RequestBody BesichtigungAnlegenRequest request) {
-        // 1. Request-DTO in Command umwandeln
-        // 2. Use Case aufrufen
-        // 3. Result in Response-DTO umwandeln
-        // 4. 201 Created mit Location-Header zurückgeben
+    public ResponseEntity<CreateViewingResponse> create(
+            @PathVariable UUID processId,
+            @Valid @RequestBody CreateViewingRequest request) {
+        // 1. Map request DTO to command
+        // 2. Call use case
+        // 3. Map result to response DTO
+        // 4. Return 201 Created with Location header
     }
 }
 ```
 
-**Wichtig:** Der Controller enthält keine Geschäftslogik. Er ist ein reiner Adapter, der zwischen HTTP und Application-Schicht übersetzt.
+**Important:** The controller contains no business logic. It is a pure adapter that translates between HTTP and the application layer.
 
-### Schritt 4: Exception Handler implementieren
+### Step 4: Implement the Exception Handler
 
-Erstelle den `GlobalExceptionHandler` im Package `de.immobiliencrm.vermittlung.adapter.web`:
+Create the `GlobalExceptionHandler` in the package `de.realestate.brokerage.adapter.web`:
 
 ```java
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(VermittlungsvorgangNichtGefundenException.class)
-    public ProblemDetail handleNotFound(VermittlungsvorgangNichtGefundenException ex) {
-        // ProblemDetail mit Status 404 und Fehlermeldung zurückgeben
+    @ExceptionHandler(ProcessNotFoundException.class)
+    public ProblemDetail handleNotFound(ProcessNotFoundException ex) {
+        // Return ProblemDetail with status 404 and error message
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
-        // ProblemDetail mit Status 422 und Validierungsfehlern zurückgeben
+        // Return ProblemDetail with status 422 and validation errors
     }
 }
 ```
 
-**Hinweis:** `ProblemDetail` ist ab Spring Boot 3 nativ unterstützt und implementiert RFC 9457 (ehemals RFC 7807).
+**Note:** `ProblemDetail` is natively supported since Spring Boot 3 and implements RFC 9457 (formerly RFC 7807).
 
-### Schritt 5: Testen mit curl
+### Step 5: Test with curl
 
-Starte die Anwendung und teste die Endpunkte (siehe Verifikation).
+Start the application and test the endpoints (see Verification).
 
-### Bonus: GET-Endpunkt
+### Bonus: GET Endpoint
 
-Implementiere einen GET-Endpunkt, der alle Besichtigungen eines Vermittlungsvorgangs auflistet:
+Implement a GET endpoint that lists all viewings of a brokerage process:
 
 ```java
 @GetMapping
-public List<BesichtigungAnlegenResponse> auflisten(@PathVariable UUID vorgangId) {
-    // Vermittlungsvorgang laden und Besichtigungen als Response-DTOs zurückgeben
+public List<CreateViewingResponse> list(@PathVariable UUID processId) {
+    // Load BrokerageProcess and return viewings as response DTOs
 }
 ```
 
-## Verifikation
+## Verification
 
-Starte die Anwendung und führe folgende curl-Befehle aus:
+Start the application and run the following curl commands:
 
-### Besichtigung anlegen (erwartet: 201 Created)
+### Create viewing (expected: 201 Created)
 
 ```bash
-curl -X POST http://localhost:8080/api/vermittlungsvorgaenge/{vorgangId}/besichtigungen \
+curl -X POST http://localhost:8080/api/brokerage/processes/{processId}/viewings \
   -H "Content-Type: application/json" \
   -d '{
-    "interessentName": "Max Mustermann",
-    "zeitpunkt": "2025-04-01T14:00:00"
+    "prospectName": "Max Mustermann",
+    "appointmentDate": "2025-04-01T14:00:00"
   }' \
   -w "\n%{http_code}\n"
 ```
 
-Erwartete Antwort: HTTP 201, JSON mit `besichtigungId` und `vermittlungsvorgangId`.
+Expected response: HTTP 201, JSON with `viewingId` and `processId`.
 
-### Nicht-existierenden Vermittlungsvorgang verwenden (erwartet: 404 ProblemDetail)
+### Use a non-existing process (expected: 404 ProblemDetail)
 
 ```bash
-curl -X POST http://localhost:8080/api/vermittlungsvorgaenge/00000000-0000-0000-0000-000000000000/besichtigungen \
+curl -X POST http://localhost:8080/api/brokerage/processes/00000000-0000-0000-0000-000000000000/viewings \
   -H "Content-Type: application/json" \
   -d '{
-    "interessentName": "Max Mustermann",
-    "zeitpunkt": "2025-04-01T14:00:00"
+    "prospectName": "Max Mustermann",
+    "appointmentDate": "2025-04-01T14:00:00"
   }' \
   -w "\n%{http_code}\n"
 ```
 
-Erwartete Antwort: HTTP 404, ProblemDetail-JSON:
+Expected response: HTTP 404, ProblemDetail JSON:
 
 ```json
 {
   "type": "about:blank",
   "title": "Not Found",
   "status": 404,
-  "detail": "Vermittlungsvorgang mit ID 00000000-0000-0000-0000-000000000000 nicht gefunden"
+  "detail": "BrokerageProcess with ID 00000000-0000-0000-0000-000000000000 not found"
 }
 ```
 
-### Validierungsfehler (erwartet: 422 ProblemDetail)
+### Validation error (expected: 422 ProblemDetail)
 
 ```bash
-curl -X POST http://localhost:8080/api/vermittlungsvorgaenge/{vorgangId}/besichtigungen \
+curl -X POST http://localhost:8080/api/brokerage/processes/{processId}/viewings \
   -H "Content-Type: application/json" \
   -d '{
-    "interessentName": "",
-    "zeitpunkt": null
+    "prospectName": "",
+    "appointmentDate": null
   }' \
   -w "\n%{http_code}\n"
 ```
 
-Erwartete Antwort: HTTP 422, ProblemDetail-JSON mit Validierungsfehlern.
+Expected response: HTTP 422, ProblemDetail JSON with validation errors.
 
-## Tipps
+## Tips
 
-- Der Controller ist ein Inbound-Adapter in der Clean-Architecture-Terminologie. Er hängt von der Application-Schicht ab, nicht umgekehrt.
-- DTOs (Request/Response) gehören zur Adapter-Schicht und werden **nicht** in der Domain oder Application-Schicht verwendet.
-- `ProblemDetail` ist der Standard für Fehlerantworten in REST-APIs und wird von Spring Boot 3 nativ unterstützt.
-- Der `Location`-Header im 201-Response zeigt dem Client, wo die neu erstellte Ressource zu finden ist.
+- The controller is an inbound adapter in Clean Architecture terminology. It depends on the application layer, not the other way around.
+- DTOs (Request/Response) belong to the adapter layer and are **not** used in the domain or application layer.
+- `ProblemDetail` is the standard for error responses in REST APIs and is natively supported by Spring Boot 3.
+- The `Location` header in the 201 response tells the client where the newly created resource can be found.
