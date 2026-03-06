@@ -342,7 +342,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ![Pivot Events und BC-Grenzen](images/pivot-events-bc-grenzen.drawio.png)
 
 > Die **Pivot Events** werden später zu **Integration Events**
-> zwischen den Bounded Contexts (→ Modul 13, Lab 10).
+> zwischen den Bounded Contexts (→ Modul 13, Lab 09).
 
 ---
 
@@ -378,7 +378,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ---
 
-## 🎯 Hands-on: Lab 03
+## 🎯 Hands-on: Lab 02
 
 ### Event Storming für das Immobilien-CRM
 

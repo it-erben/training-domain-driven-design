@@ -34,7 +34,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 | 🟪 Policy (lila) | → | Event Handler / Domain Service |
 | Akteur | → | Auslöser eines Use Case |
 
-> Die Ergebnisse aus Lab 03 (Event Storming) werden jetzt
+> Die Ergebnisse aus Lab 02 (Event Storming) werden jetzt
 > zu lauffähigem Java-Code.
 
 ---
@@ -567,7 +567,7 @@ UUID id = UUID.randomUUID(); // Simple, independent, good enough
 
 ---
 
-## 🎯 Hands-on: Lab 05
+## 🎯 Hands-on: Lab 04
 
 ### Building Blocks im Immobilien-CRM implementieren
 
@@ -578,7 +578,7 @@ UUID id = UUID.randomUUID(); // Simple, independent, good enough
 - **Repository Interface**: `BrokerageProcessRepository` (reines Java)
 
 > **Dauer:** ca. 90 Minuten
-> Details und Aufgabenstellung im **Lab 05**
+> Details und Aufgabenstellung im **Lab 04**
 
 ---
 
