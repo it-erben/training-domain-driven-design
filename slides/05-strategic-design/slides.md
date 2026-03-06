@@ -39,13 +39,13 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Bounded Context vs. Subdomain
 
-| | Subdomain | Bounded Context |
-|---|-----------|-----------------|
-| **Raum** | Problemraum | Lösungsraum |
-| **Was?** | Fachlicher Bereich | Softwaregrenze |
-| **Entdeckung** | Wird entdeckt / analysiert | Wird bewusst geschnitten |
-| **Existenz** | Existiert unabhängig von Software | Ist ein Architektur-Artefakt |
-| **Mapping** | 1 Subdomain → 1 oder N BCs | 1 BC ← 1 Subdomain (ideal) |
+|                | Subdomain                         | Bounded Context              |
+|----------------|-----------------------------------|------------------------------|
+| **Raum**       | Problemraum                       | Lösungsraum                  |
+| **Was?**       | Fachlicher Bereich                | Softwaregrenze               |
+| **Entdeckung** | Wird entdeckt / analysiert        | Wird bewusst geschnitten     |
+| **Existenz**   | Existiert unabhängig von Software | Ist ein Architektur-Artefakt |
+| **Mapping**    | 1 Subdomain → 1 oder N BCs        | 1 BC ← 1 Subdomain (ideal)   |
 
 - Idealerweise: **1 Subdomain = 1 Bounded Context**
 - In der Praxis: Legacy-Systeme erzwingen manchmal Abweichungen
@@ -61,14 +61,14 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Unsere sechs Bounded Contexts
 
-| Bounded Context | Kernverantwortung | Aggregate(s) |
-|-----------------|-------------------|--------------|
-| **Objektverwaltung** | Immobilien-Stammdaten, Merkmale, Fotos | Immobilie, Bewertung |
-| **Kontaktmanagement** | Eigentümer, Interessenten, Kontaktdaten | Kontakt |
-| **Akquise / Auftrag** | Maklerverträge, Auftragserteilung | Maklerauftrag |
-| **Vermarktung** | Exposés, Portale, Inserate | Exposé, Inserat |
-| **Vermittlungsprozess** | Besichtigungen, Angebote, Abschluss | Vermittlungsvorgang |
-| **Aktivitäten** | Termine, Telefonate, E-Mails, Aufgaben | Aktivität, Termin |
+| Bounded Context         | Kernverantwortung                       | Aggregate(s)         |
+|-------------------------|-----------------------------------------|----------------------|
+| **Objektverwaltung**    | Immobilien-Stammdaten, Merkmale, Fotos  | Immobilie, Bewertung |
+| **Kontaktmanagement**   | Eigentümer, Interessenten, Kontaktdaten | Kontakt              |
+| **Akquise / Auftrag**   | Maklerverträge, Auftragserteilung       | Maklerauftrag        |
+| **Vermarktung**         | Exposés, Portale, Inserate              | Exposé, Inserat      |
+| **Vermittlungsprozess** | Besichtigungen, Angebote, Abschluss     | Vermittlungsvorgang  |
+| **Aktivitäten**         | Termine, Telefonate, E-Mails, Aufgaben  | Aktivität, Termin    |
 
 ---
 
@@ -321,17 +321,17 @@ de.realestate/
 
 ---
 
-## 🎯 Hands-on: Lab 04
+## 🎯 Hands-on: Lab 03
 
 ### Context Map für das Immobilien-CRM erstellen
 
-- Bounded Contexts aus dem Event Storming (Lab 03) ableiten
+- Bounded Contexts aus dem Event Storming (Lab 02) ableiten
 - Beziehungen zwischen BCs bestimmen
 - Passende Integration Patterns zuordnen
 - Context Map visualisieren (Miro, draw.io oder Whiteboard)
 
 > **Dauer:** ca. 60 Minuten
-> Details und Aufgabenstellung im **Lab 04**
+> Details und Aufgabenstellung im **Lab 03**
 
 ---
 

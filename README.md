@@ -11,13 +11,13 @@ Clean Architecture Schritt für Schritt mit Spring Boot 4 umgesetzt.
 
 ## Tagesübersicht
 
-| Tag | Thema | Slides | Labs | Zeitplan |
-|-----|-------|--------|------|----------|
-| **1** | Grundlagen & Domänenverständnis | 01-intro, 02-spring-boot-basics, 03-ddd-einfuehrung, 04-event-storming | Lab 01 (Setup), Lab 02 (Spring Boot CRUD), Lab 03 (Event Storming) | Intro 45 Min → Spring Basics 90 Min → DDD Einführung 90 Min → Event Storming 120 Min |
-| **2** | Strategisches & Taktisches Design | 05-strategic-design, 06-building-blocks, 07-clean-architecture | Lab 04 (Strategic Design), Lab 05 (Building Blocks), Lab 06 (Clean Architecture Refactoring) | Strategic Design 90 Min → Building Blocks 120 Min → Clean Architecture 90 Min |
-| **3** | Implementierung & Adapter | 08-paketstruktur, 09-use-cases-application-services, 10-rest-adapter | Lab 06 (Fortsetzung), Lab 07 (Use Case), Lab 08 (REST Adapter) | Paketstruktur 60 Min → Use Cases 60 Min → REST Adapter 90 Min |
-| **4** | Architektur-Governance & Integration | 11-archunit, 12-business-components-modulith, 13-context-integration, 14-querschnittsthemen | Lab 09 (ArchUnit), Lab 10 (Context Integration), Lab 11 (Querschnittsthemen) | ArchUnit 60 Min → Modulith 90 Min → Integration 60 Min → Querschnitt 60 Min |
-| **5** | Testing, Vertiefung & Reflexion | 15-teststrategie, 16-reflexion-ausblick | Lab 12 (Testing), Lab 13 (Freie Implementierung) | Teststrategie 90 Min → Freie Implementierung 120 Min → Reflexion 60 Min |
+| Tag | Thema | Slides | Labs                                                                                         | Zeitplan |
+|-----|-------|--------|----------------------------------------------------------------------------------------------|----------|
+| **1** | Grundlagen & Domänenverständnis | 01-intro, 02-spring-boot-basics, 03-ddd-einfuehrung, 04-event-storming | Lab 01 (Setup und Warmup), Lab 02 & Lab 02b (Event Storming)                                 | Intro 45 Min → Spring Boot Recap 45 Min → DDD Einführung 90 Min → Event Storming 120 Min |
+| **2** | Strategisches & Taktisches Design | 05-strategic-design, 06-building-blocks, 07-clean-architecture | Lab 03 (Strategic Design), Lab 04 (Building Blocks), Lab 05 (Clean Architecture Refactoring) | Strategic Design 90 Min → Building Blocks 120 Min → Clean Architecture 90 Min |
+| **3** | Implementierung & Adapter | 08-paketstruktur, 09-use-cases-application-services, 10-rest-adapter | Lab 05 (Fortsetzung), Lab 06 (Use Case), Lab 07 (REST Adapter)                               | Paketstruktur 60 Min → Use Cases 60 Min → REST Adapter 90 Min |
+| **4** | Architektur-Governance & Integration | 11-archunit, 12-business-components-modulith, 13-context-integration, 14-querschnittsthemen | Lab 08 (ArchUnit), Lab 09 (Context Integration), Lab 10 (Querschnittsthemen)                 | ArchUnit 60 Min → Modulith 90 Min → Integration 60 Min → Querschnitt 60 Min |
+| **5** | Testing, Vertiefung & Reflexion | 15-teststrategie, 16-reflexion-ausblick | Lab 11 (Testing), Lab 12 (Freie Implementierung)                                             | Teststrategie 90 Min → Freie Implementierung 120 Min → Reflexion 60 Min |
 
 ---
 
@@ -29,7 +29,7 @@ Clean Architecture Schritt für Schritt mit Spring Boot 4 umgesetzt.
 | Maven | 3.9+ | `mvn -version` zur Prüfung |
 | IDE | – | IntelliJ IDEA empfohlen (Community oder Ultimate) |
 | Git | 2.x | Zum Klonen des Repositories |
-| Docker | optional | Für optionale Kafka-Übung in Lab 13 |
+| Docker | optional | Für optionale Kafka-Übung in Lab 12 |
 | Browser | – | Für H2-Console und draw.io |
 
 ---
@@ -42,7 +42,7 @@ git clone <repository-url>
 cd workshop-ddd-clean-architecture
 
 # Starter-Projekt bauen und starten
-cd labs/lab-01-setup/initial-project
+cd labs/lab-01-setup-und-warmup/initial-project
 mvn clean verify
 mvn spring-boot:run
 
@@ -63,11 +63,11 @@ workshop-ddd-clean-architecture/
 │   ├── ...
 │   ├── 16-reflexion-ausblick/
 │   └── template.html        # Marp HTML-Template
-├── labs/                    # Hands-on Labs (01–13)
-│   ├── lab-01-setup/        # Starter-Projekt + Setup-Anleitung
-│   ├── lab-02-spring-boot-basics/
+├── labs/                    # Hands-on Labs (01–12)
+│   ├── lab-01-setup-und-warmup/  # Starter-Projekt + CRUD-Warmup
+│   ├── lab-02-event-storming/
 │   ├── ...
-│   └── lab-13-freie-implementierung/
+│   └── lab-12-freie-implementierung/
 └── README.md                # Diese Datei
 ```
 

@@ -111,13 +111,13 @@ public class Property {
     private PurchasePrice purchasePrice;
     private PropertyStatus status;
 
-    public void publish() {
+    public void publish(EventHandlers eventHandler) {
         if (this.status != PropertyStatus.APPRAISED) {
             throw new PropertyNotReadyException(this.id);
         }
         Objects.requireNonNull(this.purchasePrice, "Purchase price missing");
         this.status = PropertyStatus.PUBLISHED;
-        registerEvent(new PropertyPublished(this.id));
+        eventHandler.registerEvent(new PropertyPublished(this.id));
     }
 }
 ```
@@ -133,31 +133,28 @@ public class Property {
 
 ![Anemic vs. Rich Domain Model](images/anemic-vs-rich-domain-model.drawio.png)
 
-| Aspekt | Anemic Model | Rich Domain Model |
-|--------|-------------|-------------------|
-| Entity enthält | Nur Getter/Setter | Geschäftsmethoden + Invarianten |
-| Geschäftslogik | Im @Service | Im Domain-Objekt |
-| Service-Rolle | Enthält alles | Orchestriert nur (Load → Delegate → Save) |
-| Testbarkeit | Spring-Kontext nötig | Plain JUnit, kein Framework |
+| Aspekt         | Anemic Model         | Rich Domain Model                         |
+|----------------|----------------------|-------------------------------------------|
+| Entity enthält | Nur Getter/Setter    | Geschäftsmethoden + Invarianten           |
+| Geschäftslogik | Im @Service          | Im Domain-Objekt                          |
+| Service-Rolle  | Enthält alles        | Orchestriert nur (Load → Delegate → Save) |
+| Testbarkeit    | Spring-Kontext nötig | Plain JUnit, kein Framework               |
 
 ---
 
-## 💬 Diskussion: Eure Code-Basis
+## Diskussion: Eure Code-Basis
 
 > Wo lebt die Geschäftslogik in euren aktuellen Projekten?
 
 - In den **Entities**? In den **Services**? In den **Controllern**?
-- Habt ihr schon mal ein Anemic Domain Model erlebt?
 - Wie viele Zeilen hat euer größter Service?
 - Was passiert, wenn eine Geschäftsregel an **mehreren Stellen** gilt?
-
-**Nehmt euch 3 Minuten und notiert eure Beobachtungen.**
 
 ---
 
 ## Eric Evans – Domain-Driven Design (2003)
 
-### Das „blaue Buch"
+### Das "blaue Buch"
 
 **"Domain-Driven Design: Tackling Complexity in the Heart of Software"**
 
@@ -184,14 +181,14 @@ Erschienen 2003, bis heute das Standardwerk.
 
 ### Unser Beispiel: Immobilien-CRM für Makler
 
-| Subdomäne | Typ | Beschreibung |
-|-----------|-----|-------------|
-| Vermittlungsprozess | **Core** | Differenzierungsmerkmal, höchster Geschäftswert |
-| Akquise / Auftrag | **Core** | Direkte Umsatzrelevanz |
-| Vermarktung | **Supporting** | Unterstützt den Kern, aber kein Alleinstellungsmerkmal |
-| Objektverwaltung | **Supporting** | Stammdaten, wichtig aber nicht differenzierend |
-| Kontaktmanagement | **Generic** | Standardfunktionalität, könnte zugekauft werden |
-| Aktivitäten | **Generic** | Kalender/Aufgaben – generisches Problem |
+| Subdomäne           | Typ            | Beschreibung                                           |
+|---------------------|----------------|--------------------------------------------------------|
+| Vermittlungsprozess | **Core**       | Differenzierungsmerkmal, höchster Geschäftswert        |
+| Akquise / Auftrag   | **Core**       | Direkte Umsatzrelevanz                                 |
+| Vermarktung         | **Supporting** | Unterstützt den Kern, aber kein Alleinstellungsmerkmal |
+| Objektverwaltung    | **Supporting** | Stammdaten, wichtig aber nicht differenzierend         |
+| Kontaktmanagement   | **Generic**    | Standardfunktionalität, könnte zugekauft werden        |
+| Aktivitäten         | **Generic**    | Kalender/Aufgaben – generisches Problem                |
 
 ---
 
@@ -216,14 +213,14 @@ Erschienen 2003, bis heute das Standardwerk.
 
 ### Glossar für das Immobilien-CRM
 
-| Fachbegriff | Bedeutung im Kontext |
-|------------|---------------------|
-| **Maklervertrag** | Exklusive Vereinbarung zwischen Eigentümer und Makler |
-| **Exposé** | Strukturierte Verkaufsunterlage für eine Immobilie |
-| **Besichtigung** | Terminierter Vor-Ort-Termin mit einem Interessenten |
-| **Provision** | Prozentuale Vergütung bei erfolgreichem Verkaufsabschluss |
-| **Vermittlungsvorgang** | Der gesamte Prozess von Akquise bis Notartermin |
-| **Preisvorstellung** | Gewünschter Verkaufspreis des Eigentümers |
+| Fachbegriff             | Bedeutung im Kontext                                      |
+|-------------------------|-----------------------------------------------------------|
+| **Maklervertrag**       | Exklusive Vereinbarung zwischen Eigentümer und Makler     |
+| **Exposé**              | Strukturierte Verkaufsunterlage für eine Immobilie        |
+| **Besichtigung**        | Terminierter Vor-Ort-Termin mit einem Interessenten       |
+| **Provision**           | Prozentuale Vergütung bei erfolgreichem Verkaufsabschluss |
+| **Vermittlungsvorgang** | Der gesamte Prozess von Akquise bis Notartermin           |
+| **Preisvorstellung**    | Gewünschter Verkaufspreis des Eigentümers                 |
 
 ---
 
@@ -267,7 +264,6 @@ public void acceptOffer(OfferId id) { ... }
 |-----------|---------|
 | **Technische Begriffe** im Domain-Code | `DataProcessor`, `EntityManager`, `Helper` |
 | **Abkürzungen** statt Fachbegriffe | `prop`, `bp`, `val` statt `Property`, `BrokerageProcess`, `Valuation` |
-| **Englisch/Deutsch-Mix** ohne System | `createViewing()` statt `scheduleViewing()` |
 | **Gleicher Begriff, verschiedene Bedeutung** | „Objekt" meint in der Akquise etwas anderes als in der Vermarktung |
 | **Unterschiedliche Begriffe, gleiche Sache** | „Kunde", „Interessent", „Kontakt" für dieselbe Person |
 
@@ -330,14 +326,14 @@ Gutes Domänenmodell  +  Gute Architektur  =  Wartbare Software
 
 ### Die Mikro-Ebene (Building Blocks)
 
-| Building Block | Beschreibung | Java-Umsetzung |
-|---------------|-------------|-----------------|
-| **Entity** | Objekt mit Identität und Lebenszyklus | Klasse mit ID-Feld |
-| **Value Object** | Unveränderlich, durch Werte definiert | Java `record` |
-| **Aggregate** | Konsistenzgrenze mit einer Root-Entity | Klasse mit Invarianten |
-| **Repository** | Abstraktion für Aggregate-Persistenz | Java Interface (Port) |
-| **Domain Event** | Etwas fachlich Relevantes ist passiert | Java `record` |
-| **Domain Service** | Logik, die keiner Entity gehört | Klasse ohne State |
+| Building Block     | Beschreibung                           | Java-Umsetzung         |
+|--------------------|----------------------------------------|------------------------|
+| **Entity**         | Objekt mit Identität und Lebenszyklus  | Klasse mit ID-Feld     |
+| **Value Object**   | Unveränderlich, durch Werte definiert  | Java `record`          |
+| **Aggregate**      | Konsistenzgrenze mit einer Root-Entity | Klasse mit Invarianten |
+| **Repository**     | Abstraktion für Aggregate-Persistenz   | Java Interface (Port)  |
+| **Domain Event**   | Etwas fachlich Relevantes ist passiert | Java `record`          |
+| **Domain Service** | Logik, die keiner Entity gehört        | Klasse ohne State      |
 
 > Wird in **Modul 06** ausführlich behandelt mit Code-Beispielen.
 

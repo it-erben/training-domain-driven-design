@@ -205,14 +205,14 @@ with separate JPA entities and mappers.
 
 | Tag | Module | Labs |
 |-----|--------|------|
-| **Tag 1** | 01–04: Intro, Spring Boot, DDD-Einführung, Event Storming | Lab 01–03 |
-| **Tag 2** | 05–07: Strategic Design, Building Blocks, Clean Architecture | Lab 04–05 |
-| **Tag 3** | 08–10: Paketstruktur, Use Cases, REST Adapter | Lab 06–08 |
-| **Tag 4** | 11–13: ArchUnit, Spring Modulith, Context Integration | Lab 09–11 |
-| **Tag 5** | 14–16: Querschnittsthemen, Teststrategie, Reflexion | Lab 12–13 |
+| **Tag 1** | 01–04: Intro, Spring Boot, DDD-Einführung, Event Storming | Lab 01–02 |
+| **Tag 2** | 05–07: Strategic Design, Building Blocks, Clean Architecture | Lab 03–05 |
+| **Tag 3** | 08–10: Paketstruktur, Use Cases, REST Adapter | Lab 05–07 |
+| **Tag 4** | 11–13: ArchUnit, Spring Modulith, Context Integration | Lab 08–10 |
+| **Tag 5** | 14–16: Querschnittsthemen, Teststrategie, Reflexion | Lab 11–12 |
 
 - **16 Module** mit Slides und Diagrammen
-- **13 Labs** mit Lösungen im Immobilien-CRM
+- **12 Labs** mit Lösungen im Immobilien-CRM
 - Vom Event Storming bis zur getesteten Clean Architecture
 
 ---

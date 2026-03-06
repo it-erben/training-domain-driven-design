@@ -102,11 +102,11 @@ bis zum Notartermin.
 
 | Tag | Schwerpunkt | Slides | Labs |
 |-----|------------|--------|------|
-| **1** | Fundament legen | 01 Intro · 02 Spring Boot · 03 DDD · 04 Event Storming | Lab 01–03 |
-| **2** | Architektur gestalten | 05 Strategic Design · 06 Building Blocks · 07 Clean Architecture | Lab 04–06 |
-| **3** | Implementierung starten | 08 Paketstruktur · 09 Use Cases · 10 REST Adapter | Lab 06–08 |
-| **4** | Qualität sichern | 11 ArchUnit · 12 Modulith · 13 Context Integration · 14 Querschnitt | Lab 09–11 |
-| **5** | Vertiefen & Reflektieren | 15 Teststrategie · 16 Reflexion & Ausblick | Lab 12–13 |
+| **1** | Fundament legen | 01 Intro · 02 Spring Boot · 03 DDD · 04 Event Storming | Lab 01–02 |
+| **2** | Architektur gestalten | 05 Strategic Design · 06 Building Blocks · 07 Clean Architecture | Lab 03–05 |
+| **3** | Implementierung starten | 08 Paketstruktur · 09 Use Cases · 10 REST Adapter | Lab 05–07 |
+| **4** | Qualität sichern | 11 ArchUnit · 12 Modulith · 13 Context Integration · 14 Querschnitt | Lab 08–10 |
+| **5** | Vertiefen & Reflektieren | 15 Teststrategie · 16 Reflexion & Ausblick | Lab 11–12 |
 
 ---
 
@@ -116,15 +116,14 @@ bis zum Notartermin.
 
 ### Vormittag
 
-- **Spring Boot 4 Basics** – Jakarta EE 11, Constructor Injection, Spring Data JPA, Bean Validation
-- **Lab 01** – Entwicklungsumgebung einrichten (30 Min)
-- **Lab 02** – Immobilien-CRUD mit Spring Boot (45 Min)
+- **Spring Boot 4 Recap** – Was ist neu in SB4? Jakarta EE 11, Spring Framework 7
+- **Lab 01** – Setup und Warmup: Projekt starten und CRUD-API bauen (45 Min)
 
 ### Nachmittag
 
 - **DDD Einführung** – Warum DDD? Anemic Domain Model, Ubiquitous Language
 - **Event Storming** – Domäne gemeinsam erkunden
-- **Lab 03** – Event Storming für das Immobilien-CRM (90 Min)
+- **Lab 02** – Event Storming für das Immobilien-CRM (90 Min)
 
 ### 🎯 Tagesziel: Gemeinsames Domänenverständnis und technische Basis
 
@@ -137,14 +136,14 @@ bis zum Notartermin.
 ### Vormittag
 
 - **Strategic Design** – Bounded Contexts definieren, Context Map zeichnen
-- **Lab 04** – Bounded Contexts und Context Map erarbeiten (60 Min)
+- **Lab 03** – Bounded Contexts und Context Map erarbeiten (60 Min)
 
 ### Nachmittag
 
 - **Building Blocks** – Entity, Value Object, Aggregate, Domain Event
 - **Clean Architecture** – Dependency Rule, Ports & Adapters
-- **Lab 05** – Building Blocks implementieren (90 Min)
-- **Lab 06** – Clean Architecture Refactoring (Start, 60 Min)
+- **Lab 04** – Building Blocks implementieren (90 Min)
+- **Lab 05** – Clean Architecture Refactoring (Start, 60 Min)
 
 ### 🎯 Tagesziel: Architekturentscheidungen getroffen, erster Domain-Code steht
 
@@ -157,14 +156,14 @@ bis zum Notartermin.
 ### Vormittag
 
 - **Paketstruktur** – Package by Feature, hexagonale Ordnung in Spring Boot
-- **Lab 06** – Clean Architecture Refactoring (Fortsetzung)
+- **Lab 05** – Clean Architecture Refactoring (Fortsetzung)
 - **Use Cases** – Application Services als Orchestratoren
 
 ### Nachmittag
 
 - **REST Adapter** – Controller, DTOs, Mapping, ProblemDetail (RFC 9457)
-- **Lab 07** – Use Case implementieren (45 Min)
-- **Lab 08** – REST-Adapter bauen (45 Min)
+- **Lab 06** – Use Case implementieren (45 Min)
+- **Lab 07** – REST-Adapter bauen (45 Min)
 
 ### 🎯 Tagesziel: Vollständiger Vertical Slice vom REST-Endpoint bis zur Domäne
 
@@ -178,14 +177,14 @@ bis zum Notartermin.
 
 - **ArchUnit** – Architekturregeln als ausführbare JUnit-Tests
 - **Spring Modulith** – Modulare Monolithen, Event-basierte Kommunikation
-- **Lab 09** – ArchUnit-Regeln schreiben (45 Min)
+- **Lab 08** – ArchUnit-Regeln schreiben (45 Min)
 
 ### Nachmittag
 
 - **Context Integration** – Events zwischen BCs, Anti-Corruption Layer
 - **Querschnittsthemen** – Optimistic Locking, Exception Handling, Auditing
-- **Lab 10** – Bounded Contexts verbinden (60 Min)
-- **Lab 11** – Querschnittsthemen implementieren (60 Min)
+- **Lab 09** – Bounded Contexts verbinden (60 Min)
+- **Lab 10** – Querschnittsthemen implementieren (60 Min)
 
 ### 🎯 Tagesziel: Architekturregeln automatisiert, zwei BCs kommunizieren
 
@@ -198,11 +197,11 @@ bis zum Notartermin.
 ### Vormittag
 
 - **Teststrategie** – Testpyramide für Clean DDD Architecture
-- **Lab 12** – Tests auf allen Ebenen schreiben (60 Min)
+- **Lab 11** – Tests auf allen Ebenen schreiben (60 Min)
 
 ### Nachmittag
 
-- **Lab 13** – Freie Implementierung (120 Min)
+- **Lab 12** – Freie Implementierung (120 Min)
   - Eigenes Feature wählen: weiterer Use Case, CQRS, Spring Modulith, Kafka …
 - **Reflexion & Ausblick** – Lessons Learned, Buchempfehlungen, nächste Schritte
 
@@ -256,13 +255,13 @@ Nach diesen 5 Tagen könnt ihr:
 
 ---
 
-## 🎯 Los geht's: Lab 01 – Setup
+## Lab 01 – Setup und Warmup
 
-### Entwicklungsumgebung einrichten
+### Projekt starten und CRUD-API bauen
 
-1. Projekt aus `labs/lab-01-setup/initial-project/` in die IDE importieren
-2. `mvn clean verify` ausführen
-3. `mvn spring-boot:run` starten
-4. `http://localhost:8080/actuator/health` aufrufen → `{"status":"UP"}`
+1. Projekt aus `labs/lab-01-setup-und-warmup/initial-project/` in die IDE importieren
+2. `mvn clean verify` und `mvn spring-boot:run` ausführen
+3. Health-Check: `http://localhost:8080/actuator/health` → `{"status":"UP"}`
+4. Immobilien-CRUD-API implementieren (Entity, Repository, Service, Controller)
 
-> **Dauer:** ca. 30 Minuten – danach starten wir mit Spring Boot Basics.
+> **Dauer:** ca. 45 Minuten – danach starten wir mit DDD.
