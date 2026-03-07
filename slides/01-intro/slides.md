@@ -93,13 +93,13 @@ bis zum Notartermin.
 
 ## Agenda - 5-Tage-Überblick
 
-| Tag | Schwerpunkt | Slides | Labs |
-|-----|------------|--------|------|
-| 1 | Fundament legen | 01 Intro · 02 Spring Boot · 03 DDD · 04 Event Storming | Lab 01-02b |
-| 2 | Architektur gestalten | 05 Strategic Design · 06 Building Blocks · 07 Clean Architecture | Lab 03-04 |
-| 3 | Implementierung starten | 08 Paketstruktur · 09 Use Cases · 10 REST Adapter | Lab 05-07 |
+| Tag | Schwerpunkt | Slides                                                              | Labs |
+|-----|------------|---------------------------------------------------------------------|------|
+| 1 | Fundament legen | 01 Intro · 02 Spring Boot · 03 DDD · 04 Event Storming              | Lab 01-02b |
+| 2 | Architektur gestalten | 05 Strategic Design · 06 Building Blocks · 07 Clean Architecture    | Lab 03-04 |
+| 3 | Implementierung starten | 08 Paketstruktur · 09 Use Cases · 10 REST Adapter                   | Lab 05-07 |
 | 4 | Qualität sichern | 11 ArchUnit · 12 Context Integration · 13 Modulith · 14 Querschnitt | Lab 08-11 |
-| 5 | Vertiefen & Reflektieren | 15 Teststrategie · 16 Reflexion & Ausblick | Lab 12-13 |
+| 5 | Vertiefen & Reflektieren | 15 Teststrategie                                                    | Lab 12-13 |
 
 ---
 

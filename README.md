@@ -58,7 +58,7 @@ curl http://localhost:8080/actuator/health
 
 ```
 workshop-ddd-clean-architecture/
-├── slides/                  # MARP Slide-Decks (Module 01-16)
+├── slides/                  # MARP Slide-Decks (Module 01-15)
 │   ├── 01-intro/
 │   ├── 02-spring-boot-basics/
 │   ├── ...

@@ -429,7 +429,7 @@ public class BrokerageProcessFixture {
 
 ---
 
-## Hands-on: Lab 13
+## Hands-on: Lab 12
 
 ### Aufgabe
 
