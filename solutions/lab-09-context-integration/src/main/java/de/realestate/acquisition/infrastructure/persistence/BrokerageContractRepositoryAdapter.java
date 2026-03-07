@@ -34,7 +34,9 @@ public class BrokerageContractRepositoryAdapter implements BrokerageContractRepo
 
     private BrokerageContract toDomain(JpaBrokerageContract entity) {
         return BrokerageContract.reconstruct(
-                entity.getId(), entity.getOwnerId(), entity.getPropertyId(), entity.getClosedAt());
+                entity.getId(), entity.getOwnerId(), entity.getPropertyId(),
+                entity.getAskingPrice(), entity.getCurrency(), entity.getCommissionPercentage(),
+                entity.getClosedAt());
     }
 
     private JpaBrokerageContract toJpa(BrokerageContract contract) {
@@ -42,6 +44,9 @@ public class BrokerageContractRepositoryAdapter implements BrokerageContractRepo
                 contract.getId(),
                 contract.getOwnerId(),
                 contract.getPropertyId(),
+                contract.getAskingPrice(),
+                contract.getCurrency(),
+                contract.getCommissionPercentage(),
                 contract.getClosedAt()
         );
     }

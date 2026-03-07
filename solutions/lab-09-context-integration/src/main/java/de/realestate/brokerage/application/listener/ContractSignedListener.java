@@ -9,8 +9,6 @@ import de.realestate.brokerage.domain.port.BrokerageProcessRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-
 /**
  * Listener that reacts to ContractSigned events from the Acquisition BC
  * and creates a new BrokerageProcess in the Brokerage BC.
@@ -26,10 +24,8 @@ public class ContractSignedListener {
 
     @EventListener
     public void handle(ContractSigned event) {
-        // Create a new BrokerageProcess with default values for pricing.
-        // In a real application, these would be resolved from additional context or services.
-        AskingPrice askingPrice = new AskingPrice(new BigDecimal("1"), "EUR");
-        Commission commission = new Commission(new BigDecimal("3.57"));
+        AskingPrice askingPrice = new AskingPrice(event.askingPrice(), event.currency());
+        Commission commission = new Commission(event.commissionPercentage());
 
         BrokerageProcess process = BrokerageProcess.create(
                 event.propertyId(), askingPrice, commission);

@@ -18,5 +18,7 @@ public interface BrokerageProcessRepository {
 
     BrokerageProcess save(BrokerageProcess brokerageProcess);
 
+    Optional<BrokerageProcess> findByPropertyId(UUID propertyId);
+
     void deleteById(UUID id);
 }

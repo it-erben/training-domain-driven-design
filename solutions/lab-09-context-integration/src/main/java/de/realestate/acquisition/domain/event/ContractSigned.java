@@ -1,5 +1,6 @@
 package de.realestate.acquisition.domain.event;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -10,5 +11,8 @@ import java.util.UUID;
 public record ContractSigned(
         UUID contractId,
         UUID propertyId,
-        LocalDateTime closedAt
+        LocalDateTime closedAt,
+        BigDecimal askingPrice,
+        String currency,
+        BigDecimal commissionPercentage
 ) {}

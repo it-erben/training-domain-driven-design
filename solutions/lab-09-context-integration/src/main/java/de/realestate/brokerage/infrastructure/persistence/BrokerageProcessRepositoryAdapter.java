@@ -38,6 +38,12 @@ public class BrokerageProcessRepositoryAdapter implements BrokerageProcessReposi
     }
 
     @Override
+    public Optional<BrokerageProcess> findByPropertyId(UUID propertyId) {
+        return jpaRepository.findByPropertyId(propertyId)
+                .map(JpaBrokerageProcess::toModel);
+    }
+
+    @Override
     public void deleteById(UUID id) {
         jpaRepository.deleteById(id);
     }
