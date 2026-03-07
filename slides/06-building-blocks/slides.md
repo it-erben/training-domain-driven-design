@@ -39,7 +39,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > In der Realität weichen wir davon aber durchaus ab.
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Überblick - Tactical DDD Building Blocks
 
@@ -257,7 +257,7 @@ stellt sicher, dass das Aggregat immer in einem gültigen Zustand ist.
 - Wenn in Zweifel → kleineres Aggregate, verbunden per ID
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Codebeispiel
 
@@ -362,7 +362,7 @@ angesiedelt, oft über Aggregate-Grenzen hinweg operierend.
 | Beispiel | Provisionsberechnung | ScheduleViewingUseCase |
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Beispiel: CommissionCalculator
 
@@ -408,7 +408,7 @@ Beispiele: `ViewingCompleted`, `OfferAccepted`,
 `BrokerageCompleted`
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Domain Event als Record
 
@@ -449,7 +449,7 @@ public record ViewingCompleted(
 | Einführung im Kurs | Dieses Modul                               | Modul 12/13                               |
 
 ---
-<style scoped>section { font-size: 1.1em; }</style>
+<style scoped>section { font-size: 1em; }</style>
 
 ## Factory - Erzeugung komplexer Objekte
 

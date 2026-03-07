@@ -85,7 +85,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ---
 
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Command (Blau)
 
@@ -102,14 +102,12 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 | `KontaktiereEigentümer` | → | `EigentümerKontaktiert` |
 | `BewerteObjekt` | → | `ObjektBewertet` |
 | `ErstelleExposé` | → | `ExposéErstellt` |
-| `FühreBesichtigungDurch` | → | `BesichtigungDurchgeführt` |
-| `NimmAngebotAn` | → | `AngebotAngenommen` |
 
 > Command = die Absicht, Event = das Ergebnis.
 
 ---
 
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Aggregate (Gelb)
 
@@ -140,7 +138,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > so entsteht eine Kette von Events durch den Geschäftsprozess.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Policy (Lila)
 
@@ -162,7 +160,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > Policies sind der Klebstoff zwischen den Phasen eines Geschäftsprozesses.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## External System (Rosa) & Read Model (Grün)
 
@@ -182,7 +180,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > Der Makler sieht die Übersicht (Read Model) → entscheidet → löst Command aus.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Hot Spot (Rot)
 
@@ -206,7 +204,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - "Was passiert, wenn ein Kaufinteressent sein Angebot zurückzieht?"
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Vorbereitung: Setup für die Session
 

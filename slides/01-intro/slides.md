@@ -163,7 +163,7 @@ bis zum Notartermin.
 
 ---
 
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Tag 4 - Qualität sichern
 

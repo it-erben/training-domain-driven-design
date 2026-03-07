@@ -75,8 +75,7 @@ public class Property {
 
 - Kein Schutz vor ungültigen Zustandsübergängen
 - `status` kann auf beliebige Strings gesetzt werden
-- Entity weiß nichts über ihre eigenen Invarianten
-- Alle Regeln liegen im Service → Tell, Don't Ask wird verletzt
+- Alle Regeln liegen im Service
 
 ---
 <style scoped>section { font-size: 1.4em; }</style>
@@ -198,7 +197,7 @@ Erschienen 2003, bis heute das Standardwerk.
 > Die Kunst liegt in der richtigen Zuordnung.
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Ubiquitous Language
 
@@ -220,7 +219,7 @@ Erschienen 2003, bis heute das Standardwerk.
 | Preisvorstellung    | Gewünschter Verkaufspreis des Eigentümers                 |
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Ubiquitous Language im Code
 

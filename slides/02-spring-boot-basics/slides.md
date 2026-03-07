@@ -332,7 +332,7 @@ public class GlobalExceptionHandler {
 
 ---
 
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## @MockitoBean - Ersatz für @MockBean
 

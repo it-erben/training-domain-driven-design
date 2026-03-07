@@ -84,7 +84,7 @@ als in der Vermarktung!
   bewusst Bounded Contexts schneiden
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Conway's Law
 
@@ -214,7 +214,7 @@ public class ExternalCrmTranslator {
 > Alternative: Published Language oder ACL.
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Pattern: Published Language & Open Host Service
 
@@ -322,7 +322,7 @@ de.realestate/
 | Aktivitäten         | Termine, Telefonate, E-Mails, Aufgaben  | Aktivität, Termin    |
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## Mögliche Auswertung: Beziehungen im Immobilien-CRM
 
