@@ -179,8 +179,6 @@ spring:
 
 ---
 
-<style scoped>section { font-size: 1.3em; }</style>
-
 ## RestClient - Beispiel
 
 ```java
@@ -196,6 +194,8 @@ public class RestClientConfig {
     }
 }
 ```
+
+---
 
 ```java
 @Component
@@ -258,7 +258,11 @@ public PortalListing createListing(PortalListingRequest request) {
             .retrieve()
             .body(PortalListing.class);
 }
+```
 
+---
+
+```java
 // Exchange für volle Kontrolle über die Response
 public ResponseEntity<PortalListing> createListingWithHeaders(
         PortalListingRequest request) {
@@ -277,7 +281,7 @@ public ResponseEntity<PortalListing> createListingWithHeaders(
 
 ---
 
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## ProblemDetail - RFC 9457
 
@@ -306,7 +310,7 @@ spring:
 
 ---
 
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## ProblemDetail - Im Controller verwenden
 
@@ -323,22 +327,12 @@ public class GlobalExceptionHandler {
         problem.setProperty("propertyId", ex.getPropertyId());
         return problem;
     }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNPROCESSABLE_ENTITY, "Validation failed");
-        problem.setProperty("errors", ex.getFieldErrors().stream()
-                .map(e -> Map.of("field", e.getField(), "message", e.getDefaultMessage()))
-                .toList());
-        return problem;
-    }
 }
 ```
 
 ---
 
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## @MockitoBean - Ersatz für @MockBean
 
@@ -368,7 +362,7 @@ class PropertyServiceTest {
 
 ---
 
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Strukturiertes Logging
 

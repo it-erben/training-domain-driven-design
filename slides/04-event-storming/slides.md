@@ -46,19 +46,15 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Basis für Ubiquitous Language und das Domänenmodell
 - Kein technisches Vorwissen nötig - alle können mitmachen
 
-### Varianten
-
-| Variante | Ziel | Dauer |
-|----------|------|-------|
-| Big Picture | Gesamtüberblick über die Domäne | 2-4 Stunden |
-| Process Modelling | Detaillierter Prozessablauf | 2-3 Stunden |
-| Design Level | Aggregate-Design, Bounded Contexts | 1-2 Stunden |
-
 ---
 
 ## Die Elemente - Farbübersicht
 
 ![Event Storming Elemente](images/event-storming-elemente.drawio.svg)
+
+---
+
+## Farbübersicht
 
 | Farbe | Element | Frage, die es beantwortet               |
 |-------|---------|-----------------------------------------|
@@ -89,6 +85,8 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ---
 
+<style scoped>section { font-size: 1.7em; }</style>
+
 ## Command (Blau)
 
 ### Eine Absicht, die ein Event auslöst
@@ -110,6 +108,8 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > Command = die Absicht, Event = das Ergebnis.
 
 ---
+
+<style scoped>section { font-size: 1.7em; }</style>
 
 ## Aggregate (Gelb)
 
@@ -140,6 +140,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > so entsteht eine Kette von Events durch den Geschäftsprozess.
 
 ---
+<style scoped>section { font-size: 1.7em; }</style>
 
 ## Policy (Lila)
 
@@ -161,6 +162,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > Policies sind der Klebstoff zwischen den Phasen eines Geschäftsprozesses.
 
 ---
+<style scoped>section { font-size: 1.7em; }</style>
 
 ## External System (Rosa) & Read Model (Grün)
 
@@ -180,6 +182,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > Der Makler sieht die Übersicht (Read Model) → entscheidet → löst Command aus.
 
 ---
+<style scoped>section { font-size: 1.7em; }</style>
 
 ## Hot Spot (Rot)
 
@@ -203,6 +206,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - "Was passiert, wenn ein Kaufinteressent sein Angebot zurückzieht?"
 
 ---
+<style scoped>section { font-size: 1.7em; }</style>
 
 ## Vorbereitung: Setup für die Session
 
@@ -251,7 +255,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Ruhige Teilnehmer aktiv ansprechen
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Phase 2-3: Timeline ordnen & Hot Spots (20-25 Min.)
 
@@ -293,56 +297,3 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ### Das Board sieht dann so aus:
 
 ![Event Storming Board Layout](images/event-storming-board-layout.drawio.svg)
-
----
-
-## Unser Immobilien-CRM - Der Gesamtprozess
-
-![Event Storming Immobilien-CRM](images/event-storming-immobilien-crm.drawio.svg)
-
----
-<style scoped>section { font-size: 1.7em; }</style>
-
-## Event-Übersicht: Immobilien-CRM
-
-| Phase | Domain Events | Aggregate |
-|-------|--------------|-----------|
-| Akquise | `EigentümerKontaktiert`, `ObjektErfasst`, `ObjektBesichtigt` | Kontakt, Immobilie |
-| Bewertung | `ObjektBewertet`, `MaklervertragUnterschrieben` | Immobilie, Maklerauftrag |
-| Vermarktung | `ExposéErstellt`, `InseratVeröffentlicht` | Exposé, Inserat |
-| Besichtigung | `BesichtigungDurchgeführt`, `InteressentRegistriert` | Vermittlungsvorgang |
-| Verhandlung | `AngebotEingegangen`, `AngebotAngenommen`, `AngebotAbgelehnt` | Vermittlungsvorgang |
-| Abschluss | `NotarterminVereinbart`, `KaufvertragUnterschrieben` | Vermittlungsvorgang |
-
-> Diese Events bilden die Basis für unsere Ubiquitous Language
-> und tauchen als Java Records im Code wieder auf.
-
----
-
-## Konkreter Durchlauf: Von der Akquise zum Abschluss
-
-![Event Storming Durchlauf](images/event-storming-durchlauf.drawio.svg)
-
----
-
-## Vom Event Storming zum Bounded Context
-
-### Drei Signale für eine BC-Grenze
-
-1. Sprachliche Grenze - gleiche Begriffe, andere Bedeutung
-- "Immobilie" in der Objektverwaltung ≠ "Immobilie" in der Vermarktung
-
-2. Pivot Events - Events, die eine neue Phase einleiten
-- `MaklervertragUnterschrieben` → Grenze zwischen Akquise und Vermarktung
-- `AngebotAngenommen` → Grenze zwischen Vermittlung und Abschluss
-
-3. Akteurwechsel - andere Person übernimmt
-- Makler (Akquise) → Marketing-Team (Vermarktung)
-
----
-
-## Vom Event Storming zu Bounded Contexts (Forts.)
-
-### Schnittstellen erkennen
-
-![Pivot Events und BC-Grenzen](images/pivot-events-bc-grenzen.drawio.svg)

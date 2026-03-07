@@ -89,7 +89,7 @@ bis zum Notartermin.
 ![Workshop-Methodik](images/workshop-methodik.drawio.svg)
 
 ---
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Agenda - 5-Tage-Überblick
 
@@ -103,7 +103,7 @@ bis zum Notartermin.
 
 ---
 
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Tag 1 - Fundament legen
 
@@ -124,7 +124,7 @@ bis zum Notartermin.
 
 ---
 
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Tag 2 - Architektur gestalten
 
@@ -143,7 +143,7 @@ bis zum Notartermin.
 
 ---
 
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Tag 3 - Implementierung starten
 
@@ -163,7 +163,7 @@ bis zum Notartermin.
 
 ---
 
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Tag 4 - Qualität sichern
 
@@ -185,7 +185,7 @@ bis zum Notartermin.
 
 ---
 
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Tag 5 - Vertiefen & Reflektieren
 

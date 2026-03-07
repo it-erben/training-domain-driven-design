@@ -50,7 +50,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > - Brian Foote & Joseph Yoder, 1999
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Das Anemic Domain Model
 
@@ -79,7 +79,7 @@ public class Property {
 - Alle Regeln liegen im Service → Tell, Don't Ask wird verletzt
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Negativbeispiel: Alle Logik im Service
 
@@ -107,7 +107,7 @@ public class PropertyService {
 - Wird die Regel auch in einem anderen Service geprüft? → Duplikation
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Das Gegenbeispiel: Rich Domain Model
 
@@ -145,7 +145,7 @@ public class Property {
 - Was passiert, wenn eine Geschäftsregel an mehreren Stellen gilt?
 
 ---
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Eric Evans - Domain-Driven Design (2003)
 
@@ -166,7 +166,7 @@ Erschienen 2003, bis heute das Standardwerk.
 > for its user."* - Eric Evans
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Was ist eine Domäne?
 
@@ -198,7 +198,7 @@ Erschienen 2003, bis heute das Standardwerk.
 > Die Kunst liegt in der richtigen Zuordnung.
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Ubiquitous Language
 
@@ -220,7 +220,7 @@ Erschienen 2003, bis heute das Standardwerk.
 | Preisvorstellung    | Gewünschter Verkaufspreis des Eigentümers                 |
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Ubiquitous Language im Code
 
@@ -260,7 +260,7 @@ public void acceptOffer(OfferId id) { ... }
 
 ---
 
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ### Wann stimmt die Sprache nicht?
 
@@ -276,8 +276,7 @@ public void acceptOffer(OfferId id) { ... }
 
 ---
 
-<style scoped>section { font-size: 1.5em; }</style>
-
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## DDD als Antwort auf Komplexität
 
@@ -328,7 +327,7 @@ Gutes Domänenmodell  +  Gute Architektur  =  Wartbare Software
 - Grenzen werden durch die Ubiquitous Language sichtbar
 
 ---
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.7em; }</style>
 
 ## Tactical Design - Überblick
 
@@ -346,7 +345,7 @@ Gutes Domänenmodell  +  Gute Architektur  =  Wartbare Software
 > Wird in Modul 06 ausführlich behandelt mit Code-Beispielen.
 
 ---
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Wann macht DDD Sinn?
 

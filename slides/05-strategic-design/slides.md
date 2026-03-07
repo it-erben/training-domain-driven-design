@@ -30,6 +30,30 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ---
 
+## Vom Event Storming zum Bounded Context
+
+### Drei Signale für eine BC-Grenze
+
+1. Sprachliche Grenze - gleiche Begriffe, andere Bedeutung
+- "Immobilie" in der Objektverwaltung ≠ "Immobilie" in der Vermarktung
+
+2. Pivot Events - Events, die eine neue Phase einleiten
+- `MaklervertragUnterschrieben` → Grenze zwischen Akquise und Vermarktung
+- `AngebotAngenommen` → Grenze zwischen Vermittlung und Abschluss
+
+3. Akteurwechsel - andere Person übernimmt
+- Makler (Akquise) → Marketing-Team (Vermarktung)
+
+---
+
+## Vom Event Storming zu Bounded Contexts (Forts.)
+
+### Schnittstellen erkennen
+
+![Pivot Events und BC-Grenzen](images/pivot-events-bc-grenzen.drawio.svg)
+
+---
+
 ## Beispiel: Der Begriff "Immobilie"
 
 "Immobilie" bedeutet in der Verwaltung etwas anderes
@@ -41,7 +65,7 @@ als in der Vermarktung!
 > of a particular model."*
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Bounded Context vs. Subdomain
 
@@ -60,7 +84,7 @@ als in der Vermarktung!
   bewusst Bounded Contexts schneiden
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Conway's Law
 
@@ -190,7 +214,7 @@ public class ExternalCrmTranslator {
 > Alternative: Published Language oder ACL.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Pattern: Published Language & Open Host Service
 
@@ -213,7 +237,7 @@ public class ExternalCrmTranslator {
   von mehreren anderen BCs genutzt wird
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Pattern: Partnership & Separate Ways
 
@@ -233,7 +257,7 @@ public class ExternalCrmTranslator {
   statt ein gemeinsames Kontaktmanagement zu integrieren
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Wie manifestiert sich ein BC im Code?
 
@@ -298,7 +322,7 @@ de.realestate/
 | Aktivitäten         | Termine, Telefonate, E-Mails, Aufgaben  | Aktivität, Termin    |
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Mögliche Auswertung: Beziehungen im Immobilien-CRM
 

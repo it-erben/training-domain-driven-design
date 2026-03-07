@@ -39,7 +39,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > In der Realität weichen wir davon aber durchaus ab.
 
 ---
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Überblick - Tactical DDD Building Blocks
 
@@ -67,7 +67,7 @@ Im Immobilien-CRM sind das z.B. `BrokerageProcess`, `Viewing` oder `Contact` -
 jeweils identifiziert durch eine `UUID`.
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Entity in Java
 
@@ -94,7 +94,7 @@ public class Contact {
 - Objekt ist nie in einem ungültigen Zustand
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Gleichheit über ID
 
@@ -163,7 +163,7 @@ public record Address(String street, String postalCode, String city) {
 - Keine Getter-Boilerplate: `address.postalCode()` statt `address.getPostalCode()`
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Primitive Obsession - ein Anti-Pattern
 
@@ -225,7 +225,7 @@ Sie kontrolliert alle Änderungen, hat eine global eindeutige ID und
 stellt sicher, dass das Aggregat immer in einem gültigen Zustand ist.
 
 ---
-<style scoped>section { font-size: 1.9em; }</style>
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Aggregate-Regeln - Die 7 Gebote
 
@@ -257,7 +257,7 @@ stellt sicher, dass das Aggregat immer in einem gültigen Zustand ist.
 - Wenn in Zweifel → kleineres Aggregate, verbunden per ID
 
 ---
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.7em; }</style>
 
 ## Codebeispiel
 
@@ -284,7 +284,7 @@ public class BrokerageProcess {
 ```
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Invarianten schützen
 
@@ -362,7 +362,7 @@ angesiedelt, oft über Aggregate-Grenzen hinweg operierend.
 | Beispiel | Provisionsberechnung | ScheduleViewingUseCase |
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Beispiel: CommissionCalculator
 
@@ -408,7 +408,7 @@ Beispiele: `ViewingCompleted`, `OfferAccepted`,
 `BrokerageCompleted`
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Domain Event als Record
 
@@ -434,6 +434,7 @@ public record ViewingCompleted(
 - Öffentliche Modul-/Integrations-Events werden später bewusst separat gestaltet, meist mit primitiven Typen
 
 ---
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Interne Domain Events vs. öffentliche Integrations-Events
 
@@ -448,7 +449,7 @@ public record ViewingCompleted(
 | Einführung im Kurs | Dieses Modul                               | Modul 12/13                               |
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## Factory - Erzeugung komplexer Objekte
 
@@ -513,6 +514,7 @@ public interface BrokerageProcessRepository {
 - Rückgabetyp: Domain-Objekt, nicht JPA-Entity
 
 ---
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## ID-Strategien
 
