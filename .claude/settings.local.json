@@ -17,7 +17,8 @@
       "Bash(do:*)",
       "Bash(mvn dependency:tree:*)",
       "Bash(mvn:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(npx markdownlint-cli:*)"
     ]
   }
 }

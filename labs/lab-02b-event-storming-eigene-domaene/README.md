@@ -7,9 +7,9 @@ Domäne an.
 
 Dieses Lab ist ein reines Modellierungs-Lab - es wird kein Code geschrieben.
 
-Der Mehrwert gegenüber Lab 02: Ihr arbeitet jetzt nicht mehr mit einer
-vorgegebenen Beispieldomäne, sondern mit einem Prozess, den ihr aus der Praxis
-kennt. Gerade dadurch werden implizites Wissen, uneinheitliche Begriffe und
+Ihr arbeitet jetzt nicht mehr mit einer vorgegebenen Beispieldomäne,
+sondern mit einem Prozess, den ihr aus der Praxis kennt.
+Gerade dadurch werden implizites Wissen, uneinheitliche Begriffe und
 versteckte Komplexität sichtbar.
 
 ## Vorbereitung (vor dem Lab)
@@ -21,20 +21,6 @@ Geeignet sind Prozesse, die:
 - von mehreren Rollen geprägt werden
 - fachliche Entscheidungen oder Regeln enthalten
 - im Team regelmäßig zu Rückfragen, Missverständnissen oder Diskussionen führen
-
-Gute Beispiele:
-
-- Von Anfrage bis Freigabe
-- Von Bestellung bis Auslieferung
-- Von Schadenmeldung bis Regulierung
-- Von Ticket-Erfassung bis Eskalation
-
-Weniger geeignet sind:
-
-- rein technische Abläufe wie Deployment, Monitoring oder Build-Pipelines
-- triviale CRUD-Abläufe ohne erkennbare Geschäftsregeln
-- zu große End-to-End-Prozesse, die in 45 Minuten nicht sinnvoll diskutierbar
-  sind
 
 Falls ihr noch keinen Prozess gewählt habt, helfen diese Fragen:
 
@@ -63,15 +49,15 @@ Am Ende soll ein Board vorliegen, das diese Fragen beantwortet:
 
 ## Farbcodierung
 
-| Farbe  | Element         | Einsatz in diesem Lab                                 | Beispiel                              |
-|--------|-----------------|-------------------------------------------------------|---------------------------------------|
-| Orange | Domain Event    | Pflicht - etwas fachlich Relevantes ist passiert  | "Antrag geprüft"                      |
-| Rot    | Hot Spot        | Pflicht - offene Frage, Konflikt oder Unklarheit  | "Wer darf die Priorität ändern?"      |
-| Blau   | Command         | Für wichtige Kern-Events ergänzen                     | "Antrag prüfen"                       |
-| Gelb   | Aggregate       | Optional - nur an 2-3 relevanten Stellen              | "Antrag"                              |
-| Lila   | Policy          | Optional - wenn eine automatische Reaktion klar ist   | "Wenn genehmigt, dann Auszahlung"     |
-| Rosa   | External System | Optional - wenn ein externes System beteiligt ist     | "SAP", "Zahlungsdienst"               |
-| Grün   | Read Model      | Optional - wenn eine Sicht oder Liste wichtig ist     | "Offene Anträge", "Freigabeübersicht" |
+| Farbe  | Element         | Beispiel                              |
+|--------|-----------------|---------------------------------------|
+| Orange | Domain Event    | "Antrag geprüft"                      |
+| Rot    | Hot Spot        | "Wer darf die Priorität ändern?"      |
+| Blau   | Command         | "Antrag prüfen"                       |
+| Gelb   | Aggregate       | "Antrag"                              |
+| Lila   | Policy          | "Wenn genehmigt, dann Auszahlung"     |
+| Rosa   | External System | "SAP", "Zahlungsdienst"               |
+| Grün   | Read Model      | "Offene Anträge", "Freigabeübersicht" |
 
 Actors werden nicht als eigenes Board-Element modelliert. Notiert sie
 direkt am Command oder daneben, z. B. "Sachbearbeitung", "Kunde", "System".
@@ -163,21 +149,3 @@ Jede Gruppe präsentiert in 2-3 Minuten:
 2. Welche 5-8 Events bilden euren Kernablauf?
 3. Wo liegen eure wichtigsten Hot Spots?
 4. Wo habt ihr Sprach-, Verantwortungs- oder Phasenwechsel beobachtet?
-
-Der Trainer achtet besonders darauf:
-
-- Welche Muster in verschiedenen Domänen wiederkehren
-- Wo Event Storming schnell implizites Wissen sichtbar gemacht hat
-- Welche Boards gute Ausgangspunkte für Lab 03 liefern
-
-## Ziele
-
-Prüft euer Ergebnis anhand folgender Kriterien:
-
-- [ ] Mindestens 12 Domain Events identifiziert
-- [ ] Events sind in der Vergangenheitsform formuliert
-- [ ] Events sind auf einer Zeitlinie angeordnet
-- [ ] Ein Kernablauf mit 5-8 Events ist markiert
-- [ ] Mindestens 3 Hot Spots markiert
-- [ ] Für die wichtigsten Kern-Events sind Commands und Actors ergänzt
-- [ ] Sprach-, Verantwortungs- oder Phasenwechsel sind sichtbar markiert oder notiert

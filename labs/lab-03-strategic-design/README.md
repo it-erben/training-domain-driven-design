@@ -6,20 +6,17 @@ Ausgangspunkt.
 
 Dieses Lab ist ein reines Modellierungs-Lab - es wird kein Code geschrieben.
 
-Einordnung im Kurs: Ziel dieses Labs ist es, die fachliche Landschaft
-sichtbar zu machen.
-
 ## Phase 1: Fachliche Teilbereiche und Bounded Contexts identifizieren (25 Min)
 
 Betrachte die Ergebnisse des Event Stormings und arbeite in zwei Schritten:
 
 1. Markiere zunächst fachliche Teilbereiche / Subdomains im Prozess.
-2. Leite daraus Bounded Contexts ab und ziehe Modellgrenzen.
+2. Leite daraus **Bounded Contexts** ab und ziehe Modellgrenzen.
 
 Nutze insbesondere die in Lab 02 dokumentierten Hot Spots, Sprachwechsel und
 Verantwortungswechsel. Verwende dazu die folgenden Leitfragen:
 
-Leitfragen:
+**Leitfragen:**
 
 1. Welche fachlichen Teilbereiche / Subdomains sind überhaupt erkennbar?
 Welche fachlichen Probleme oder Verantwortungsräume stecken hinter den Events?
@@ -72,9 +69,9 @@ Subdomain einer strategischen Kategorie zu.
 
 | Kategorie        | Kennzeichen                                                    | Strategische Konsequenz                           |
 |------------------|----------------------------------------------------------------|---------------------------------------------------|
-| Core         | Differenziert euch am Markt, enthält eure wichtigsten Regeln   | Selbst bauen, beste Leute, höchste Qualität       |
-| Supporting   | Nötig fürs Geschäft, aber kein Differenzierungsmerkmal         | Selbst bauen, pragmatisch, darf einfacher sein    |
-| Generic      | Standardproblem, das viele Unternehmen gleich lösen            | Kaufen, SaaS nutzen oder Standardlösung einsetzen |
+| Core         | Differenziert euch am Markt, enthält eure wichtigsten Regeln       | Selbst bauen, beste Leute, höchste Qualität       |
+| Supporting   | Nötig fürs Geschäft, aber kein Differenzierungsmerkmal             | Selbst bauen, pragmatisch, darf einfacher sein    |
+| Generic      | Standardproblem, das viele Unternehmen gleich lösen                | Kaufen, SaaS nutzen oder Standardlösung einsetzen |
 
 Diskutiert für jeden Teilbereich:
 
@@ -146,18 +143,3 @@ Prüfe dein Ergebnis anhand folgender Kriterien:
 - [ ] Bei gerichteten Beziehungen ist kenntlich, was Upstream und
   Downstream ist
 - [ ] Externe Systeme sind, falls vorhanden, gesondert markiert
-
-## Tipps
-
-- Die Grenzen der Bounded Contexts sind nicht immer eindeutig. Diskutiert im
-  Team und findet einen pragmatischen Schnitt.
-- Achtet darauf, dass die Ubiquitous Language innerhalb eines Bounded Context
-  konsistent ist, aber zwischen Bounded Contexts abweichen darf.
-- In Phase 2 reicht es, mögliche Kern-Aggregates bzw. wichtige fachliche
-  Objekte zu benennen. Die taktische Ausarbeitung folgt erst in den
-  nachfolgenden Labs.
-- Nutzt die Begriffe Subdomain und Bounded Context bewusst
-  unterschiedlich: Subdomains beschreiben fachliche Problemräume, Bounded
-  Contexts beschreiben bewusst geschnittene Modellgrenzen.
-- Ein Bounded Context ist in erster Linie eine Modell- und
-  Verantwortungsgrenze, nicht automatisch ein eigener Microservice.

@@ -31,20 +31,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 > *"It is not the domain expert's knowledge that goes into production,
 > it is the developer's assumption of that knowledge."*
-> - Alberto Brandolini
-
----
-
-## Warum Event Storming?
-
-### Vorteile gegenüber klassischen Analyse-Methoden
-
-- Gemeinsames Verständnis entsteht in kurzer Zeit (Stunden statt Wochen)
-- Implizites Wissen der Fachexperten wird sichtbar gemacht
-- Konflikte und Unklarheiten werden früh erkannt (Hot Spots)
-- Ermöglicht Bottom-Up-Entdeckung von Bounded Contexts
-- Basis für Ubiquitous Language und das Domänenmodell
-- Kein technisches Vorwissen nötig - alle können mitmachen
+> Alberto Brandolini
 
 ---
 
@@ -202,30 +189,6 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - "Wann genau gilt ein Exposé als fertig?"
 - "Wer darf den Angebotspreis ändern - der Makler oder der Eigentümer?"
 - "Was passiert, wenn ein Kaufinteressent sein Angebot zurückzieht?"
-
----
-<style scoped>section { font-size: 1.5em; }</style>
-
-## Vorbereitung: Setup für die Session
-
-### Physisch (empfohlen)
-
-- 5-8 Meter Papierbahn an der Wand
-- Sticky Notes in allen 7 Farben + dicke Marker
-- Kein Beamer, keine Laptops - alle stehen und kleben
-- Raum mit genug Platz zum Stehen
-
-### Digital (Alternative)
-
-- Miro, FigJam oder Excalidraw
-- Vorbereitetes Board mit farbigen Vorlagen
-- Gut für Remote-Teams, aber weniger Dynamik
-
-### Wer sollte dabei sein?
-
-- Fachexperten (Makler, Vermarktungsleiter, Backoffice)
-- Entwickler und Architekten
-- Facilitator (lenkt, stellt Fragen, sorgt für Fokus)
 
 ---
 

@@ -25,12 +25,12 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ### Welche Probleme versucht DDD zu verhindern?
 
-- Anemic Domain Model - Entities sind reine Datencontainer ohne Verhalten
-- Big Ball of Mud - keine erkennbare Architektur, alles hängt zusammen
-- Verstreute Geschäftslogik - Regeln in Controllern, Services, Utils, DB-Queries
-- Technisch getriebene Struktur - Pakete nach Schichten statt nach Fachlichkeit
-- Kommunikationsprobleme - Entwickler und Fachexperten sprechen verschiedene Sprachen
-- Wachsende Komplexität - kleine Änderungen haben unvorhersehbare Seiteneffekte
+- **Anemic Domain Model** - Entities sind reine Datencontainer ohne Verhalten
+- **Big Ball of Mud** - keine erkennbare Architektur, alles hängt zusammen
+- **Verstreute Geschäftslogik** - Regeln in Controllern, Services, Utils, DB-Queries
+- **Technisch getriebene Struktur** - Pakete nach Schichten statt nach Fachlichkeit
+- **Kommunikationsprobleme** - Entwickler und Fachexperten sprechen verschiedene Sprachen
+- **Wachsende Komplexität** - kleine Änderungen haben unvorhersehbare Seiteneffekte
 
 ---
 
@@ -137,77 +137,59 @@ public class Property {
 
 ## Diskussion: Eure Code-Basis
 
-> Wo lebt die Geschäftslogik in euren aktuellen Projekten?
+Wo lebt die Geschäftslogik in euren aktuellen Projekten?
 
 - In den Entities? In den Services? In den Controllern?
 - Wie viele Zeilen hat euer größter Service?
 - Was passiert, wenn eine Geschäftsregel an mehreren Stellen gilt?
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
 
 ## Eric Evans - Domain-Driven Design (2003)
 
-### Das "blaue Buch"
-
-"Domain-Driven Design: Tackling Complexity in the Heart of Software"
-
-Erschienen 2003, bis heute das Standardwerk.
-
-### Die vier Kernideen
+**Die vier Kernideen**
 
 1. Die Domäne steht im Mittelpunkt, nicht die Technik
 2. Enge Zusammenarbeit zwischen Entwicklern und Fachexperten
 3. Ein gemeinsames Modell als Grundlage für Code und Kommunikation
 4. Komplexität wird durch Modularisierung (Bounded Contexts) beherrschbar
 
-> *"The heart of software is its ability to solve domain-related problems
-> for its user."* - Eric Evans
+> *"The heart of software is its ability to solve domain-related problems for its user."* - Eric Evans
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
 
 ## Was ist eine Domäne?
 
 ### Begriffserklärung
 
-- Domäne = der Fachbereich, für den die Software entwickelt wird
-- Subdomäne = ein abgegrenzter Teil der Gesamtdomäne
+- Domäne: Fachbereich, für den die Software entwickelt wird
+- Subdomäne: Abgegrenzter Teil der Gesamtdomäne
 
-### Unser Beispiel: Immobilien-CRM für Makler
-
-| Subdomäne           | Typ            | Beschreibung                                           |
-|---------------------|----------------|--------------------------------------------------------|
-| Vermittlungsprozess | Core       | Differenzierungsmerkmal, höchster Geschäftswert        |
-| Akquise / Auftrag   | Core       | Direkte Umsatzrelevanz                                 |
-| Vermarktung         | Supporting | Unterstützt den Kern, aber kein Alleinstellungsmerkmal |
-| Objektverwaltung    | Supporting | Stammdaten, wichtig aber nicht differenzierend         |
-| Kontaktmanagement   | Generic    | Standardfunktionalität, könnte zugekauft werden        |
-| Aktivitäten         | Generic    | Kalender/Aufgaben - generisches Problem                |
+Jede Domäne ist entweder eine **Kerndomäne** (Core Domain), eine **unterstützende Domäne** (Supporting Domain) oder eine **generische**, wenig fachliche Domäne (Generic Domain).
 
 ---
 
 ## Core, Supporting, Generic - Warum das wichtig ist
 
-### Wo investieren wir unsere DDD-Energie?
+Wo investieren wir unsere DDD-Energie?
 
 ![h:300](images/core-supporting-generic-pyramid.drawio.svg)
 
-> Nicht jede Subdomäne braucht volle DDD-Umsetzung.
-> Die Kunst liegt in der richtigen Zuordnung.
+Nicht jede Subdomäne braucht volle DDD-Umsetzung. Die Kunst liegt in der richtigen Zuordnung.
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
 
 ## Ubiquitous Language
 
-### Die gemeinsame Sprache
+### Eine gemeinsame Sprache
 
-- Eine Sprache für Fachexperten, Entwickler, Dokumentation und Code
+- Sprache für Fachexperten, Entwickler, Dokumentation und Code
 - Begriffe werden im Team definiert und konsistent verwendet
 - Änderungen an der Sprache = Änderungen am Modell und Code
 
-### Glossar für das Immobilien-CRM
+---
+
+## Beispiel: Glossar für das Immobilien-CRM
 
 | Fachbegriff             | Bedeutung im Kontext                                      |
 |-------------------------|-----------------------------------------------------------|
@@ -219,11 +201,11 @@ Erschienen 2003, bis heute das Standardwerk.
 | Preisvorstellung    | Gewünschter Verkaufspreis des Eigentümers                 |
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
 
 ## Ubiquitous Language im Code
 
-### Technisch / generisch
+Eher ungünstig ist eine technische Beschreibung von Daten
+im Domain Driven Design.
 
 ```java
 public class DataObject {
@@ -235,7 +217,11 @@ public void processItem(Long itemId) { ... }
 public void updateStatus(Long id, String newStatus) { ... }
 ```
 
-### Fachlich / ausdrucksstark
+---
+
+## Ubiquitous Language im Code
+
+Fachlich getriebene Modellierung ist im Domain Driven Design sinnvoller:
 
 ```java
 public class BrokerageProcess {
@@ -248,8 +234,7 @@ public void conductViewing(ViewingId id) { ... }
 public void acceptOffer(OfferId id) { ... }
 ```
 
-> Der Code liest sich wie ein Fachgespräch. Neue Teammitglieder
-> verstehen die Domäne durch das Lesen des Codes.
+Der Code liest sich wie ein Fachgespräch. Neue Teammitglieder verstehen die Domäne durch das Lesen des Codes.
 
 ---
 
@@ -259,7 +244,7 @@ public void acceptOffer(OfferId id) { ... }
 
 ---
 
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.8em; }</style>
 
 ### Wann stimmt die Sprache nicht?
 
@@ -270,48 +255,14 @@ public void acceptOffer(OfferId id) { ... }
 | Gleicher Begriff, verschiedene Bedeutung | "Objekt" meint in der Akquise etwas anderes als in der Vermarktung |
 | Unterschiedliche Begriffe, gleiche Sache | "Kunde", "Interessent", "Kontakt" für dieselbe Person |
 
-> Wenn Entwickler und Fachexperten aneinander vorbeireden,
-> stimmt die Ubiquitous Language nicht.
-
 ---
 
-<style scoped>section { font-size: 1.4em; }</style>
+## Strategic Design
 
-## DDD als Antwort auf Komplexität
+Das strategische Design bezeichnet die grobe Strukturierung unserer Software in abgegrenzte Bereiche, die wir aus den Domänen ableiten.
+Diese Bereiche nennen sich **Bounded Countexts**.
 
-### Der Kern von DDD
-
-- Fachliche Komplexität in den Griff bekommen
-- Nicht primär technische Infrastruktur lösen
-- Das Domänenmodell ist das wertvollste Artefakt
-
-### Die DDD-Gleichung
-
-```
-Gutes Domänenmodell  +  Gute Architektur  =  Wartbare Software
-        ▲                      ▲
-        │                      │
-   Taktisches DDD        Clean Architecture
-   (Modul 06)            (Modul 07)
-```
-
-- Das Modell entwickelt sich iterativ weiter
-- Refactoring ist ein fester Bestandteil des Prozesses
-- Das Modell wird durch Tests geschützt
-
----
-
-## Strategic Design - Überblick
-
----
-
-### Die Makro-Ebene
-
-- Bounded Context - klar abgegrenzter Bereich mit eigenem Modell
-- Context Map - Beziehungen zwischen Bounded Contexts
-- Subdomänen - Core, Supporting, Generic
-
-> Wird in Modul 05 ausführlich behandelt.
+Bounded Contexts gehören zum **Lösungsraum** der Probleme, die durch die Domäne beschrieben werden.
 
 ---
 
@@ -321,40 +272,36 @@ Gutes Domänenmodell  +  Gute Architektur  =  Wartbare Software
 
 ![Bounded Context: Immobilie im Vergleich](images/bounded-context-immobilie-vergleich.drawio.svg)
 
-- Derselbe Begriff kann in verschiedenen BCs verschiedene Dinge bedeuten
-- Jeder BC hat sein eigenes Modell - keine "Über-Entity", die alles kennt
-- Grenzen werden durch die Ubiquitous Language sichtbar
+Derselbe Begriff kann in verschiedenen BCs verschiedene Dinge bedeuten. Jeder BC hat sein eigenes Modell - keine "Über-Entity", die alles kennt. Die Grenzen werden durch die Ubiquitous Language sichtbar
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Tactical Design - Überblick
 
-### Die Mikro-Ebene (Building Blocks)
+Der Begriff taktisches Design bezeichnet die konkrete Umsetzung unserer Strategien in Code. Sie bestehen aus Elementen, die sich konkret in Programmiersprachen umsetzen lassen.
+
+**Beispiele (mehr in Modul 6):**
 
 | Building Block     | Beschreibung                           | Java-Umsetzung         |
 |--------------------|----------------------------------------|------------------------|
 | Entity         | Objekt mit Identität und Lebenszyklus  | Klasse mit ID-Feld     |
 | Value Object   | Unveränderlich, durch Werte definiert  | Java `record`          |
 | Aggregate      | Konsistenzgrenze mit einer Root-Entity | Klasse mit Invarianten |
-| Repository     | Abstraktion für Aggregate-Persistenz   | Java Interface (Port)  |
-| Domain Event   | Etwas fachlich Relevantes ist passiert | Java `record`          |
-| Domain Service | Logik, die keiner Entity gehört        | Klasse ohne State      |
-
-> Wird in Modul 06 ausführlich behandelt mit Code-Beispielen.
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
 
 ## Wann macht DDD Sinn?
 
-### DDD ist gut geeignet, wenn:
+**DDD ist gut geeignet, wenn:**
 
 - Die Domäne komplex ist und viele Geschäftsregeln hat
 - Es häufige Änderungen an den fachlichen Anforderungen gibt
 - Fachexperten verfügbar sind und eingebunden werden können
 - Das Projekt langfristig gewartet und weiterentwickelt wird
 - Mehrere Teams an verschiedenen Teilbereichen arbeiten
+
+---
 
 ### DDD ist vermutlich Overkill, wenn:
 

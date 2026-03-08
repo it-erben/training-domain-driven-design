@@ -22,21 +22,21 @@ Am Ende soll ein Board vorliegen, das folgende Fragen beantwortet:
 
 Verwende folgende Farbcodierung für die Sticky Notes:
 
-| Farbe  | Element         | Einsatz in diesem Lab                                 | Beispiel                                      |
-|--------|-----------------|-------------------------------------------------------|-----------------------------------------------|
-| Orange | Domain Event    | Pflicht - etwas ist passiert                      | "Immobilie erfasst"                           |
-| Rot    | Hot Spot        | Pflicht - Unklarheit, Konflikt oder offene Frage  | "Wer darf den Angebotspreis anpassen?"        |
-| Blau   | Command         | Optional - nur an wichtigen Stellen ergänzen          | "Immobilie erfassen"                          |
-| Gelb   | Aggregate       | Optional - nur an wichtigen Stellen ergänzen          | "Immobilie"                                   |
-| Lila   | Policy          | Optional - nur wenn klar erkennbar                    | "Wenn Auftrag erteilt, dann Expose erstellen" |
-| Rosa   | External System | Optional - nur wenn beteiligt                         | "ImmoScout24", "Grundbuchamt"                 |
-| Grün   | Read Model      | Optional - nur wenn es die Diskussion wirklich hilft  | "Immobilienliste", "Exposee-Ansicht"          |
+| Farbe  | Element         | Beispiel                                      |
+|--------|-----------------|-----------------------------------------------|
+| Orange | Domain Event    | "Immobilie erfasst"                           |
+| Rot    | Hot Spot        | "Wer darf den Angebotspreis anpassen?"        |
+| Blau   | Command         | "Immobilie erfassen"                          |
+| Gelb   | Aggregate       | "Immobilie"                                   |
+| Lila   | Policy          | "Wenn Auftrag erteilt, dann Expose erstellen" |
+| Rosa   | External System | "ImmoScout24", "Grundbuchamt"                 |
+| Grün   | Read Model      | "Immobilienliste", "Exposee-Ansicht"          |
 
 ## Anleitung
 
 ### Phase 1: Domain Events sammeln (15-20 Min)
 
-Beginne mit den folgenden Trigger-Szenarien und notiere alle Domain Events, die
+Beginne mit den folgenden Einstiegs-Szenarien und notiere alle Domain Events, die
 dir einfallen. Schreibe jedes Event auf ein orangefarbenes Sticky Note in der
 Vergangenheitsform.
 
@@ -57,19 +57,20 @@ Trigger-Szenarien:
 Tipps:
 
 - Arbeitet in dieser Phase möglichst still und parallel.
-- Diskutiert noch nicht über technische Umsetzung oder Datenbanktabellen.
-- Denkt nicht zu lange nach - schreibt zuerst Menge statt Perfektion.
+- Diskutiert **noch nicht** über technische Umsetzung oder Datenbanktabellen.
+- **Denkt nicht zu lange nach** - schreibt zuerst Menge statt Perfektion.
 - Auch Duplikate oder unscharfe Events sind erlaubt. Sortieren kommt später.
 
 ### Phase 2: Zeitlinie ordnen und Kernablauf markieren (15 Min)
 
 Ordne die gesammelten Domain Events auf einer horizontalen Zeitlinie von links
-(früh) nach rechts (spät). Gruppiere zusammengehörige Events und führt
+(früh) nach rechts (spät). Stellt euch dafür den Ablauf in der echten Welt vor, nicht in der
+Software. Gruppiere zusammengehörige Events und führt
 Duplikate zusammen.
 
 Markiert anschließend den Kernablauf:
 
-- Welche 5-8 Events beschreiben den wichtigsten Happy Path?
+- Welche 5-8 Events beschreiben den wichtigsten *Happy Path*?
 - Wo beginnen oder enden fachliche Phasen?
 - Wo scheint ein Verantwortungswechsel stattzufinden?
 
@@ -86,20 +87,21 @@ Typische Fragen sind:
 Wichtig: Hot Spots werden nicht sofort gelöst. Sie sind ein bewusstes
 Ergebnis des Labs und dienen als Vorbereitung für Lab 03.
 
+Immer, wenn ihr anfangt, zu diskutieren – inne halten und einen Hot Spot setzen.
+
 ### Phase 4: Commands und Actors ergänzen (10 Min)
 
-Ergänzt nur für die wichtigsten 5-8 Events des Kernablaufs:
+Ergänzt nun Commands und Actors:
 
 - Command (blau): Welche Aktion hat das Event ausgelöst?
 - Actor: Wer hat den Command ausgelöst? (z. B. Makler, Eigentümer,
   Interessent, System)
 
-Notiert den Actor direkt auf dem Command oder daneben. Es ist kein eigenes
-Board-Element nötig.
+Notiert den Actor direkt auf dem Command oder daneben.
 
-### Phase 5: Optionale Vertiefung an 2-3 Stellen (5-10 Min)
+### Phase 5: Vertiefung
 
-Wenn noch Zeit bleibt, vertieft 2-3 fachlich wichtige Stellen des Boards:
+Steigt nun immer tiefer in die einzelnen Bereiche ein und definiert:
 
 - Aggregate (gelb): Welches fachliche Objekt entscheidet über den Command
   und schützt Regeln?
@@ -108,10 +110,6 @@ Wenn noch Zeit bleibt, vertieft 2-3 fachlich wichtige Stellen des Boards:
 - External Systems (rosa): Welche externen Systeme sind beteiligt?
 - Read Models (grün): Welche Ansichten oder Abfragen helfen einem Akteur bei
   einer Entscheidung?
-
-Es ist nicht notwendig, für jedes Event bereits ein Design-Level-Modell zu
-erzeugen. Fokus zuerst auf Domänenverständnis, dann auf ausgewählte Knoten im
-Prozess.
 
 ### Phase 6: Dokumentation für Lab 03 (5 Min)
 
@@ -137,29 +135,3 @@ Hier sind ein Paar Events als Inspiration:
 - Bewertung durchgeführt
 - Maklerauftrag erteilt
 - Expose erstellt
-
-## Verifikation
-
-Prüfe dein Ergebnis anhand folgender Kriterien:
-
-- [ ] Mindestens 15 Domain Events identifiziert
-- [ ] Events sind in der Vergangenheitsform formuliert
-- [ ] Events sind auf einer Zeitlinie angeordnet
-- [ ] Ein Kernablauf mit 5-8 Events ist markiert
-- [ ] Mindestens 3 Hot Spots markiert
-- [ ] Für die wichtigsten Kern-Events sind Commands und Actors ergänzt
-- [ ] Hinweise auf Sprachwechsel, Verantwortungswechsel oder Phasenübergänge
-  sind dokumentiert
-
-## Hinweise
-
-- Es gibt kein "richtig" oder "falsch" - Event Storming ist ein Werkzeug zur
-  Erkundung der Domäne.
-- Beginnt mit dem Happy Path und ergänzt später Fehlerfälle und Sonderfälle.
-- Hot Spots sind wertvoll. Gerade dort verbergen sich Regeln,
-  Verantwortungswechsel oder spätere Bounded Contexts.
-- Versucht in diesem Lab nicht, schon eine perfekte Zielarchitektur zu
-  entwerfen.
-- Ziel von Lab 02 ist zuerst gemeinsames Domänenverständnis, nicht ein
-  vollständiges Design-Level-Board.
-- Die Ergebnisse dieses Labs bilden die Grundlage für Lab 03 (Strategic Design).

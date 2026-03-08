@@ -24,29 +24,29 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Was ist ein Bounded Context?
 
-- Ein explizit abgegrenzter Bereich, in dem ein bestimmtes Modell gilt
-- Innerhalb eines BC haben Begriffe eine eindeutige Bedeutung
-- Außerhalb kann derselbe Begriff etwas völlig anderes meinen
+Ein Bounded Context ist ein explizit **abgegrenzter Bereich, in dem ein bestimmtes Modell gilt**. Er beschreibt den **Lösungsraum** einer Sub-Domäne.
+
+Innerhalb eines Contexts haben Begriffe eine eindeutige Bedeutung. Außerhalb kann derselbe Begriff etwas **völlig anderes bedeuten**.
 
 ---
 
 ## Vom Event Storming zum Bounded Context
 
-### Drei Signale für eine BC-Grenze
+**Drei Signale für eine Context-Grenze**
 
 1. Sprachliche Grenze - gleiche Begriffe, andere Bedeutung
-- "Immobilie" in der Objektverwaltung ≠ "Immobilie" in der Vermarktung
+> "Immobilie" in der Objektverwaltung ≠ "Immobilie" in der Vermarktung
 
-2. Pivot Events - Events, die eine neue Phase einleiten
-- `MaklervertragUnterschrieben` → Grenze zwischen Akquise und Vermarktung
-- `AngebotAngenommen` → Grenze zwischen Vermittlung und Abschluss
+2. Grenz-Events ("Pivots") - Events, die eine neue Phase einleiten
+> `MaklervertragUnterschrieben` → Grenze zwischen Akquise und Vermarktung
+> `AngebotAngenommen` → Grenze zwischen Vermittlung und Abschluss
 
 3. Akteurwechsel - andere Person übernimmt
-- Makler (Akquise) → Marketing-Team (Vermarktung)
+> Makler (Akquise) → Marketing-Team (Vermarktung)
 
 ---
 
-## Vom Event Storming zu Bounded Contexts (Forts.)
+## Vom Event Storming zu Bounded Contexts
 
 ### Schnittstellen erkennen
 
@@ -56,16 +56,14 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Beispiel: Der Begriff "Immobilie"
 
-"Immobilie" bedeutet in der Verwaltung etwas anderes
-als in der Vermarktung!
+"Immobilie" bedeutet in der Verwaltung etwas anderes als in der Vermarktung!
 
 ![BC Immobilie Vergleich](images/bounded-context-immobilie-vergleich.drawio.svg)
 
-> Eric Evans: *"A Bounded Context delimits the applicability
-> of a particular model."*
+> Eric Evans: *"A Bounded Context delimits the applicability of a particular model."*
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.8em; }</style>
 
 ## Bounded Context vs. Subdomain
 
@@ -75,16 +73,12 @@ als in der Vermarktung!
 | Was?       | Fachlicher Bereich                | Softwaregrenze               |
 | Entdeckung | Wird entdeckt / analysiert        | Wird bewusst geschnitten     |
 | Existenz   | Existiert unabhängig von Software | Ist ein Architektur-Artefakt |
-| Mapping    | 1 Subdomain → 1 oder N BCs        | 1 BC ← 1 Subdomain (ideal)   |
 
-- Idealerweise: 1 Subdomain = 1 Bounded Context
-- In der Praxis: Legacy-Systeme erzwingen manchmal Abweichungen
-- Ein BC sollte nie mehrere Subdomains abdecken (→ Big Ball of Mud)
-- Für das Lab: Erst fachliche Teilbereiche / Subdomains erkennen, dann
-  bewusst Bounded Contexts schneiden
+Idealerweise existiert für jede Subdomäne genau ein Context. Aber in der Praxis zwingen uns Legacy-Systeme manchmal zu Abweichungen.
+
+Ein Context sollte aber nie mehrere Subdomains abdecken (→ Big Ball of Mud).
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
 
 ## Conway's Law
 
@@ -92,16 +86,11 @@ als in der Vermarktung!
 
 > *"Any organization that designs a system will produce a design whose
 > structure is a copy of the organization's communication structure."*
-> - Melvin Conway, 1968
+> Melvin Conway, 1968
 
-### Konsequenz für BC-Schnitte
+### Konsequenz für Context-Schnitte
 
-- Ein BC sollte von einem Team verantwortet werden
-- Team-Grenzen und BC-Grenzen sollten übereinstimmen
-- Zwei Teams, ein BC → Abstimmungsoverhead, Konflikte
-- Ein Team, viele BCs → möglich bei kleinen BCs
-
-### Inverse Conway Maneuver
+Ein Context sollte von einem Team verantwortet werden, aber nicht von mehreren. Nur bei kleinen Contexten sollte ein Team mehrere verantworten!
 
 Organisiere Teams entlang der gewünschten Architektur, nicht umgekehrt.
 
@@ -109,14 +98,15 @@ Organisiere Teams entlang der gewünschten Architektur, nicht umgekehrt.
 
 ## Context Map - Überblick
 
-- Eine Context Map zeigt, wie Bounded Contexts zueinander stehen
-- Sie dokumentiert Integrations-Beziehungen und Machtverhältnisse
-- Es geht um Team- und Systembeziehungen, nicht nur Technik
+Eine Context Map zeigt, wie Bounded Contexts zueinander stehen.
+Sie dokumentiert Integrations-Beziehungen und Machtverhältnisse
+
+Es geht dabei auch um Team- und Systembeziehungen, nicht nur um Technik.
 
 ---
 <style scoped>section { font-size: 1.7em; }</style>
 
-### Die 8 Patterns
+## Die 8 Patterns
 
 | Pattern | Kurzbeschreibung |
 |---------|-----------------|
@@ -138,42 +128,33 @@ Organisiere Teams entlang der gewünschten Architektur, nicht umgekehrt.
 ![Customer/Supplier Pattern](images/customer-supplier-pattern.drawio.svg)
 
 - Upstream liefert Daten oder Services
-- Downstream konsumiert und kann Anforderungen stellen
+- Downstream konsumiert und darf Anforderungen stellen
 - Beide Teams stimmen sich aktiv ab
-- Wann? Klare Lieferbeziehung, Downstream hat Einfluss
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
 
 ## Pattern: Conformist
 
-### Downstream übernimmt das Upstream-Modell unverändert
+In diesem Pattern übernimmt der Downstream die Konzepte des Upstreams ohne Einfluss.
 
-- Wie Customer/Supplier, aber Downstream hat keinen Einfluss
-- Das Downstream-Team übernimmt das Modell 1:1
-- Kein eigenes Domänenmodell für die integrierten Daten
+Man setzt dieses Pattern ein, wenn externe Systeme eingebunden werden
+müssen und wir an ihnen nichts ändern können.
 
-### Wann einsetzen?
-
-- Integration mit externen Systemen, die man nicht ändern kann
-- Kosten einer Übersetzung übersteigen den Nutzen
-- Beispiel: Übernahme des OpenImmo-XML-Standards
+Beispiel: Übernahme des OpenImmo-XML-Standards
 
 > Risiko: Das eigene Modell wird vom Upstream-Modell "infiziert".
 > Alternative: ACL, wenn der Aufwand vertretbar ist.
 
 ---
 
-<style scoped>section { font-size: 1.7em; }</style>
-
 ## Pattern: Anti-Corruption Layer (ACL)
 
-### Schützt das eigene Modell mit einer Übersetzungsschicht
+Schützt das eigene Modell mit einer Übersetzungsschicht
 
 ![Anti-Corruption Layer Pattern](images/acl-pattern.drawio.svg)
 
 - Übersetzt eingehende Daten in die eigene Ubiquitous Language
-- Wann? Integration mit Legacy-Systemen oder externen APIs
+- Wird eingesetzt bei der Integration mit Legacy-Systemen oder externen APIs
   deren Modell nicht zum eigenen passt
 
 ---
@@ -214,47 +195,27 @@ public class ExternalCrmTranslator {
 > Alternative: Published Language oder ACL.
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
 
 ## Pattern: Published Language & Open Host Service
 
-### Published Language
+Ein **Published Language** ist ein dokumentiertes, versioniertes Datenformat für Kommunikation. Beispiele: JSON-Schemas, XML-Schemas, Protobuf, Avro.
 
-- Ein dokumentiertes, versioniertes Datenformat für Kommunikation
-- Unabhängig von der internen Modellierung beider Seiten
-- JSON-Schemas, XML-Schemas, Protobuf, Avro
+Ein **Open Host Service (OHS)** stellt eine API für einen Context bereit. Mehrere Contexts greifen dann auf ihn zu. Dies wird oft mit der Published Language kombiniert.
 
-### Open Host Service (OHS)
+**Beispiel**:
 
-- Ein BC stellt eine offene, wohldefinierte API bereit
-- Mehrere andere BCs können darüber zugreifen
-- Oft kombiniert mit Published Language
-
-### Beispiel
-
-- Ein Stammdaten-BC bietet eine REST-API (OHS) mit
-  versioniertem JSON-Schema (Published Language), die
-  von mehreren anderen BCs genutzt wird
+Ein Stammdaten-Context bietet eine REST-API (OHS) mit versioniertem JSON-Schema (Published Language), die von mehreren anderen BCs genutzt wird
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
 
 ## Pattern: Partnership & Separate Ways
 
-### Partnership
+**Partnership** bedeutet, dass zwei Teams gleichberechtigt und
+in enger Koordination ihre Contexte entwickeln. Dies ergibt Sinn, wenn
+die Anforderungen eng aneinander gebunden sind.
 
-- Zwei Teams entwickeln gemeinsam ohne Upstream/Downstream-Hierarchie
-- Erfolg oder Misserfolg betrifft beide gleichermaßen
-- Erfordert enge Abstimmung und gegenseitiges Vertrauen
-- Wann? Zwei BCs, die so eng verbunden sind, dass sie quasi co-entwickelt werden
-
-### Separate Ways
-
-- Bewusste Entscheidung: keine Integration
-- Jeder BC löst das Problem eigenständig (evtl. mit Duplikation)
-- Wann? Integrations-Kosten übersteigen den Nutzen
-- Beispiel: Jeder BC pflegt seine eigene einfache Adress-Verwaltung,
-  statt ein gemeinsames Kontaktmanagement zu integrieren
+Umgekehrt bedeutet **Separate Ways**, dass bewusst keine
+sofortige Integration gewünscht ist.
 
 ---
 <style scoped>section { font-size: 1.4em; }</style>
@@ -280,16 +241,15 @@ de.realestate/
     └── ...
 ```
 
-- Jeder BC ist ein Top-Level-Package (oder Maven-Modul)
-- BCs kommunizieren nur über definierte Schnittstellen (Events, APIs)
+- Jeder Context ist ein Top-Level-Package (oder Maven-Modul)
+- Contexts kommunizieren nur über definierte Schnittstellen (Events, APIs)
 - Kein direkter Import von `brokerage.domain` in `acquisition.domain`!
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
 
 ## Wie schneidet man Bounded Contexts?
 
-### Fünf Heuristiken
+**Fünf Heuristiken:**
 
 1. Ubiquitous Language - Wo ändert sich die Bedeutung eines Begriffs?
 2. Pivot Events - Welche Events markieren Phasenübergänge?
@@ -302,39 +262,3 @@ de.realestate/
 ## Hands-on: Lab 03
 
 ### Context Map für das Immobilien-CRM erstellen
-
----
-
-![Bounded Contexts](images/bounded-contexts-immobilien-crm.drawio.svg)
-
----
-<style scoped>section { font-size: 1.7em; }</style>
-
-## Mögliche Auswertung: Sechs Bounded Contexts
-
-| Bounded Context         | Kernverantwortung                       | Aggregate(s)         |
-|-------------------------|-----------------------------------------|----------------------|
-| Objektverwaltung    | Immobilien-Stammdaten, Merkmale, Fotos  | Immobilie, Bewertung |
-| Kontaktmanagement   | Eigentümer, Interessenten, Kontaktdaten | Kontakt              |
-| Akquise / Auftrag   | Maklerverträge, Auftragserteilung       | Maklerauftrag        |
-| Vermarktung         | Exposés, Portale, Inserate              | Exposé, Inserat      |
-| Vermittlungsprozess | Besichtigungen, Angebote, Abschluss     | Vermittlungsvorgang  |
-| Aktivitäten         | Termine, Telefonate, E-Mails, Aufgaben  | Aktivität, Termin    |
-
----
-<style scoped>section { font-size: 1.1em; }</style>
-
-## Mögliche Auswertung: Beziehungen im Immobilien-CRM
-
-| Upstream | Downstream | Primäres Muster | Zusätzliche Kennzeichnung | Warum? |
-|----------|-----------|-----------------|---------------------------|--------|
-| Objektverwaltung | Vermarktung | Customer/Supplier | - | Vermarktung braucht Immobiliendaten |
-| Kontaktmanagement | Akquise | Customer/Supplier | OHS + PL | Viele Consumer, stabile API und definiertes Austauschformat |
-| Kontaktmanagement | Vermittlung | Customer/Supplier | OHS + PL | Viele Consumer, stabile API und definiertes Austauschformat |
-| Akquise | Vermittlung | Customer/Supplier | - | Vertrag löst Vermittlung aus |
-| Ext. Immobilienportal | Objektverwaltung | ACL | - | Fremdes Modell übersetzen |
-
-- `Domain Events` sind ein Integrationsmechanismus, aber kein eigenes
-  Context-Mapping-Pattern
-- Trennt bei der Bewertung bewusst Beziehungsmuster und
-  Integrationscharakteristik

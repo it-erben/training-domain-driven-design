@@ -6,7 +6,7 @@ header: "DDD & Clean Architecture mit Spring Boot 4"
 footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ---
 
-# Modul 02 - Spring Boot 4 Recap
+# Modul 02 - Spring Boot 4 - Neuerungen
 
 ---
 
@@ -19,18 +19,16 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ---
 
-## Ausgangspunkt: Was ihr mitbringt
+## Ausgangspunkt
 
-Ihr kennt Spring Boot - daher nur ein kurzer Recap der Basics:
+Wir können bei Bedarf gerne eine Wiederholung der
+Kernkonzepte von Spring Boot machen:
 
 - IoC Container, Stereotyp-Annotationen (`@Service`, `@Repository`, ...)
 - Constructor Injection mit `final`-Feldern
 - Spring Data JPA - `@Entity`, `JpaRepository`, Query Methods
 - Bean Validation - `@Valid`, `@NotBlank`, `@Positive`
 - Spring Web MVC - `@RestController`, `ResponseEntity`
-
-> In diesem Modul konzentrieren wir uns auf das, was in
-> Spring Boot 4 anders und neu ist.
 
 ---
 <style scoped>section { font-size: 1.8em; }</style>
@@ -41,30 +39,22 @@ Ihr kennt Spring Boot - daher nur ein kurzer Recap der Basics:
 |----------------------------|-------------------------------------------------|
 | Spring Framework 7     | Neues Major-Release als Basis                   |
 | Jakarta EE 11          | Servlet 6.1, JPA 3.2, Bean Validation 3.1       |
-| Java 17+ Baseline      | Unverändert - Java 21+ empfohlen                |
 | Virtual Threads        | Stabil und produktionsreif                      |
 | RestClient             | Moderner Ersatz für RestTemplate                |
 | ProblemDetail          | RFC 9457 out of the box                         |
 | @MockBean entfernt     | Ersetzt durch `@MockitoBean` (Spring Framework) |
-| Strukturiertes Logging | JSON-Logs ohne externe Library                  |
 
 ---
 
-<style scoped>section { font-size: 1.8em; }</style>
-
 ## Jakarta EE 11 - Namespace-Migration
 
-### Vorher (Spring Boot 2.x)
-
 ```java
+// Vorher (Spring Boot 2.x)
 import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
 import javax.servlet.http.HttpServletRequest;
-```
 
-### Seit Spring Boot 3.x / 4.x (Jakarta EE)
-
-```java
+// Seit Spring Boot 3.x / 4.x (Jakarta EE)
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.servlet.http.HttpServletRequest;
@@ -113,21 +103,16 @@ Millionen gleichzeitiger Virtual Threads möglich
 ![bg center h:450](./images/virtual-threads.drawio.svg)
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
 
 ## Virtual Threads in Spring Boot 4
 
-### Aktivierung
+Die Aktivierung erfolgt über die Konfiguration:
 
-```yaml
-spring:
-  threads:
-    virtual:
-      enabled: true
+```properties
+spring.threads.virtual.enabled=true
 ```
 
-### Was passiert dann?
-
+**Folgen:**
 - Tomcat nutzt Virtual Threads für alle eingehenden Requests
 - `@Async`-Methoden laufen auf Virtual Threads
 - Spring Data Repositories profitieren bei blockierenden DB-Calls
@@ -135,47 +120,30 @@ spring:
 
 ---
 
-<style scoped>section { font-size: 1.5em; }</style>
-
 ## Virtual Threads - Wann (nicht) sinnvoll?
 
-### Ideal für
+Virtual Threads sind ideal für:
 
 - I/O-lastige Anwendungen - DB-Queries, REST-Calls, File I/O
 - Hohe Parallelität - viele gleichzeitige, aber kurze Requests
 - Einfacher Code - synchron schreiben, trotzdem gut skalieren
 
-### Vorsicht bei
+... aber weniger geeignet bei:
 
 - CPU-intensive Aufgaben - Virtual Threads bringen hier keinen Vorteil
-- `synchronized`-Blöcke - können den Carrier Thread pinnen
 - ThreadLocal-Abhängigkeiten - manche Libraries nutzen ThreadLocal exzessiv
-
-### Faustregel
-
-> Wenn eure Anwendung I/O-bound ist (was oft der Fall ist), sind Virtual Threads
-> sehr sinnvoll.
 
 ---
 
-<style scoped>section { font-size: 1.5em; }</style>
-
 ## RestClient - Der moderne HTTP-Client
 
-### Die Evolution der HTTP-Clients in Spring
+HTTP-Clients habe eine Geschichte hinter sich in Spring:
 
 | Generation | Klasse         | Stil                 | Status                      |
 |------------|----------------|----------------------|-----------------------------|
-| 1.         | `RestTemplate` | Synchron, imperativ  | Deprecated in SB 4      |
+| 1.         | `RestTemplate` | Synchron, imperativ  | Maintenance in SB 4      |
 | 2.         | `WebClient`    | Reaktiv (Mono/Flux)  | Weiterhin für reaktive Apps |
 | 3.         | `RestClient`   | Synchron, fluent | Empfohlen ab SB 4       |
-
-### Warum RestClient?
-
-- Fluent API wie `WebClient`, aber synchron - kein Reactor nötig
-- Unterstützt alle HTTP-Methoden und Content-Types
-- Eingebaute Fehlerbehandlung mit Status-Handlern
-- Integration mit Virtual Threads
 
 ---
 
@@ -218,8 +186,6 @@ public class PortalAdapter {
 
 ---
 
-<style scoped>section { font-size: 1.5em; }</style>
-
 ## RestClient - Fehlerbehandlung
 
 ```java
@@ -239,12 +205,7 @@ public PortalListing fetchListing(String listingId) {
 }
 ```
 
-- Status-Handler statt globaler `ResponseErrorHandler`
-- Zugriff auf Request und Response im Handler
-
 ---
-
-<style scoped>section { font-size: 1.5em; }</style>
 
 ## RestClient - POST und Exchange
 
@@ -281,11 +242,9 @@ public ResponseEntity<PortalListing> createListingWithHeaders(
 
 ---
 
-<style scoped>section { font-size: 1.5em; }</style>
-
 ## ProblemDetail - RFC 9457
 
-### Standardisierte Fehlerantworten
+`ProblemDetail` bietet **Standardisierte Fehlerantworten**.
 
 Spring Boot 4 unterstützt RFC 9457 (Problem Details for HTTP APIs) nativ.
 
@@ -299,7 +258,11 @@ Spring Boot 4 unterstützt RFC 9457 (Problem Details for HTTP APIs) nativ.
 }
 ```
 
-### Aktivierung
+---
+
+### Aktivierung von ProblemDetails
+
+Für die Aktivierung ist nur eine Einstellung erforderlich:
 
 ```yaml
 spring:
@@ -309,8 +272,6 @@ spring:
 ```
 
 ---
-
-<style scoped>section { font-size: 1.6em; }</style>
 
 ## ProblemDetail - Im Controller verwenden
 
@@ -331,24 +292,21 @@ public class GlobalExceptionHandler {
 ```
 
 ---
-
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## @MockitoBean - Ersatz für @MockBean
 
-### Vorher (Spring Boot 3.x)
+Migriert man von Spring Boot 3 auf 4 muss man einige Annotations umziehen:
 
 ```java
+// Spring Boot 3
 @SpringBootTest
 class PropertyServiceTest {
     @MockBean  // aus spring-boot-test
     private PropertyRepository repository;
 }
-```
 
-### Seit Spring Boot 4
-
-```java
+// Spring Boot 4
 @SpringBootTest
 class PropertyServiceTest {
     @MockitoBean  // aus spring-framework-test
@@ -356,56 +314,11 @@ class PropertyServiceTest {
 }
 ```
 
-- `@MockBean` und `@SpyBean` sind entfernt (nicht deprecated - entfernt!)
-- `@MockitoBean` und `@MockitoSpyBean` aus Spring Framework direkt
-- Funktionalität ist identisch - nur der Import ändert sich
+Die Funktionalität ist identisch - nur der Import ändert sich.
 
 ---
 
-<style scoped>section { font-size: 1.2em; }</style>
-
-## Strukturiertes Logging
-
-### JSON-Logs ohne externe Library
-
-```yaml
-logging:
-  structured:
-    format:
-      console: ecs  # Elastic Common Schema
-      # Alternativen: logstash, gelf
-```
-
-### Ergebnis
-
-```json
-{
-  "@timestamp": "2026-03-06T09:15:23.456Z",
-  "log.level": "INFO",
-  "message": "Property created with ID 42",
-  "service.name": "immobilien-crm",
-  "ecs.version": "1.2.0"
-}
-```
-
-- Unterstützte Formate: ECS (Elastic), Logstash, GELF
-- Kein Logback-XML oder zusätzliche Dependencies nötig
-- Ideal für ELK-Stack, Grafana Loki oder Datadog
-
----
-
-![bg center h:450](images/spring-boot-classic-layers.drawio.svg)
-
----
-
-## Zusammenspiel der Schichten
-
-![Zusammenspiel der Schichten](images/zusammenspiel-schichten.drawio.svg)
-
-- Controller empfängt HTTP-Request, validiert Eingabe, delegiert
-- Service enthält Geschäftslogik (im klassischen Spring-Stil)
-- Repository abstrahiert Datenbankzugriff über JPA
-- Entity bildet die Datenbanktabelle ab
+![bg center h:500](images/spring-boot-classic-layers.drawio.svg)
 
 ---
 
@@ -433,19 +346,6 @@ logging:
 
 ---
 
-## Zusammenfassung
-
-| Thema                      | Kernpunkte                                                   |
-|----------------------------|--------------------------------------------------------------|
-| Spring Boot 4          | Jakarta EE 11, Spring Framework 7, Java 17+                  |
-| Virtual Threads        | Eine Zeile Config, synchroner Code skaliert I/O-lastige Apps |
-| RestClient             | Fluent, synchron, ersetzt RestTemplate                       |
-| ProblemDetail          | RFC 9457, standardisierte Fehlerantworten                    |
-| @MockitoBean           | Ersetzt `@MockBean`, jetzt in Spring Framework               |
-| Strukturiertes Logging | JSON-Logs nativ (ECS, Logstash, GELF)                        |
-
----
-
 ## Diskussion: Klassische Schichtarchitektur
 
 > Wo liegen die Grenzen des klassischen Ansatzes?
@@ -453,6 +353,3 @@ logging:
 - Ist die Trennung Controller / Service / Repository ausreichend?
 - Was passiert, wenn mehrere Services sich gegenseitig aufrufen?
 - Wie testbar ist diese Struktur ohne Spring-Kontext?
-
-> Diese Fragen beantworten wir in den nächsten Modulen -
-> beginnend mit DDD als Alternative zum Anemic Domain Model.

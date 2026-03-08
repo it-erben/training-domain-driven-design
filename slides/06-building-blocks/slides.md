@@ -163,22 +163,23 @@ public record Address(String street, String postalCode, String city) {
 - Keine Getter-Boilerplate: `address.postalCode()` statt `address.getPostalCode()`
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
 
 ## Primitive Obsession - ein Anti-Pattern
 
-### Primitives statt Value Objects
+Exzessiver Einsatz von Primitives statt Value Objects gilt als Anti Pattern im Domain Driven Design.
 
 ```java
 public class BrokerageProcess {
-    private String ownerId;              // What format?
-    private double purchasePrice;        // What currency? Cents?
-    private double commission;           // Percent or absolute?
-    private String street, postalCode, city; // Always needed together
+    private String ownerId;              // Welches Format?
+    private double purchasePrice;        // Welche Währung?
+    private double commission;           // Prozent oder absolut?
+    private String street, postalCode, city; // Braucht man immer zusammen.
 }
 ```
 
-### Value Objects statt Primitives
+---
+
+## Value Objects statt Primitives
 
 ```java
 public class BrokerageProcess {
@@ -189,9 +190,7 @@ public class BrokerageProcess {
 }
 ```
 
-- Value Objects dokumentieren die Domäne
-- Validierung findet im Konstruktor statt, nicht überall verstreut
-- Typsicherheit: Man kann keine `Commission` versehentlich als `AskingPrice` übergeben
+Value Objects sind typsicher und drücken ihre Rolle durch ihren Typ aus.
 
 ---
 <style scoped>section { font-size: 1.9em; }</style>
@@ -211,21 +210,19 @@ public class BrokerageProcess {
 > Nur wenn ein Objekt über die Zeit getrackt werden muss → Entity.
 
 ---
-<style scoped>section { font-size: 1.9em; }</style>
 
 ## Aggregates und ihre Grenzen
 
-Ein Aggregate ist ein Cluster von Entities und Value Objects mit einer
-Root-Entity. Es bildet eine Konsistenzgrenze: Invarianten innerhalb
+Ein Aggregate ist ein **Cluster von Entities und Value Objects mit einer
+Root-Entity**. Es bildet eine **Konsistenzgrenze**: Invarianten innerhalb
 eines Aggregats werden sofort garantiert, zwischen Aggregates gilt
 Eventual Consistency.
 
-Die Aggregate Root ist der einzige Einstiegspunkt von außen.
+Die **Aggregate Root** ist der einzige Einstiegspunkt von außen.
 Sie kontrolliert alle Änderungen, hat eine global eindeutige ID und
 stellt sicher, dass das Aggregat immer in einem gültigen Zustand ist.
 
 ---
-<style scoped>section { font-size: 1.8em; }</style>
 
 ## Aggregate-Regeln - Die 7 Gebote
 
@@ -236,9 +233,6 @@ stellt sicher, dass das Aggregat immer in einem gültigen Zustand ist.
 5. Zwischen Aggregates: Eventual Consistency (über Domain Events)
 6. Aggregates sollten klein gehalten werden
 7. Ein Repository pro Aggregate - nie für innere Entities
-
-> Regel 3 ist besonders wichtig: Kein `private Contact owner`,
-> sondern `private UUID ownerId`. Das entkoppelt Aggregates!
 
 ---
 
@@ -343,7 +337,6 @@ public class BrokerageProcess {
 ```
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
 
 ## Domain Services
 
@@ -351,15 +344,17 @@ Manche Geschäftslogik passt in keine Entity und kein Value Object.
 Für diese Fälle gibt es Domain Services: zustandslos, in der Domain-Schicht
 angesiedelt, oft über Aggregate-Grenzen hinweg operierend.
 
-### Abgrenzung zum Application Service
+---
+
+### Abgrenzung von Domain zum Application Service
 
 | | Domain Service | Application Service |
 |---|---------------|-------------------|
-| Schicht | Domain | Application |
-| Enthält | Geschäftslogik | Orchestrierung |
-| Zustand | Stateless | Stateless |
-| Spring | Kein Spring nötig | `@Service`, `@Transactional` |
-| Beispiel | Provisionsberechnung | ScheduleViewingUseCase |
+| **Schicht** | Domain | Application |
+| **Enthält** | Geschäftslogik | Orchestrierung |
+| **Zustand** | Stateless | Stateless |
+| **Spring** | Kein Spring nötig | `@Service`, `@Transactional` |
+| **Beispiel** | Provisionsberechnung | ScheduleViewingUseCase |
 
 ---
 <style scoped>section { font-size: 1.3em; }</style>
@@ -392,23 +387,19 @@ public class CommissionCalculator {
 - Testbar mit plain JUnit ohne Kontext
 
 ---
-<style scoped>section { font-size: 1.9em; }</style>
 
 ## Domain Events - Fachliche Ereignisse
 
 Domain Events beschreiben Dinge, die in der Domäne passiert sind.
-Immer in der Vergangenheitsform, immer unveränderlich.
+**Immer** in der **Vergangenheitsform, immer unveränderlich**.
 
 Sie enthalten alle relevanten Daten des Ereignisses und ermöglichen
 lose Kopplung - sowohl intern als auch als Basis für spätere Integrationsereignisse.
-
-### Namenskonvention: `[Aggregate][WhatHappened]`
 
 Beispiele: `ViewingCompleted`, `OfferAccepted`,
 `BrokerageCompleted`
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
 
 ## Domain Event als Record
 
@@ -426,15 +417,10 @@ public record ViewingCompleted(
 }
 ```
 
-- Record = automatisch immutable, equals by value, toString
-- Compact Constructor für Null-Checks
-- Enthält die IDs, nicht die Objekte (lose Kopplung)
-- Kein Timestamp-Feld mit `Instant.now()` im Record nötig -
-  das Dispatching übernimmt die Infrastruktur
-- Öffentliche Modul-/Integrations-Events werden später bewusst separat gestaltet, meist mit primitiven Typen
+Records bieten sich an, weil sie unverändlich und kompakt zu definieren sind.
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Interne Domain Events vs. öffentliche Integrations-Events
 
@@ -488,10 +474,11 @@ public class BrokerageProcess {
 
 ## Das Repository als Port
 
-Repositories abstrahieren die Persistenz: Die Domäne arbeitet mit einer
-collection-ähnlichen Schnittstelle, ohne die Datenbank zu kennen.
-Definiert wird das Interface in der Domain-Schicht (Port),
-implementiert in der Infrastructure-Schicht (Adapter).
+Repositories abstrahieren die **Persistenz**:
+
+Die Domäne arbeitet mit einer Schnittstelle, **ohne die Datenbank zu kennen**.
+
+Definiert wird das Interface in der Domain-Schicht (Port), implementiert in der Infrastructure-Schicht (Adapter).
 
 ---
 
@@ -530,11 +517,10 @@ public interface BrokerageProcessRepository {
 ### Empfehlung für diesen Workshop
 
 ```java
-UUID id = UUID.randomUUID(); // Simple, independent, good enough
+UUID id = UUID.randomUUID();
 ```
 
-> ID wird im Domain Layer erzeugt (Factory-Methode),
-> nicht von der Datenbank vergeben.
+> ID wird im Domain Layer erzeugt (Factory-Methode), nicht von der Datenbank vergeben.
 
 ---
 
