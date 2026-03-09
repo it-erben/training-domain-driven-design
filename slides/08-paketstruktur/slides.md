@@ -60,20 +60,19 @@ de.realestate.brokerage            ← Bounded Context
 ```
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
 
 ## Domain Layer: `domain.model`
 
+- Enthält die wichtigste Geschäftslogik
 - Reines Java - keine Spring-Imports, keine JPA-Annotations
 - Aggregates, Entities, Value Objects, Domain Services
-- Enthält die gesamte Geschäftslogik
-- Validierung und Invarianten leben hier
+- Hier findet die Validierung der Entities stattt
+
+---
 
 ```java
 package de.realestate.brokerage.domain.model;
-
-// No import org.springframework.*
-// No import jakarta.persistence.*
+// Keine Spring-Imports!
 
 public class BrokerageProcess {
     private final ProcessId id;
@@ -85,8 +84,7 @@ public class BrokerageProcess {
         if (status != ProcessStatus.ACTIVE) {
             throw new ProcessNotActiveException(id);
         }
-        var viewing = new Viewing(
-            ViewingId.generate(), prospect, appointmentDate);
+        var viewing = new Viewing(ViewingId.generate(), prospect, appointmentDate);
         viewings.add(viewing);
         return viewing.getId();
     }
@@ -94,7 +92,6 @@ public class BrokerageProcess {
 ```
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
 
 ## Domain Layer: `domain.port`
 
@@ -102,10 +99,10 @@ public class BrokerageProcess {
 - Definiert, was die Domäne von der Außenwelt braucht
 - Keine Implementierungsdetails - kein JPA, kein SQL
 
+---
+
 ```java
 package de.realestate.brokerage.domain.port;
-
-import de.realestate.brokerage.domain.model.*;
 
 public interface BrokerageProcessRepository {
 
@@ -117,10 +114,9 @@ public interface BrokerageProcessRepository {
 }
 ```
 
-> Kein `extends JpaRepository` - das ist ein reines Domain-Interface.
+Kein `extends JpaRepository` - das ist ein reines Domain-Interface!
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
 
 ## Domain Layer: `domain.event`
 
@@ -128,16 +124,14 @@ public interface BrokerageProcessRepository {
 - Vergangenheitsform, fachlich benannt
 - Keine Framework-Abhängigkeiten
 
+---
+
 ```java
 package de.realestate.brokerage.domain.event;
 
-import de.realestate.brokerage.domain.model.*;
-
 public record ViewingScheduled(
-    ProcessId processId,
-    ViewingId viewingId,
-    ContactId prospectId,
-    LocalDateTime appointmentDate,
+    ProcessId processId, ViewingId viewingId,
+    ContactId prospectId, LocalDateTime appointmentDate,
     Instant occurredAt
 ) {
     public ViewingScheduled {
@@ -147,29 +141,25 @@ public record ViewingScheduled(
 }
 ```
 
-> Events werden im Aggregate gesammelt und nach dem Speichern
-> von der Infrastruktur dispatched (Event Collection Pattern).
+Events werden im Aggregate gesammelt und nach dem Speichern von der Infrastruktur dispatched (Event Collection Pattern).
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
 
 ## Application Layer: `application.port` (Inbound)
 
-- Inbound-Ports: Interfaces, die beschreiben, was die Anwendung kann
+- Inbound-Ports: Interfaces, die beschreiben, was die Anwendung _kann_
 - Optional, aber nützlich für Testbarkeit und Dokumentation
 - Der Controller kennt nur das Interface, nicht die Implementierung
 
+---
 
 ```java
 package de.realestate.brokerage.application.port;
 
 public interface ScheduleViewing {
-
     ViewingId schedule(ScheduleViewingCommand command);
 }
-```
 
-```java
 public record ScheduleViewingCommand(
     ProcessId processId,
     ContactId prospectId,
@@ -184,8 +174,6 @@ public record ScheduleViewingCommand(
 
 ---
 
-<style scoped>section { font-size: 1.3em; }</style>
-
 ## Application Layer: `application.service`
 
 - Implementiert den Inbound-Port (Use Case), falls er getrennt ist
@@ -193,6 +181,8 @@ public record ScheduleViewingCommand(
 - Hier leben `@Service` und `@Transactional`
 - Kennt die Domain, aber nicht die Infrastruktur-Details
 
+---
+<style scoped>section { font-size: 1.7em; }</style>
 
 ```java
 package de.realestate.brokerage.application.service;
@@ -221,14 +211,15 @@ public class ScheduleViewingService implements ScheduleViewing {
 
 ---
 
-<style scoped>section { font-size: 1.3em; }</style>
-
 ## Adapter Layer: `adapter.web`
 
 - REST-Controller mit `@RestController`
 - DTOs als Records für Request und Response
 - Mapping: DTO → Command (rein), Domain → ResponseDTO (raus)
 - Keine Geschäftslogik - nur Delegation an den Inbound-Port
+
+---
+<style scoped>section { font-size: 1.8em; }</style>
 
 ```java
 package de.realestate.brokerage.adapter.web;
@@ -248,19 +239,20 @@ public class ViewingController {
             @Valid @RequestBody ViewingRequest request) {
         var id = useCase.schedule(request.toCommand());
         var uri = URI.create("/api/brokerage/viewings/" + id.value());
-        return ResponseEntity.created(uri)
-            .body(new ViewingResponse(id.value()));
+        return ResponseEntity.created(uri).body(new ViewingResponse(id.value()));
     }
 }
 ```
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.7em; }</style>
 
 ## Adapter Layer: DTOs als Records
 
 ```java
-// Request DTO: comes from outside, validated
+// Adapter dienen der Übersetzung der äußeren Schicht in die innere.
+
+// Request DTO: kommt von außen und wird validiert
 public record ViewingRequest(
     @NotNull UUID processId,
     @NotNull UUID prospectId,
@@ -274,16 +266,12 @@ public record ViewingRequest(
     }
 }
 
-// Response DTO: goes outside
+// Response DTO: geht nach außen
 public record ViewingResponse(UUID viewingId) {}
 ```
 
-- DTOs verwenden primitive Typen (UUID, String) - keine Domain-Objekte
-- `toCommand()` mappt DTO → Command und erzeugt Value Objects
-- Response-DTOs exponieren nur das, was der Client braucht
-
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Infrastructure: JPA-Entity (separates Modell)
 
@@ -306,14 +294,11 @@ public class ProcessJpaEntity {
     @JoinColumn(name = "process_id")
     private List<ViewingJpaEntity> viewings = new ArrayList<>();
 
-    protected ProcessJpaEntity() {} // JPA needs default constructor
+    protected ProcessJpaEntity() {} // Default Constructor für JPA
 
-    // Getters and setters for JPA
+    // Getter und Setter
 }
 ```
-
-> Die JPA-Entity ist ein reines Persistenzmodell - sie enthält
-> keine Geschäftslogik und gehört in `infrastructure`.
 
 ---
 <style scoped>section { font-size: 1.3em; }</style>
@@ -348,11 +333,8 @@ public class ProcessMapper {
 }
 ```
 
-> `reconstitute()` ist eine Factory-Methode zum Wiederherstellen aus der DB
-> - im Gegensatz zu `create()`, die Geschäftsregeln prüft.
-
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## Infrastructure: Repository-Adapter
 

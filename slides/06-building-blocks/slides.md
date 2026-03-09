@@ -201,13 +201,12 @@ Value Objects sind typsicher und drücken ihre Rolle durch ihren Typ aus.
 |-----------|--------|-------------|
 | Identität | Ja (ID) | Nein |
 | Gleichheit | Per ID | Per Wert |
-| Veränderlich | Ja (kontrolliert) | Nein (immutable) |
+| Veränderlich | Ja | Nein (immutable) |
 | Lebenszyklus | Ja | Nein - wird ersetzt |
 | Java-Umsetzung | Klasse | Record |
-| Beispiel | `Viewing` | `Address` |
 
-> Faustregel: Im Zweifel → Value Object bevorzugen!
-> Nur wenn ein Objekt über die Zeit getrackt werden muss → Entity.
+> Faustregel: Im Zweifel Value Object bevorzugen!
+> Nur wenn ein Objekt über die Zeit getrackt werden muss, dann Entity.
 
 ---
 
@@ -278,43 +277,35 @@ public class BrokerageProcess {
 ```
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
 
 ## Invarianten schützen
 
 ```java
 public class BrokerageProcess {
 
-    // ... fields
-
     public void setStatusToNotaryAppointment() {
-        boolean hasAcceptedOffer = offers.stream()
-            .anyMatch(Offer::isAccepted);
+        boolean hasAcceptedOffer = offers.stream().anyMatch(Offer::isAccepted);
 
         if (!hasAcceptedOffer) {
-            throw new IllegalStateException(
-                "Notary appointment requires an accepted offer");
+            // Invariante: Kein Notartermin ohne angenommenes Angebot
+            throw new IllegalStateException("Notary appointment requires an accepted offer");
+
         }
         this.status = ProcessStatus.NOTARY_APPOINTMENT;
         domainEvents.add(new NotaryAppointmentScheduled(this.id));
     }
 
+    // Außenstehende können Liste nicht modifizieren, weil unmodifiable
     public List<Viewing> getViewings() {
         return Collections.unmodifiableList(viewings);
     }
 }
 ```
 
-- Invariante: Kein Notartermin ohne angenommenes Angebot
-- Unmodifiable List: Außenstehende können die Liste nicht manipulieren
-- Domain Event wird gesammelt, nicht sofort verschickt
-
 ---
 <style scoped>section { font-size: 1.6em; }</style>
 
-## Domain Event Collection Pattern
-
-### Wie Events gesammelt und dispatcht werden
+## Domain Event Collection Pattern: Events sammeln
 
 ```java
 public class BrokerageProcess {
@@ -341,7 +332,7 @@ public class BrokerageProcess {
 ## Domain Services
 
 Manche Geschäftslogik passt in keine Entity und kein Value Object.
-Für diese Fälle gibt es Domain Services: zustandslos, in der Domain-Schicht
+Für diese Fälle gibt es **Domain Services**: zustandslos, in der Domain-Schicht
 angesiedelt, oft über Aggregate-Grenzen hinweg operierend.
 
 ---
@@ -357,11 +348,12 @@ angesiedelt, oft über Aggregate-Grenzen hinweg operierend.
 | **Beispiel** | Provisionsberechnung | ScheduleViewingUseCase |
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Beispiel: CommissionCalculator
 
 ```java
+// Diese Klasse kommt ohne Abhängigkeiten zu Spring aus
 public class CommissionCalculator {
 
     public Commission calculate(AskingPrice price,
@@ -382,9 +374,6 @@ public class CommissionCalculator {
     }
 }
 ```
-
-- Kein Spring, kein State - reines Java
-- Testbar mit plain JUnit ohne Kontext
 
 ---
 

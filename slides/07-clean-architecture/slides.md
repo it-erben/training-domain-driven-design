@@ -34,8 +34,6 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Clean Architecture ist eine Synthese der vorherigen Ansätze
 - Der gemeinsame Kern: die Dependency Rule
 
-> Drei Namen, ein Prinzip - die Dependency Rule.
-
 ---
 
 ## Ports & Adapters (Hexagonal Architecture)
@@ -106,7 +104,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Daten fließen in beide Richtungen - Abhängigkeiten nur nach innen
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.6em; }</style>
 
 ## Die vier Ringe im Detail
 
@@ -116,9 +114,6 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 | 2. Use Cases | Anwendungsspezifische Abläufe | Application Services, Commands, Ports | Minimal (`@Service`) |
 | 3. Interface Adapters | Übersetzen zwischen innen und außen | Controller, Request/Response-DTOs, API-Mapper | Ja |
 | 4. Frameworks & Drivers (außen) | Technische Infrastruktur | Spring Boot, Spring Data, JPA-Entities, Persistenzklassen, H2, Jackson | Ja |
-
-> - Je weiter innen, desto stabiler und langlebiger ist der Code. Je weiter außen, desto austauschbarer.
-> - Workshop-Konvention: In der Literatur wird Persistenz-Logik teils als Interface Adapter, teils als Teil der äußeren Infrastruktur beschrieben. Im Workshop ordnen wir alles JPA-/Spring-spezifische aus Konsistenzgründen dem äußeren Ring zu.
 
 ---
 
@@ -273,24 +268,22 @@ void should_schedule_viewing() {
 | Komplexität | Niedrig | Höher (mehr Struktur) |
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
 
 ## Was Clean Architecture NICHT ist
 
-- Kein Silver Bullet - nicht für jedes Projekt geeignet
-- Kein Grund für Over-Engineering bei einfachen CRUD-Anwendungen
-- Kein Dogma - die Ringe sind Richtlinien, keine Gesetze
-- Nicht gleichbedeutend mit vielen Schichten und Indirektionen
+Clean Architecture ist **nicht für jedes Projekt** geeignet.
+Es kann einem zu **Over-Engineering** verleiten bei Anwendungsfällen,
+die eigentlich simpel mir CRUD zu lösen wären.
 
-### Wann lohnt es sich?
+Clean Architecture ist kein Dogma!
 
-- Komplexe Domänenlogik (Core Subdomain)
-- Langlebige Systeme (> 2 Jahre Lebensdauer)
-- Mehrere Teams oder Module
-- Wechselnde Infrastruktur-Anforderungen
+---
 
-### Wann eher nicht?
+## Wann lohnt es sich?
 
-- Reine CRUD-Anwendungen
-- Prototypen und Proof of Concepts
-- Generic Subdomains mit trivialer Logik
+Bei komplexer Domänenlogik der **Kerndomänen**, die zudem langlebig
+ist und von mehreren Teams oder Modulen verwendet wird.
+
+## Wann eher nicht?
+
+Bei reinen CRUD-Anwendungen, generisch-technischen Domänen oder Prototypen.
