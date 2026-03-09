@@ -2,36 +2,15 @@
 
 ## Teil 1: Projekt starten
 
-Importiere das Projekt aus `initial-project/` in deine IDE und verifiziere:
-
-```bash
-cd initial-project
-mvn clean verify
-mvn spring-boot:run
-```
-
-Health-Check:
-
-```bash
-curl http://localhost:8080/actuator/health
-# Erwartete Antwort enthält mindestens "status":"UP",
-# z. B. {"groups":["liveness","readiness"],"status":"UP"}
-```
-
-Voraussetzungen für dieses Lab:
-
-- JDK 21 oder neuer, damit Teil 3d (Virtual Threads) tatsächlich sichtbar ist
-- Maven 3.9+
-
-> Falls der Build fehlschlägt: JDK- und Maven-Version prüfen. IntelliJ ggf.
-> `Maven > Reload Project` ausführen.
+Importiere das Projekt aus `initial-project/` in deine IDE.
 
 ## Teil 2: Immobilien-CRUD implementieren
 
-Implementiere eine vollständige CRUD-API für Immobilien im Package
+Implementiere eine CRUD-API für Immobilien im Package
 `de.realestate.property`. Die Aufgabe ist bewusst ohne Schritt-für-Schritt-
-Anleitung gehalten, da ihr Spring Boot schon kennt. Scheut euch aber nicht,
-Fragen zu stellen, falls etwas nicht funktioniert.
+Anleitung gehalten, da ihr Spring Boot teilweise schon kennt. 
+Scheut euch aber nicht,
+Fragen zu stellen, falls etwas nicht funktioniert oder es für euch neu ist.
 
 ### Was zu bauen ist
 
@@ -54,7 +33,7 @@ Methoden (`findAll`, `findById`, `save`, `update`, `delete`)
 
 Controller: `PropertyController` unter `@RequestMapping("/api/properties")`
 
-Die Pfade in der Tabelle sind relativ zu diesem Basis-Pfad gemeint. In Spring
+Die Pfade oben sind relativ zu diesem Basis-Pfad gemeint. In Spring
 MVC sollte das typischerweise so aussehen: `@GetMapping`, `@PostMapping`,
 `@GetMapping("/{id}")`, `@PutMapping("/{id}")`, `@DeleteMapping("/{id}")`.
 
