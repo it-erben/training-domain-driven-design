@@ -33,7 +33,7 @@ Methoden (`findAll`, `findById`, `save`, `update`, `delete`)
 
 Controller: `PropertyController` unter `@RequestMapping("/api/properties")`
 
-Die Pfade oben sind relativ zu diesem Basis-Pfad gemeint. In Spring
+Die Pfade unten sind relativ zu diesem Basis-Pfad gemeint. In Spring
 MVC sollte das typischerweise so aussehen: `@GetMapping`, `@PostMapping`,
 `@GetMapping("/{id}")`, `@PutMapping("/{id}")`, `@DeleteMapping("/{id}")`.
 
