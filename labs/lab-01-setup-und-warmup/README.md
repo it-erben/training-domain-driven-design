@@ -8,7 +8,7 @@ Importiere das Projekt aus `initial-project/` in deine IDE.
 
 Implementiere eine CRUD-API für Immobilien im Package
 `de.realestate.property`. Die Aufgabe ist bewusst ohne Schritt-für-Schritt-
-Anleitung gehalten, da ihr Spring Boot teilweise schon kennt. 
+Anleitung gehalten, da ihr Spring Boot teilweise schon kennt.
 Scheut euch aber nicht,
 Fragen zu stellen, falls etwas nicht funktioniert oder es für euch neu ist.
 

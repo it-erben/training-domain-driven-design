@@ -130,7 +130,7 @@ Methoden:
 | `acceptOffer(offerId)`                       | Angebot annehmen, `OfferAccepted`-Event                     | `void`    |
 | `setStatusToNotaryAppointment()`             | Status → NOTARY_APPOINTMENT                                 | `void`    |
 
-Domain Events sammeln: Der Aggregate Root sammelt Domain Events in einer Liste. 
+Domain Events sammeln: Der Aggregate Root sammelt Domain Events in einer Liste.
 Events werden beim Aufruf der Geschäftsmethoden erzeugt und
 erst später (beim Speichern) veröffentlicht. Dafür braucht es zusätzlich:
 
