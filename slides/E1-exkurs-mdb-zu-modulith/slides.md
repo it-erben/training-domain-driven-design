@@ -37,6 +37,10 @@ Geschätzte Dauer: ca. 90 Minuten (inkl. Event Storming und Diskussion)
 
 ## Teil 1: Was haben wir wirklich?
 
+![bg right:30% h:280](images/xkcd-979-wisdom-of-the-ancients.png)
+
+*xkcd.com/979 — CC BY-NC 2.5*
+
 ### Anatomie einer typischen MDB
 
 ```java

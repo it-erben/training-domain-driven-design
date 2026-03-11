@@ -549,6 +549,16 @@ Event-Entscheidungsbaum:
 
 ---
 
+## Reflexion: Prüft euer Verständnis
+
+1. Was ist der Unterschied zwischen einem **Conformist** und einem **ACL**?
+2. Warum reicht ein Broker-Wechsel (JMS → Kafka) allein nicht, um die Architektur zu verbessern?
+3. Was macht die **Event Publication Registry** — und warum braucht sie keine zusätzliche Infrastruktur?
+
+> Im Lab implementiert ihr einen kompletten ACL zwischen zwei Bounded Contexts.
+
+---
+
 ## Hands-on: Lab 09
 
 ### Aufgabe

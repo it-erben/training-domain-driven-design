@@ -693,6 +693,16 @@ UUID id = UuidCreator.getTimeOrderedEpoch(); // UUIDv7: sortierbar + einzigartig
 
 ---
 
+## Reflexion: Prüft euer Verständnis
+
+1. Was unterscheidet eine Entity von einem Value Object — und wann wählt ihr welches?
+2. Warum gilt die Faustregel "Aggregates klein halten"?
+3. Was ist der Unterschied zwischen einem Spring-Data `JpaRepository` und einem DDD Repository?
+
+> Im Lab implementiert ihr diese Building Blocks selbst — Entity, Value Objects, Aggregate, Factory und Repository-Interface.
+
+---
+
 ## Hands-on: Lab 04
 
 ### Building Blocks der Förderantragsverwaltung implementieren

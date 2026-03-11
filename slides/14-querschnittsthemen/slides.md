@@ -350,6 +350,16 @@ table { font-size: 20px; }
 
 ---
 
+## Reflexion: Prüft euer Verständnis
+
+1. Wo lebt `@Version` — im Domain-Model oder im JPA-Entity? Warum?
+2. Warum gehört Auditing (`createdAt`, `modifiedAt`) in die Infrastruktur-Schicht?
+3. Was passiert bei einem Optimistic-Locking-Konflikt — und wie kommuniziert ihr das dem Nutzer?
+
+> Im Lab ergänzt ihr Optimistic Locking, Auditing und Soft Delete in der Förderantragsverwaltung.
+
+---
+
 ## Hands-on: Lab 11
 
 ### Aufgabe

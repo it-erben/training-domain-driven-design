@@ -262,6 +262,10 @@ public class ZidTranslator {
 
 ## Pattern: Shared Kernel
 
+![bg right:35% h:350](images/xkcd-2347-dependency.png)
+
+*xkcd.com/2347 — CC BY-NC 2.5*
+
 ### Geteilter Modellkern zwischen zwei BCs
 
 - Zwei BCs teilen sich einen gemeinsamen Modellteil
@@ -416,6 +420,16 @@ de.foerderung/
 - Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 4: Bounded Contexts integrieren (ACL, Shared Kernel)
 - Kaiser, „Architecture for Flow" (2025), Kapitel 2: Subdomains und Wardley-Evolution-Stages
 - Kaiser, „Architecture for Flow" (2025), Kapitel 5: Conway's Law und Team Topologies
+
+---
+
+## Reflexion: Prüft euer Verständnis
+
+1. Was ist der Unterschied zwischen Subdomain (Problemraum) und Bounded Context (Lösungsraum)?
+2. Welches Context-Map-Pattern beschreibt "ich übernehme das fremde Modell, ohne Einfluss darauf"?
+3. Warum ist ein Shared Kernel die **engste** Kopplung zwischen zwei BCs?
+
+> Wenn euch die Patterns abstrakt vorkommen — im Lab erstellen wir eine konkrete Context Map für unser System.
 
 ---
 

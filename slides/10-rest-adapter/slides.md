@@ -360,6 +360,16 @@ void unbekannte_antragsmappe_gibt_404() throws Exception {
 
 ---
 
+## Reflexion: Prüft euer Verständnis
+
+1. Warum darf ein Controller **niemals** ein Domain-Objekt direkt als JSON zurückgeben?
+2. Was ist der Unterschied zwischen einem Request-DTO und einem Command?
+3. Wozu dient `ProblemDetail` (RFC 9457) — und warum ist es besser als `{ "error": "..." }`?
+
+> Im Lab baut ihr den REST-Adapter komplett selbst — DTO, Controller, Mapping und ExceptionHandler.
+
+---
+
 ## Hands-on: Lab 07
 
 ### REST-Adapter implementieren

@@ -84,7 +84,7 @@ und zwar genau dann, wenn man es am wenigsten erwartet: **beim Deployment**.
 
 ## Das ist kein Java-Problem
 
-![bg right:40% h:350](https://imgs.xkcd.com/comics/the_cloud.png)
+![bg right:40% h:350](images/xkcd-908-the-cloud.png)
 
 > *"Warum funktioniert es auf meinem Laptop?"*
 >
@@ -723,6 +723,16 @@ class PaginationTest {
     }
 }
 ```
+
+---
+
+## Reflexion: Prüft euer Verständnis
+
+1. Was ist der Unterschied zwischen **fachlichem Zustand** und **Koordinationszustand**?
+2. Warum funktioniert `synchronized` in Kubernetes nicht — und was ist die Alternative?
+3. Wann ist "Last Write Wins" fachlich akzeptabel — und wann ist es ein Bug?
+
+> Im Lab setzt ihr Optimistic Locking, Pagination und verteilte Job-Koordination um.
 
 ---
 

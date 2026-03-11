@@ -39,6 +39,10 @@ Woche 24: "Wir müssen die Architektur neu aufsetzen"      [GAME OVER]
 
 ## Die Lösung
 
+![bg right:30% h:280](images/xkcd-303-compiling.png)
+
+*xkcd.com/303 — CC BY-NC 2.5*
+
 - Architekturregeln als ausführbare Tests formulieren
 - Laufen bei jedem Build - Verstöße brechen die Pipeline
 - Keine zusätzliche Infrastruktur nötig - normaler JUnit-Test
@@ -502,6 +506,16 @@ Folgeläufe: Nur NEUE Verstöße brechen den Build
 ```
 
 > `archunit_store/` in Git committen: Team sieht historischen Fortschritt der Sanierung.
+
+---
+
+## Reflexion: Prüft euer Verständnis
+
+1. Welche Architekturverletzung entsteht, wenn eine Domain-Klasse `@Entity` importiert?
+2. Was ist der Vorteil von `FreezingArchRule` gegenüber einer normalen ArchRule bei Legacy-Code?
+3. Was prüft `onionArchitecture()` automatisch, das man sonst manuell formulieren müsste?
+
+> Im Lab schreibt ihr selbst ArchUnit-Regeln, die eure Clean Architecture absichern.
 
 ---
 
