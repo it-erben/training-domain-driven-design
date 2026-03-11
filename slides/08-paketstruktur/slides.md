@@ -473,6 +473,16 @@ interface AntragsMappeSpringDataRepository
 
 ---
 
+## Reflexion: Prüft euer Verständnis
+
+1. In welches Package gehört das `AntragsMappeRepository`-**Interface**? In welches die **Implementierung**?
+2. Warum darf das `domain`-Package keine Spring-Imports enthalten?
+3. Was ist der Unterschied zwischen `adapter.web` und `infrastructure.persistence`?
+
+> Im Lab refaktoriert ihr ein bestehendes Projekt in die Clean-Architecture-Paketstruktur.
+
+---
+
 ## Hands-on: Lab-05
 
 ### Refactoring zur Paketstruktur

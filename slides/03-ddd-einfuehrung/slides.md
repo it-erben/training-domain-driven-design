@@ -195,6 +195,10 @@ Nicht jede Subdomäne braucht volle DDD-Umsetzung. Die Kunst liegt in der richti
 
 ## Ubiquitous Language
 
+![bg right:35% h:350](images/xkcd-927-standards.png)
+
+*xkcd.com/927 — CC BY-NC 2.5*
+
 ### Eine gemeinsame Sprache
 
 - Sprache für Fachexperten, Entwickler, Dokumentation und Code
@@ -378,6 +382,18 @@ auf nicht-funktionale Anforderungen wie Zuverlässigkeit, Konsistenz und Skalier
 
 > Das Entscheidende: DDD zwingt dazu, Verantwortlichkeiten explizit zu machen.
 > Explizite Grenzen ermöglichen explizite Garantien — auch für nicht-funktionale Anforderungen.
+
+---
+
+## Reflexion: Prüft euer Verständnis
+
+Beantwortet kurz für euch:
+
+1. Was unterscheidet ein Rich Domain Model von einem Anemic Domain Model?
+2. Warum heißt es "Ubiquitous" Language — und nicht einfach "Glossar"?
+3. In welchem Fall wäre DDD *Overkill*?
+
+> Tipp: Wenn ihr bei Frage 2 unsicher seid — genau das klären wir im Event Storming (nächstes Modul).
 
 ---
 

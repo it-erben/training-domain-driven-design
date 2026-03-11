@@ -59,6 +59,10 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Monolith First (Martin Fowler)
 
+![bg right:30% h:280](images/xkcd-1425-tasks.png)
+
+*xkcd.com/1425 — CC BY-NC 2.5*
+
 > *"Almost all the successful microservice stories have started
 > with a monolith that got too big and was broken up."*
 > - Martin Fowler
@@ -600,6 +604,16 @@ class AntragstellungIntegrationTest {
 
 ---
 <style scoped>section { font-size: 1.7em; }</style>
+
+## Reflexion: Prüft euer Verständnis
+
+1. Warum "Monolith First" statt direkt Microservices?
+2. Was ist der Unterschied zwischen `@EventListener` (synchron) und `@ApplicationModuleListener` (nach Commit)?
+3. Wie garantiert die Event Publication Registry At-Least-Once Delivery — *ohne* Broker?
+
+> Im Lab setzt ihr Spring Modulith mit Event-basierter Modul-Kommunikation selbst um.
+
+---
 
 ## Hands-on: Lab-10
 

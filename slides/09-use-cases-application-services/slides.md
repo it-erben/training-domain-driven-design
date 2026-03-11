@@ -410,6 +410,18 @@ public class FlurstueckHinzufuegenService implements FlurstueckHinzufuegen {
 
 ---
 
+## Reflexion: Prüft euer Verständnis
+
+![bg right:30% h:300](images/xkcd-1205-is-it-worth-the-time.png)
+
+*xkcd.com/1205 — CC BY-NC 2.5*
+
+1. Was ist der Unterschied zwischen Application Service und Domain Service?
+2. Warum gehört `@Transactional` auf den Application Service — und **nicht** auf die Domain?
+3. Wann braucht ein Read-Endpoint ein separates Read Model (CQRS)?
+
+---
+
 ## Zusammenfassung
 
 - Application Service = Use-Case-Orchestrator, **zustandslos**, keine Geschäftslogik

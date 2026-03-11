@@ -272,6 +272,10 @@ void flurstueck_hinzufuegen_funktioniert() {
 
 ## Was Clean Architecture NICHT ist
 
+![bg right:35% h:300](images/xkcd-974-the-general-problem.png)
+
+*xkcd.com/974 — CC BY-NC 2.5*
+
 Clean Architecture ist **nicht für jedes Projekt** geeignet.
 Es kann einem zu **Over-Engineering** verleiten bei Anwendungsfällen,
 die eigentlich simpel mit CRUD zu lösen wären.
