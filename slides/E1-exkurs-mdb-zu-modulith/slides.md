@@ -60,7 +60,7 @@ public class MonitoringSynchronizerMDB implements MessageListener {
 > Sieht chaotisch aus. Ist es aber nicht — es sind **fünf DDD-Konzepte**, die nur nie explizit gemacht wurden.
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## Reale MDB-Patterns in gewachsenen Systemen
 
@@ -98,7 +98,7 @@ public abstract class AbstractAenderungsListenerMDB<A extends AenderungAnRegiste
 - ❌ Dutzende Subklassen erben die gleiche Conformist-Kopplung
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1.05em; }</style>
 
 ## Reale MDB-Patterns (Forts.)
 
@@ -138,7 +138,7 @@ public class VWKPMonitorAktualisierungMDB implements MessageListener {
 - ❌ `instanceof`-Kette statt typbasiertem Event-Routing
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1.05em; }</style>
 
 ## Reale MDB-Patterns (Forts.)
 
@@ -182,7 +182,7 @@ public class BescheidEreignisListenerMDB implements MessageListener {
 - ❌ Kein Idempotenz-Check (`vermerkeDruckDaten` prüft nur auf `gedrucktAm == null`)
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## Reale MDB-Patterns (Forts.)
 
@@ -319,7 +319,7 @@ Nur: Es gibt keine **Published Language**, keinen **Translator**, und keine **Id
 > Oder das fehlende DDD?
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Teil 2: Die falsche Lösung — "Einfach Kafka"
 
@@ -384,7 +384,7 @@ Gleiche Architektur-Probleme. Nur der Transport ist neu.
 > Aber nicht: "Wie bringe ich DDD-Muster in meinen Monolithen?"
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.15em; }</style>
 
 ## Teil 3: Die richtige Lösung — Spring Modulith + Postgres
 
@@ -449,7 +449,7 @@ Gleiche Architektur-Probleme. Nur der Transport ist neu.
 > → **Ja, irgendwann?** Spring Modulith ist die Vorstufe. `@Externalized` macht den Übergang trivial.
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## Der richtige Evolutionspfad
 
@@ -516,21 +516,11 @@ public enum AenderungsArt { AKTUALISIERT, REAKTIVIERT, ENTFERNT, ARCHIVIERT }
 > Der Vertrag bleibt gleich — nur die Serialisierung ändert sich.
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.25em; }</style>
 
 ## Stufe 2: ACL + Translator nachrüsten
 
 ### Die MDB bleibt — aber bekommt einen Translator
-
-```java
-// VORHER: Conformist — direkte Verwendung des fremden Objekts
-@Override
-public void onMessage(Message message) {
-    AntragsmappeAenderung aend =
-        (AntragsmappeAenderung) ((ObjectMessage) message).getObject();
-    optimusPrime.synchronisiere(aend.getRegistrationNumber());
-}
-```
 
 ```java
 // NACHHER: ACL — die MDB delegiert an Translator + eigenen Service
@@ -538,12 +528,8 @@ public void onMessage(Message message) {
 public void onMessage(Message message) {
     AntragsmappeAenderung aend =
         (AntragsmappeAenderung) ((ObjectMessage) message).getObject();
-
-    // Schritt 1: Translate — fremdes Objekt → eigener Command
-    var command = translator.translate(aend);
-
-    // Schritt 2: Eigener Service mit Idempotenz
-    monitoringService.synchronisiere(command);
+    var command = translator.translate(aend);        // Schritt 1: Translate
+    monitoringService.synchronisiere(command);       // Schritt 2: Eigener Service
 }
 ```
 
@@ -563,7 +549,7 @@ class AntragsmappeEventTranslator {
 > **Wichtig:** Wir ändern noch NICHTS am Transport. Nur die DDD-Muster werden ergänzt.
 
 ---
-<style scoped>section { font-size: 1.4em; }</style>
+<style scoped>section { font-size: 1.25em; }</style>
 
 ## Stufe 2: Eigenes Domänenmodell im konsumierenden BC
 
@@ -601,7 +587,7 @@ public enum MonitoringsStatus {                          // eigene Enum
 > das Auswertungs-Domänenmodell bleibt stabil.
 
 ---
-<style scoped>section { font-size: 1.35em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Stufe 2: Idempotenz nachrüsten
 
@@ -640,7 +626,7 @@ public class MonitoringService {
 > Wer sie erst bei Kafka einbaut, hat sie bei JMS-Redelivery schon nicht.
 
 ---
-<style scoped>section { font-size: 1.55em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Stufe 2: ArchUnit-Absicherung
 
@@ -676,7 +662,7 @@ static final ArchRule keine_fremden_domain_imports =
 > So kann das Team schrittweise migrieren, ohne alles auf einmal ändern zu müssen.
 
 ---
-<style scoped>section { font-size: 1.55em; }</style>
+<style scoped>section { font-size: 1.25em; }</style>
 
 ## Stufe 3: JMS durch Spring Modulith ersetzen
 
@@ -714,7 +700,7 @@ class AntragsmappeEventListener {
 | **Transport** | JMS → Spring Event (In-Process) |
 
 ---
-<style scoped>section { font-size: 1.55em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Stufe 3: Postgres Outbox — At-Least-Once ohne Broker
 
@@ -751,7 +737,7 @@ CREATE TABLE event_publication (
 4. **Kein Broker**, kein Poller, keine zusätzliche Infrastruktur
 
 ---
-<style scoped>section { font-size: 1.55em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Stufe 3: Kubernetes-Readiness
 
@@ -784,7 +770,7 @@ Infrastruktur-Overhead:                 Infrastruktur-Overhead:
 > Der Modulith ist ein simples Deployment + Horizontal Pod Autoscaler.
 
 ---
-<style scoped>section { font-size: 1.55em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Stufe 4 (optional): Service-Extraktion mit @Externalized
 
@@ -842,7 +828,7 @@ spring:
 > Stufe 3 ersetzt die Infrastruktur. Stufe 4 ist nur nötig bei echten Microservices.
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.05em; }</style>
 
 ## Teil 4: Schritt-für-Schritt — Eine MDB transformieren
 
@@ -886,7 +872,7 @@ de.foerderung
 ```
 
 ---
-<style scoped>section { font-size: 1.35em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Komplettes Code-Beispiel: Published Language
 
@@ -894,15 +880,12 @@ de.foerderung
 
 ```java
 // Paket: de.foerderung.antragstellung (Root = öffentlich)
-// Dieses Record IST die Published Language.
-
 @Externalized("antragstellung.antragsmappe.geaendert::#{registrierungsNummer()}")
 public record AntragsmappeGeaendert(
     String registrierungsNummer,
     AenderungsArt aenderungsArt,
     Instant geaendertAm
 ) {
-    // Konstruktor-Validierung: Published Language muss immer vollständig sein
     public AntragsmappeGeaendert {
         Objects.requireNonNull(registrierungsNummer);
         Objects.requireNonNull(aenderungsArt);
@@ -910,8 +893,6 @@ public record AntragsmappeGeaendert(
     }
 }
 ```
-
-### Publizierung im Application Service
 
 ```java
 @Service @Transactional @RequiredArgsConstructor
@@ -925,25 +906,19 @@ class AntragAendernService implements AntragAendern {
         mappe.aendern(cmd.aenderung());
         repository.save(mappe);
         events.publishEvent(new AntragsmappeGeaendert(
-            mappe.getRegistrierungsNummer().wert(),   // nur primitive Typen!
-            cmd.aenderungsArt(),
-            Instant.now()
-        ));
+            mappe.getRegistrierungsNummer().wert(), cmd.aenderungsArt(), Instant.now()));
     }
 }
 ```
 
 ---
-<style scoped>section { font-size: 1.35em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
-## Komplettes Code-Beispiel: ACL im Auswertungs-BC
-
-### Translator — übersetzt fremde Sprache in eigene
+## ACL im Auswertungs-BC: Translator + Listener
 
 ```java
 @Component
 class AntragsmappeEventTranslator {
-
     MonitoringSynchronisierenCommand translate(AntragsmappeGeaendert event) {
         return new MonitoringSynchronisierenCommand(
             new AntragsReferenz(event.registrierungsNummer()),
@@ -953,8 +928,6 @@ class AntragsmappeEventTranslator {
     }
 }
 ```
-
-### Event Listener — delegiert an Translator + Service
 
 ```java
 @Component @RequiredArgsConstructor
@@ -969,7 +942,10 @@ class AntragsmappeEventListener {
 }
 ```
 
-### Application Service — mit Idempotenz
+---
+<style scoped>section { font-size: 1.4em; }</style>
+
+## ACL im Auswertungs-BC: Application Service mit Idempotenz
 
 ```java
 @Service @Transactional @RequiredArgsConstructor
@@ -987,8 +963,11 @@ class MonitoringService {
 }
 ```
 
+> Translator, Listener und Service — drei kleine Klassen ersetzen eine MDB.
+> Jede hat genau eine Verantwortung. Zusammen bilden sie den ACL.
+
 ---
-<style scoped>section { font-size: 1.45em; }</style>
+<style scoped>section { font-size: 1.35em; }</style>
 
 ## Modulith-Verifikation: Spring Modulith testet die Grenzen
 
