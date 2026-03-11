@@ -194,8 +194,8 @@ Wichtig: `flurstueckHinzufuegen()` gibt nur die `FlurstueckId` zurück — nicht
 die Entity selbst. Innere Objekte dürfen nicht direkt nach außen weitergegeben
 werden (Aggregate-Regel #2, vgl. Slides Modul 06).
 
-Domain Events sammeln: Der Aggregate Root sammelt Domain Events in einer
-transienten Liste. Events werden beim Aufruf der Geschäftsmethoden erzeugt und
+Domain Events sammeln: Der Aggregate Root sammelt Domain Events in einer Liste.
+Events werden beim Aufruf der Geschäftsmethoden erzeugt und
 erst später (beim Speichern) veröffentlicht. Dafür braucht es zusätzlich:
 
 - `getDomainEvents()` — gibt eine unveränderliche Kopie der Liste zurück
