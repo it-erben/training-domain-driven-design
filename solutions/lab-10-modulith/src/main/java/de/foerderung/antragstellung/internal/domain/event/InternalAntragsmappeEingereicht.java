@@ -1,7 +1,8 @@
 package de.foerderung.antragstellung.internal.domain.event;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import de.foerderung.antragstellung.internal.domain.model.AntragId;
+
+import java.time.Instant;
 
 /**
  * Internal domain event raised when the AntragsMappe is submitted.
@@ -9,6 +10,6 @@ import java.util.UUID;
  * for the public API event that crosses bounded context boundaries.
  */
 public record InternalAntragsmappeEingereicht(
-        UUID antragsmappeId,
-        LocalDateTime timestamp
+        AntragId antragsmappeId,
+        Instant occurredAt
 ) implements AntragEvent {}

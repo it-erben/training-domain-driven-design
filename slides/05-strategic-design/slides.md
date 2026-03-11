@@ -393,14 +393,14 @@ de.foerderung/
 
 | Beziehung | Pattern | Technisch |
 |-----------|---------|-----------|
-| Antragstellung → Fachliche Prüfung | Customer/Supplier | `topic/AenderungAnRegisterable` (JMS) |
+| Antragstellung → Fachliche Prüfung | Customer/Supplier | `topic/AntragGeaendert` (JMS) |
 | Auszahlung → Auswertung | **sollte ACL sein**, ist heute Conformist | MDB castet direkt auf fremdes Objekt |
 | Auszahlung → Bescheidversand | **sollte ACL sein**, ist heute Conformist | Kein Translator vorhanden |
 | Referenzdaten → alle | Open Host Service | REST-API + Published Language |
 | Legacy-System ↔ Kernsystem (Importe) | **ungewollter Shared Kernel** | Java-Klassen über Projektgrenzen importiert |
 
-> Das größte Risiko: `AenderungAnElerAntragsMappe` wird direkt von 217 MDBs verwendet.
-> Ein umbenannter Klassenname — und alle 217 MDBs kompilieren nicht mehr.
+> Das größte Risiko: `AntragsmappeAenderung` wird direkt von zahlreiche MDBs verwendet.
+> Ein umbenannter Klassenname — und alle betroffenen MDBs kompilieren nicht mehr.
 
 ---
 

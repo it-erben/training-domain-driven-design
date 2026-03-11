@@ -24,7 +24,7 @@
                                     <br/>
                                     Stammdaten, Lage,
                                     <br/>
-                                    Bewertung, Grundriss
+                                    Bewertung, Flurkarte
                                     <br/>
                                     <br/>
                                     <hr/>
@@ -64,14 +64,14 @@
                                         "Antragsmappe" =
                                     </b>
                                     <br/>
-                                    Expose-Text, Fotos,
+                                    Bescheidtext, Unterlagen,
                                     <br/>
-                                    Zielgruppe, Portale
+                                    Empfaenger, Versandkanal
                                     <br/>
                                     <br/>
                                     <hr/>
                                     <b>
-                                        Marketingorientiert
+                                        Empfaengerorientiert
                                         <br/>
                                         fuer den Sachbearbeiteren
                                     </b>

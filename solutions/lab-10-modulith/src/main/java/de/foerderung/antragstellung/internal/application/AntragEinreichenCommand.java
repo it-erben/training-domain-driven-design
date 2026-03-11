@@ -1,5 +1,6 @@
 package de.foerderung.antragstellung.internal.application;
 
-import java.util.UUID;
+import de.foerderung.antragstellung.internal.domain.model.AntragId;
 
-public record AntragEinreichenCommand(UUID antragsmappeId) {}
+public record AntragEinreichenCommand(AntragId antragsmappeId) {
+}

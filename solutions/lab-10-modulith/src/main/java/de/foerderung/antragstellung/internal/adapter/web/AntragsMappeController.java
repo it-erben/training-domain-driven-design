@@ -2,6 +2,7 @@ package de.foerderung.antragstellung.internal.adapter.web;
 
 import de.foerderung.antragstellung.internal.application.AntragEinreichenCommand;
 import de.foerderung.antragstellung.internal.application.AntragEinreichenService;
+import de.foerderung.antragstellung.internal.domain.model.AntragId;
 import de.foerderung.antragstellung.internal.domain.model.AntragsMappe;
 import de.foerderung.antragstellung.internal.domain.model.AntragsmappeNichtGefundenException;
 import de.foerderung.antragstellung.internal.domain.port.AntragsMappeRepository;
@@ -30,28 +31,28 @@ public class AntragsMappeController {
 
     @PostMapping
     public ResponseEntity<AntragsMappeResponse> create() {
-        UUID id = UUID.randomUUID();
-        var mappe = einreichenService.create(id, "DE-ELER-2026-" + id.toString().substring(0, 4));
+        var mappe = einreichenService.create("DZ-BW-2026-0001");
         return ResponseEntity.status(HttpStatus.CREATED).body(AntragsMappeResponse.from(mappe));
     }
 
     @PostMapping("/{id}/einreichen")
     public ResponseEntity<Void> einreichen(@PathVariable UUID id) {
-        einreichenService.execute(new AntragEinreichenCommand(id));
+        einreichenService.execute(new AntragEinreichenCommand(new AntragId(id)));
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
     public AntragsMappeResponse findById(@PathVariable UUID id) {
-        return repository.findById(id)
+        var antragId = new AntragId(id);
+        return repository.findById(antragId)
                 .map(AntragsMappeResponse::from)
-                .orElseThrow(() -> new AntragsmappeNichtGefundenException(id));
+                .orElseThrow(() -> new AntragsmappeNichtGefundenException(antragId));
     }
 
     record AntragsMappeResponse(UUID id, String registrierungsNummer, String status) {
         static AntragsMappeResponse from(AntragsMappe mappe) {
             return new AntragsMappeResponse(
-                    mappe.getId(),
+                    mappe.getId().value(),
                     mappe.getRegistrierungsNummer().wert(),
                     mappe.getStatus().name());
         }

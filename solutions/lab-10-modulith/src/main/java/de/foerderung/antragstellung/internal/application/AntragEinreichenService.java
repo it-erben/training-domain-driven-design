@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -28,7 +27,7 @@ public class AntragEinreichenService {
         this.eventPublisher = eventPublisher;
     }
 
-    public AntragsMappe create(UUID id, String registrierungsNummer) {
+    public AntragsMappe create(String registrierungsNummer) {
         var mappe = AntragsMappe.erstellen(
                 new RegistrierungsNummer(registrierungsNummer),
                 new Foerderbetrag(new BigDecimal("10000"), "EUR"),
@@ -44,9 +43,9 @@ public class AntragEinreichenService {
         mappe.einreichen();
         repository.save(mappe);
 
-        // Publish integration event (not domain event!)
+        // Publish integration event with primitives (not domain event!)
         eventPublisher.publishEvent(new AntragsmappeEingereicht(
-                mappe.getId(), mappe.getRegistrierungsNummer().wert()));
+                mappe.getId().value(), mappe.getRegistrierungsNummer().wert()));
 
         mappe.clearDomainEvents();
     }

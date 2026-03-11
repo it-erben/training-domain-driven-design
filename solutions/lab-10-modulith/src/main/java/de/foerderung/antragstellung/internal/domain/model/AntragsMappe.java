@@ -7,12 +7,11 @@ import de.foerderung.antragstellung.internal.domain.event.NachweisAkzeptiert;
 import de.foerderung.antragstellung.internal.domain.event.NachweisEingereicht;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Aggregate Root for the AntragsMappe (application folder).
@@ -20,7 +19,7 @@ import java.util.UUID;
  */
 public class AntragsMappe {
 
-    private final UUID id;
+    private final AntragId id;
     private final RegistrierungsNummer registrierungsNummer;
     private final Foerderbetrag beantragteFoerderung;
     private final Foerderquote foerderquote;
@@ -29,9 +28,9 @@ public class AntragsMappe {
     private final List<Nachweis> nachweise;
     private transient final List<AntragEvent> domainEvents;
 
-    private AntragsMappe(UUID id, RegistrierungsNummer registrierungsNummer,
+    private AntragsMappe(AntragId id, RegistrierungsNummer registrierungsNummer,
                           Foerderbetrag beantragteFoerderung, Foerderquote foerderquote) {
-        this.id = Objects.requireNonNull(id, "ID darf nicht null sein");
+        this.id = Objects.requireNonNull(id, "AntragId darf nicht null sein");
         this.registrierungsNummer = Objects.requireNonNull(registrierungsNummer,
                 "RegistrierungsNummer darf nicht null sein");
         this.beantragteFoerderung = Objects.requireNonNull(beantragteFoerderung,
@@ -50,14 +49,15 @@ public class AntragsMappe {
     public static AntragsMappe erstellen(RegistrierungsNummer registrierungsNummer,
                                           Foerderbetrag beantragteFoerderung,
                                           Foerderquote foerderquote) {
-        return new AntragsMappe(UUID.randomUUID(), registrierungsNummer,
+        var id = AntragId.generate();
+        return new AntragsMappe(id, registrierungsNummer,
                 beantragteFoerderung, foerderquote);
     }
 
     /**
      * Factory method to restore an aggregate from persistence without emitting domain events.
      */
-    public static AntragsMappe rekonstruieren(UUID id,
+    public static AntragsMappe rekonstruieren(AntragId id,
                                                RegistrierungsNummer registrierungsNummer,
                                                Foerderbetrag beantragteFoerderung,
                                                Foerderquote foerderquote,
@@ -74,22 +74,24 @@ public class AntragsMappe {
 
     /**
      * Adds a new Flurstueck to this AntragsMappe and sets the status to IN_BEARBEITUNG.
+     * Returns the FlurstueckId - inner entities are not exposed directly (Aggregate rule).
      */
-    public Flurstueck flurstueckHinzufuegen(FlurstueckNummer nummer,
-                                             BigDecimal flaeche, String bemerkung) {
-        Flurstueck flurstueck = new Flurstueck(UUID.randomUUID(), nummer, flaeche, bemerkung);
+    public FlurstueckId flurstueckHinzufuegen(FlurstueckNummer nummer,
+                                               BigDecimal flaeche, String bemerkung) {
+        var flurstueckId = FlurstueckId.generate();
+        Flurstueck flurstueck = new Flurstueck(flurstueckId, nummer, flaeche, bemerkung);
         this.flurstuecke.add(flurstueck);
         this.status = AntragStatus.IN_BEARBEITUNG;
 
         domainEvents.add(new FlurstueckHinzugefuegt(
-                this.id, flurstueck.getId(), LocalDateTime.now()));
-        return flurstueck;
+                this.id, flurstueckId, nummer, flaeche, Instant.now()));
+        return flurstueckId;
     }
 
     /**
      * Marks an existing Flurstueck as verified.
      */
-    public void flurstueckPruefen(UUID flurstueckId) {
+    public void flurstueckPruefen(FlurstueckId flurstueckId) {
         Flurstueck flurstueck = flurstuecke.stream()
                 .filter(f -> f.getId().equals(flurstueckId))
                 .findFirst()
@@ -107,20 +109,21 @@ public class AntragsMappe {
     /**
      * Submits a new Nachweis and raises a domain event.
      */
-    public Nachweis nachweisEinreichen(String dokumentTyp, String eingereichtVon) {
-        Nachweis nachweis = new Nachweis(UUID.randomUUID(), dokumentTyp,
-                eingereichtVon, LocalDateTime.now());
+    public NachweisId nachweisEinreichen(String dokumentTyp, String eingereichtVon) {
+        var nachweisId = NachweisId.generate();
+        Nachweis nachweis = new Nachweis(nachweisId, dokumentTyp,
+                eingereichtVon, Instant.now());
         this.nachweise.add(nachweis);
 
         domainEvents.add(new NachweisEingereicht(
-                this.id, dokumentTyp, nachweis.getEingereichtAm()));
-        return nachweis;
+                this.id, nachweisId, dokumentTyp, Instant.now()));
+        return nachweisId;
     }
 
     /**
      * Accepts an existing Nachweis and raises a domain event.
      */
-    public void nachweisAkzeptieren(UUID nachweisId) {
+    public void nachweisAkzeptieren(NachweisId nachweisId) {
         Nachweis nachweis = nachweise.stream()
                 .filter(n -> n.getId().equals(nachweisId))
                 .findFirst()
@@ -135,7 +138,7 @@ public class AntragsMappe {
         nachweis.akzeptieren();
 
         domainEvents.add(new NachweisAkzeptiert(
-                this.id, nachweisId, LocalDateTime.now()));
+                this.id, nachweisId, Instant.now()));
     }
 
     /**
@@ -151,12 +154,12 @@ public class AntragsMappe {
         }
 
         this.status = AntragStatus.EINGEREICHT;
-        domainEvents.add(new InternalAntragsmappeEingereicht(this.id, LocalDateTime.now()));
+        domainEvents.add(new InternalAntragsmappeEingereicht(this.id, Instant.now()));
     }
 
     // --- Getters ---
 
-    public UUID getId() {
+    public AntragId getId() {
         return id;
     }
 

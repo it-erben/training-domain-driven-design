@@ -107,36 +107,34 @@ class KafkaPruefungEventConsumer {
 }
 ```
 
-### Evolutionsstufen
+### Evolutionsstufen — DDD-getrieben, nicht infrastruktur-getrieben
 
 ```
-Stufe 1 — Legacy: JMS MDB
+Stufe 1 — Ist-Zustand: JMS/EJB (Conformist, kein ACL)
   @MessageDriven + ObjectMessage + JMS Topic
   Problem: kein Translator, kein eigenes Modell, kein Idempotenz-Check
 
-Stufe 2 — In-Process: Spring ApplicationEvents
-  ApplicationEventPublisher + @TransactionalEventListener
-  Gut für: gleiche JVM, Transaktionssicherheit
-  Grenze: Kein Service-übergreifendes Messaging möglich
+Stufe 2 — DDD nachrüsten (Transport bleibt gleich!)
+  Published Language + ACL-Translator + Idempotenz + eigenes Domänenmodell
+  Erkenntnis: Das Problem ist nicht der Broker, es ist das fehlende DDD
 
-Stufe 3 — Webhook-basiert
-  WebhookEventScheduler + HTTP POST
-  Gut für: externe Systeme benachrichtigen
-  Problem: polling-basiert, kein Ordering, kein At-Least-Once
+Stufe 3 — Spring Modulith + Postgres Outbox (Ziel)
+  ApplicationEventPublisher + EventPublicationRegistry (JDBC)
+  At-Least-Once ohne Broker, Kubernetes-ready, Zero Infrastruktur-Overhead
 
-Stufe 4 — Ziel: Kafka
-  @KafkaListener + JSON Schema + Consumer Groups
-  Gut für: verteilte Services, Replay, At-Least-Once + Idempotenz
+Stufe 4 — Optional: Service-Extraktion mit @Externalized
+  @Externalized → Kafka/RabbitMQ — nur bei echten Microservices nötig
+  ACL-Code bleibt identisch, nur Transport ändert sich
 ```
 
-Ein laufender Kafka-Broker wird nicht benötigt - es reicht eine Skizze mit
-den richtigen Annotationen und Konfigurationen. Die ACL-Logik (Translator +
-Service) bleibt identisch zum In-Process-Ansatz.
+Die ACL-Logik (Translator + Service) bleibt bei jeder Stufe identisch.
+Kein Broker nötig — Spring Modulith + Postgres reicht für den Monolithen.
 
 **Diskussionsfragen:**
 - *"Welcher Event-Listener hat den höchsten Geschäftswert und wäre der beste
-  Kafka-Migrations-Kandidat?"*
-- *"Was ist die Partitionierungs-Strategie?"*
+  Kandidat für die erste ACL-Transformation?"*
+- *"Brauchen wir in den nächsten 2 Jahren unabhängig deployte Services?"*
+- *"Wenn nein: Was spricht dagegen, direkt auf Spring Modulith + Postgres zu gehen?"*
   → `registrierungsNummer` als Key → Ordering pro Antrag garantiert
 
 ## JMS-zu-DDD-Mapping erstellen (einfach, konzeptionell)
@@ -146,8 +144,8 @@ Erstelle für ein Legacy-System mit JMS-Messaging eine Übersicht, die für
 
 | Listener-Name | JMS Topic/Queue | DDD-Entsprechung | Bounded Context | Fehlende DDD-Elemente |
 |---------------|----------------|-------------------|-----------------|----------------------|
-| *MonitoringSynchronizer* | `topic/AenderungAnRegisterable` | Event Listener | Auswertung | ACL Translator, eigenes VO |
-| *AuszahlungListener* | `topic/ZaPositivEntschieden` | Event Listener | Auszahlung | Idempotenz, eigenes Aggregate |
+| *MonitoringSynchronizer* | `topic/AntragGeaendert` | Event Listener | Auswertung | ACL Translator, eigenes VO |
+| *AuszahlungListener* | `topic/ZahlungFreigegeben` | Event Listener | Auszahlung | Idempotenz, eigenes Aggregate |
 | ... | ... | ... | ... | ... |
 
 **Lernziel:** Message Listener in Legacy-Systemen sind nicht "Chaos", sondern

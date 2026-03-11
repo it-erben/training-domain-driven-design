@@ -1,22 +1,21 @@
 package de.foerderung.antragstellung.internal.domain.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entity representing a supporting document (Nachweis) within the AntragsMappe aggregate.
  */
 public class Nachweis {
 
-    private final UUID id;
+    private final NachweisId id;
     private final String dokumentTyp;
     private final String eingereichtVon;
-    private final LocalDateTime eingereichtAm;
+    private final Instant eingereichtAm;
     private boolean akzeptiert;
 
-    Nachweis(UUID id, String dokumentTyp, String eingereichtVon, LocalDateTime eingereichtAm) {
-        this.id = Objects.requireNonNull(id, "ID darf nicht null sein");
+    Nachweis(NachweisId id, String dokumentTyp, String eingereichtVon, Instant eingereichtAm) {
+        this.id = Objects.requireNonNull(id, "NachweisId darf nicht null sein");
         this.dokumentTyp = Objects.requireNonNull(dokumentTyp, "DokumentTyp darf nicht null sein");
         this.eingereichtVon = Objects.requireNonNull(eingereichtVon,
                 "EingereichtVon darf nicht null sein");
@@ -32,8 +31,8 @@ public class Nachweis {
         }
     }
 
-    public static Nachweis rekonstruieren(UUID id, String dokumentTyp, String eingereichtVon,
-                                           LocalDateTime eingereichtAm, boolean akzeptiert) {
+    public static Nachweis rekonstruieren(NachweisId id, String dokumentTyp, String eingereichtVon,
+                                           Instant eingereichtAm, boolean akzeptiert) {
         Nachweis nachweis = new Nachweis(id, dokumentTyp, eingereichtVon, eingereichtAm);
         nachweis.akzeptiert = akzeptiert;
         return nachweis;
@@ -59,7 +58,7 @@ public class Nachweis {
         return id.hashCode();
     }
 
-    public UUID getId() {
+    public NachweisId getId() {
         return id;
     }
 
@@ -71,7 +70,7 @@ public class Nachweis {
         return eingereichtVon;
     }
 
-    public LocalDateTime getEingereichtAm() {
+    public Instant getEingereichtAm() {
         return eingereichtAm;
     }
 

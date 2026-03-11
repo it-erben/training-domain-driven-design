@@ -1,10 +1,16 @@
 package de.foerderung.antragstellung.internal.domain.event;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import de.foerderung.antragstellung.internal.domain.model.AntragId;
+import de.foerderung.antragstellung.internal.domain.model.FlurstueckId;
+import de.foerderung.antragstellung.internal.domain.model.FlurstueckNummer;
+
+import java.math.BigDecimal;
+import java.time.Instant;
 
 public record FlurstueckHinzugefuegt(
-        UUID antragsmappeId,
-        UUID flurstueckId,
-        LocalDateTime timestamp
+        AntragId antragsmappeId,
+        FlurstueckId flurstueckId,
+        FlurstueckNummer flurstueckNummer,
+        BigDecimal flaeche,
+        Instant occurredAt
 ) implements AntragEvent {}

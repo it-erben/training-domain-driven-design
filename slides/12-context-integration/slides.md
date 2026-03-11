@@ -41,28 +41,28 @@ Geschätzte Dauer: ca. 60 Minuten
 ---
 <style scoped>section { font-size: 1.55em; }</style>
 
-## Praxisbeispiel: 330 MDBs = 330 unvollständige ACLs
+## Praxisbeispiel: Hunderte MDBs = hunderte unvollständige ACLs
 
 ### Das Problem in gewachsenen Systemen
 
 In manchen Systemen läuft die gesamte BC-Kommunikation über **JMS Topics**:
 
 ```
-Antragstellung  ──[topic/AenderungAnRegisterable]──►  217 MDBs im Legacy-System
-                ──[topic/ZaPositivEntschieden]──────►  Auszahlung-MDBs
-                ──[topic/ZaZahlungVermerken]────────►  Bescheid-MDBs
+Antragstellung  ──[topic/AntragGeaendert]──►  Zahlreiche MDBs im Legacy-System
+                ──[topic/ZahlungFreigegeben]──────►  Auszahlung-MDBs
+                ──[topic/ZahlungVermerkt]────────►  Bescheid-MDBs
 ```
 
-**Was wir haben:** 330 `@MessageDriven`-Beans, die auf JMS-Topics hören.
+**Was wir haben:** Zahlreiche `@MessageDriven`-Beans, die auf JMS-Topics hören.
 
-**Was DDD draus macht:** 330 potenzielle Anti-Corruption Layers — nur leider ohne den entscheidenden Teil: den **Translator**.
+**Was DDD draus macht:** Ebenso viele potenzielle Anti-Corruption Layers — nur leider ohne den entscheidenden Teil: den **Translator**.
 
 ```java
 // Was heute in jeder MDB passiert — direkt, ohne Übersetzung:
 @Override
 public void onMessage(Message message) {
-    AenderungAnElerAntragsMappe aend =
-        (AenderungAnElerAntragsMappe) ((ObjectMessage) message).getObject();
+    AntragsmappeAenderung aend =
+        (AntragsmappeAenderung) ((ObjectMessage) message).getObject();
     // ↑ Fremdes Domänenobjekt direkt verwendet — das ist Conformist, kein ACL!
     optimusPrime.synchronisiere(aend.getRegistrationNumber());
 }
@@ -338,19 +338,18 @@ public void on(AntragsmappeEingereicht event) {
 ### Was wir haben (Legacy EJB — Conformist, kein ACL)
 
 ```java
-// ElerMonitorResultItemSynchronizerMDB.java — Ist-Zustand
+// MonitoringSynchronizerMDB.java — Ist-Zustand
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destination",
-        propertyValue = "topic/AenderungAnRegisterable"),
+        propertyValue = "topic/AntragGeaendert"),
     @ActivationConfigProperty(propertyName = "messageSelector",
-        propertyValue = "messageObjectClass= 'de.legacy.antrag.basis.allg.business" +
-                        ".AenderungAnElerAntragsMappe'") })
-public class ElerMonitorResultItemSynchronizerMDB implements MessageListener {
+        propertyValue = "messageObjectClass= 'de.legacy.antrag.basis.AntragsmappeAenderung'") })
+public class MonitoringSynchronizerMDB implements MessageListener {
     @Override
     public void onMessage(Message message) {
         // ❌ Direkte Verwendung des fremden Domänenobjekts — kein Translator!
-        AenderungAnElerAntragsMappe aend =
-            (AenderungAnElerAntragsMappe) ((ObjectMessage) message).getObject();
+        AntragsmappeAenderung aend =
+            (AntragsmappeAenderung) ((ObjectMessage) message).getObject();
         if (aend.getAenderungsArt() == UPDATED)
             optimusPrime.synchronisiere(aend.getRegistrationNumber());
     }
@@ -413,7 +412,7 @@ class AntragsmappeEventListener {
 | JMS / EJB (Legacy-System) | Spring / DDD (modernes System) |
 |---------------------------|--------------------------------|
 | `@MessageDriven` | `@TransactionalEventListener` |
-| `topic/AenderungAnRegisterable` | `ApplicationEventPublisher.publishEvent()` |
+| `topic/AntragGeaendert` | `ApplicationEventPublisher.publishEvent()` |
 | `messageSelector` auf `messageObjectClass` | Java-Typ-basiertes Event-Routing (automatisch) |
 | `MessageListener.onMessage()` | Event-Handler-Methode |
 | `subscriptionDurability = Durable` | `@TransactionalEventListener(phase=AFTER_COMMIT)` |
@@ -567,29 +566,30 @@ Implementiert Cross-BC-Integration in der Förderantragsverwaltung:
 
 ---
 
-## Ausblick: Evolutionspfad
+## Ausblick: Evolutionspfad — DDD-getrieben, nicht infrastruktur-getrieben
 
 ### Vier Stufen der Integration
 
 ```
-Stufe 1 — Legacy (JMS/EJB)
+Stufe 1 — Ist-Zustand (JMS/EJB, Conformist)
   @MessageDriven + ObjectMessage + JMS Topic
   Problem: kein Translator, kein eigenes Modell, kein Idempotenz-Check
 
-Stufe 2 — In-Process Events (Spring)
-  ApplicationEventPublisher + @TransactionalEventListener
-  Gut für: gleiche JVM, Transaktionssicherheit
-  Nächster Schritt: ACL-Translator ergänzen
+Stufe 2 — DDD nachrüsten (Transport bleibt gleich!)
+  Published Language + ACL-Translator + Idempotenz + eigenes Domänenmodell
+  Erkenntnis: Das Problem ist nicht der Broker — es ist das fehlende DDD
 
-Stufe 3 — Webhooks (HTTP-basiert)
-  WebhookEventScheduler + HTTP POST an externe Systeme
-  Gut für: externe Benachrichtigung
-  Problem: polling-basiert, kein Ordering, kein At-Least-Once
+Stufe 3 — Spring Modulith + Postgres Outbox (Ziel für Monolith)
+  ApplicationEventPublisher + EventPublicationRegistry (JDBC)
+  At-Least-Once ohne Broker, Kubernetes-ready, Zero Infrastruktur-Overhead
 
-Stufe 4 — Ziel (Kafka)
-  @KafkaListener + JSON Schema + Consumer Groups
-  Gut für: verteilte Services, Replay, At-Least-Once + Idempotenz
+Stufe 4 — Optional: Service-Extraktion mit @Externalized
+  @Externalized → Kafka/RabbitMQ/SNS — nur bei echten Microservices
+  ACL-Code bleibt identisch, nur Transport + Konfiguration ändern sich
 ```
+
+> **Erst DDD (Stufe 2), dann Infrastruktur (Stufe 3).** Stufe 4 nur bei Bedarf.
+> Siehe auch: **Exkurs E1 — Von MDBs zu Spring Modulith** für die vollständige Analyse.
 
 ---
 
@@ -603,7 +603,7 @@ Stufe 4 — Ziel (Kafka)
   *Kandidat: eine MDB, die bei Doppelausführung eine Auszahlung doppelt anlegen würde*
 - Wo haben wir ungewollt Conformist statt ACL?
   *Überall, wo ein fremdes Domänenobjekt direkt aus `onMessage()` gecastet wird*
-- Was passiert, wenn wir `AenderungAnElerAntragsMappe` umbenennen?
+- Was passiert, wenn wir `AntragsmappeAenderung` umbenennen?
   *Alle abhängigen MDBs kompilieren nicht mehr — weil keine Published Language existiert*
 - Wo ist `@Scheduled` ein schlechter Ersatz für einen echten Event-Listener?
   *Polling-basierte Versand-Services — Race Condition bei Mehrfach-Instanzen*

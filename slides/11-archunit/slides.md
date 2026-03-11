@@ -310,14 +310,14 @@ static final ArchRule bcs_kommunizieren_nur_ueber_events =
 - Stellt sicher, dass Bounded Contexts isoliert bleiben
 - Kommunikation zwischen BCs nur über Events oder definierte APIs
 - `slices()` prüft alle BC-Kombinationen auf einmal
-- **Typisch in gewachsenen Systemen:** 330 MDBs kommunizieren ohne diese Isolation!
+- **Typisch in gewachsenen Systemen:** Zahlreiche MDBs kommunizieren ohne diese Isolation!
 
 ---
 <style scoped>section { font-size: 1.7em; }</style>
 
 ## Architektur-Baseline: Legacy-Code schrittweise verbessern
 
-### Problem: 217 MDBs nutzen `AenderungAnElerAntragsMappe` direkt — Build würde sofort brechen
+### Problem: Zahlreiche MDBs nutzen `AntragsmappeAenderung` direkt — Build würde sofort brechen
 
 ```java
 // FreezingArchRule: "freeze" existing violations
@@ -327,10 +327,10 @@ static final ArchRule keine_direkten_mdb_importe =
         noClasses()
             .that().resideInAPackage("..mdb..")
             .should().dependOnClassesThat()
-                .resideInAPackage("..registerable.."));
+                .resideInAPackage("..antragstellung.."));
 ```
 
-- Erster Lauf: alle 217 Verstöße werden in `archunit_store/` gespeichert
+- Erster Lauf: alle bestehenden Verstöße werden in `archunit_store/` gespeichert
 - Folgende Läufe: nur *neue* Verstöße brechen den Build — keine neuen MDBs ohne ACL!
 - Bestehende Verstöße werden schrittweise abgebaut
 - `archunit_store/` in git committen → Team sieht Fortschritt

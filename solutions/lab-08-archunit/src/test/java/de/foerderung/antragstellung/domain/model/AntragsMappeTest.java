@@ -1,6 +1,7 @@
 package de.foerderung.antragstellung.domain.model;
 
 import de.foerderung.antragstellung.domain.event.AntragsmappeEingereicht;
+import de.foerderung.antragstellung.domain.event.AntragsmappeErstellt;
 import de.foerderung.antragstellung.domain.event.FlurstueckHinzugefuegt;
 import de.foerderung.antragstellung.domain.event.NachweisAkzeptiert;
 import de.foerderung.antragstellung.domain.event.NachweisEingereicht;
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,25 +51,24 @@ class AntragsMappeTest {
     void flurstueckHinzufuegen_setsStatusAndEmitsEvent() {
         var mappe = createMappe();
 
-        var flurstueck = mappe.flurstueckHinzufuegen(
+        var flurstueckId = mappe.flurstueckHinzufuegen(
                 new FlurstueckNummer("042/0815"), new BigDecimal("12.5"), "Acker");
 
         assertThat(mappe.getStatus()).isEqualTo(AntragStatus.IN_BEARBEITUNG);
         assertThat(mappe.getFlurstuecke()).hasSize(1);
-        assertThat(flurstueck.getNummer().wert()).isEqualTo("042/0815");
+        assertThat(flurstueckId).isNotNull();
         assertThat(mappe.getDomainEvents())
-                .hasSize(1)
-                .first()
-                .isInstanceOf(FlurstueckHinzugefuegt.class);
+                .filteredOn(e -> e instanceof FlurstueckHinzugefuegt)
+                .hasSize(1);
     }
 
     @Test
     void flurstueckPruefen_marksAsGeprueft() {
         var mappe = createMappe();
-        var flurstueck = mappe.flurstueckHinzufuegen(
+        var flurstueckId = mappe.flurstueckHinzufuegen(
                 new FlurstueckNummer("042/0815"), new BigDecimal("12.5"), null);
 
-        mappe.flurstueckPruefen(flurstueck.getId());
+        mappe.flurstueckPruefen(flurstueckId);
 
         assertThat(mappe.getFlurstuecke().get(0).isGeprueft()).isTrue();
     }
@@ -78,9 +77,9 @@ class AntragsMappeTest {
     void nachweisEinreichen_emitsEvent() {
         var mappe = createMappe();
 
-        var nachweis = mappe.nachweisEinreichen("Eigentumsnachweis", "Max Mustermann");
+        var nachweisId = mappe.nachweisEinreichen("Eigentumsnachweis", "Max Mustermann");
 
-        assertThat(nachweis.getDokumentTyp()).isEqualTo("Eigentumsnachweis");
+        assertThat(nachweisId).isNotNull();
         assertThat(mappe.getNachweise()).hasSize(1);
         assertThat(mappe.getDomainEvents())
                 .anyMatch(e -> e instanceof NachweisEingereicht);
@@ -89,9 +88,9 @@ class AntragsMappeTest {
     @Test
     void nachweisAkzeptieren_emitsEvent() {
         var mappe = createMappe();
-        var nachweis = mappe.nachweisEinreichen("Eigentumsnachweis", "Max Mustermann");
+        var nachweisId = mappe.nachweisEinreichen("Eigentumsnachweis", "Max Mustermann");
 
-        mappe.nachweisAkzeptieren(nachweis.getId());
+        mappe.nachweisAkzeptieren(nachweisId);
 
         assertThat(mappe.getNachweise().get(0).isAkzeptiert()).isTrue();
         assertThat(mappe.getDomainEvents())
@@ -103,29 +102,30 @@ class AntragsMappeTest {
         var mappe = createMappe();
 
         // 1. Flurstueck hinzufuegen
-        var flurstueck = mappe.flurstueckHinzufuegen(
+        var flurstueckId = mappe.flurstueckHinzufuegen(
                 new FlurstueckNummer("042/0815"), new BigDecimal("12.5"), null);
         assertThat(mappe.getStatus()).isEqualTo(AntragStatus.IN_BEARBEITUNG);
 
         // 2. Flurstueck pruefen
-        mappe.flurstueckPruefen(flurstueck.getId());
+        mappe.flurstueckPruefen(flurstueckId);
 
         // 3. Nachweis einreichen
-        var nachweis = mappe.nachweisEinreichen("Eigentumsnachweis", "Max Mustermann");
+        var nachweisId = mappe.nachweisEinreichen("Eigentumsnachweis", "Max Mustermann");
 
         // 4. Nachweis akzeptieren
-        mappe.nachweisAkzeptieren(nachweis.getId());
+        mappe.nachweisAkzeptieren(nachweisId);
 
         // 5. Einreichen
         mappe.einreichen();
         assertThat(mappe.getStatus()).isEqualTo(AntragStatus.EINGEREICHT);
 
-        // Verify all events
-        assertThat(mappe.getDomainEvents()).hasSize(4);
-        assertThat(mappe.getDomainEvents().get(0)).isInstanceOf(FlurstueckHinzugefuegt.class);
-        assertThat(mappe.getDomainEvents().get(1)).isInstanceOf(NachweisEingereicht.class);
-        assertThat(mappe.getDomainEvents().get(2)).isInstanceOf(NachweisAkzeptiert.class);
-        assertThat(mappe.getDomainEvents().get(3)).isInstanceOf(AntragsmappeEingereicht.class);
+        // Verify all events (AntragsmappeErstellt from factory + 4 from operations)
+        assertThat(mappe.getDomainEvents()).hasSize(5);
+        assertThat(mappe.getDomainEvents().get(0)).isInstanceOf(AntragsmappeErstellt.class);
+        assertThat(mappe.getDomainEvents().get(1)).isInstanceOf(FlurstueckHinzugefuegt.class);
+        assertThat(mappe.getDomainEvents().get(2)).isInstanceOf(NachweisEingereicht.class);
+        assertThat(mappe.getDomainEvents().get(3)).isInstanceOf(NachweisAkzeptiert.class);
+        assertThat(mappe.getDomainEvents().get(4)).isInstanceOf(AntragsmappeEingereicht.class);
     }
 
     // --- Edge Cases ---
@@ -148,7 +148,7 @@ class AntragsMappeTest {
     void flurstueckPruefen_nichtVorhanden_wirftException() {
         var mappe = createMappe();
 
-        assertThatThrownBy(() -> mappe.flurstueckPruefen(UUID.randomUUID()))
+        assertThatThrownBy(() -> mappe.flurstueckPruefen(FlurstueckId.generate()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -156,13 +156,13 @@ class AntragsMappeTest {
     void nachweisAkzeptieren_nichtVorhanden_wirftException() {
         var mappe = createMappe();
 
-        assertThatThrownBy(() -> mappe.nachweisAkzeptieren(UUID.randomUUID()))
+        assertThatThrownBy(() -> mappe.nachweisAkzeptieren(NachweisId.generate()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void rekonstruieren_storesStateWithoutEvents() {
-        var id = UUID.randomUUID();
+        var id = AntragId.generate();
         var mappe = AntragsMappe.rekonstruieren(
                 id,
                 new RegistrierungsNummer("DZ-BW-2024-0042"),
@@ -170,7 +170,7 @@ class AntragsMappeTest {
                 new Foerderquote(new BigDecimal("0.35")),
                 AntragStatus.IN_BEARBEITUNG,
                 List.of(Flurstueck.rekonstruieren(
-                        UUID.randomUUID(),
+                        FlurstueckId.generate(),
                         new FlurstueckNummer("042/0815"),
                         new BigDecimal("12.5"),
                         "Acker",

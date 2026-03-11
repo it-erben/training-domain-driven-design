@@ -1,11 +1,11 @@
 package de.foerderung.antragstellung.internal.infrastructure.persistence;
 
+import de.foerderung.antragstellung.internal.domain.model.AntragId;
 import de.foerderung.antragstellung.internal.domain.model.AntragsMappe;
 import de.foerderung.antragstellung.internal.domain.port.AntragsMappeRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 public class AntragsMappeRepositoryAdapter implements AntragsMappeRepository {
@@ -17,8 +17,8 @@ public class AntragsMappeRepositoryAdapter implements AntragsMappeRepository {
     }
 
     @Override
-    public Optional<AntragsMappe> findById(UUID id) {
-        return jpaRepository.findById(id)
+    public Optional<AntragsMappe> findById(AntragId id) {
+        return jpaRepository.findById(id.value())
                 .map(JpaAntragsMappe::toModel);
     }
 
@@ -30,7 +30,7 @@ public class AntragsMappeRepositoryAdapter implements AntragsMappeRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
+    public void deleteById(AntragId id) {
+        jpaRepository.deleteById(id.value());
     }
 }
