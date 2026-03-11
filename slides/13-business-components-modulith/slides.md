@@ -59,10 +59,6 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Monolith First (Martin Fowler)
 
-![bg right:30% h:280](images/xkcd-1425-tasks.png)
-
-*xkcd.com/1425 — CC BY-NC 2.5*
-
 > *"Almost all the successful microservice stories have started
 > with a monolith that got too big and was broken up."*
 > - Martin Fowler

@@ -489,10 +489,6 @@ public class AntragsMappeFixture {
 
 ## Reflexion: Prüft euer Verständnis
 
-![bg right:30% h:280](images/xkcd-844-good-code.png)
-
-*xkcd.com/844 — CC BY-NC 2.5*
-
 1. Warum sollen ~60% der Tests Domain Unit Tests sein — und nicht Integration Tests?
 2. Was ist der Vorteil eines InMemory-Repositories gegenüber einem Mock?
 3. Wann braucht ihr `@SpringBootTest` wirklich — und wann reicht JUnit 5 allein?
