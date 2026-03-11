@@ -9,7 +9,7 @@ In diesem Lab transformiert ihr eine typische MDB-basierte Integration in eine s
 
 ## Ausgangssituation
 
-Ihr startet mit dem Projekt aus **Lab 10** (Spring Modulith). Darin existieren bereits:
+Importiert das Projekt aus `initial-project/` in eure IDE. Es basiert auf dem Stand von **Lab 10** (Spring Modulith). Darin existieren bereits:
 
 - **Antragstellung** (Core BC): `AntragsMappe`, `AntragsmappeEingereicht` (Published Language)
 - **Pruefung** (Core BC): ACL mit Translator + Listener, idempotenter `PruefungStartenService`

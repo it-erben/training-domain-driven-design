@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foerderantragsverwaltung</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --danger: #dc2626;
+            --danger-dark: #b91c1c;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        nav {
+            width: 260px;
+            background: var(--text);
+            color: white;
+            padding: 24px 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav h1 {
+            font-size: 1.1em;
+            padding: 0 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-weight: 600;
+        }
+
+        nav h1 small {
+            display: block;
+            font-size: 0.65em;
+            font-weight: 400;
+            color: rgba(255,255,255,0.5);
+            margin-top: 4px;
+        }
+
+        nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+
+        nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+        nav a.active { background: var(--primary); color: white; }
+
+        nav a .icon { font-size: 1.2em; width: 24px; text-align: center; }
+
+        nav .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-left: auto;
+        }
+
+        nav .status-dot.ok { background: var(--success); }
+        nav .status-dot.off { background: var(--danger); }
+        nav .status-dot.pending { background: var(--warning); }
+
+        nav .nav-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.75em;
+            color: rgba(255,255,255,0.4);
+        }
+
+        main {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h2 { font-size: 1.5em; font-weight: 600; }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .card h3 {
+            font-size: 1em;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .label {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9em;
+        }
+
+        tr:hover td { background: #f1f5f9; }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-state p { margin-top: 8px; font-size: 0.9em; }
+
+        button, .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        button:hover { background: #f1f5f9; }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover { background: var(--primary-dark); }
+
+        .btn-danger {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm { padding: 4px 10px; font-size: 0.8em; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .badge-yellow { background: #fef9c3; color: #854d0e; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            color: white;
+            font-size: 0.85em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+            max-width: 360px;
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h1>Foerderantrags&shy;verwaltung <small>DDD Workshop - Spring Modulith</small></h1>
+    <a class="active" onclick="showPage('dashboard')" data-page="dashboard">
+        <span class="icon">&#9632;</span> Dashboard
+    </a>
+    <a onclick="showPage('betriebsinhaber')" data-page="betriebsinhaber">
+        <span class="icon">&#9998;</span> Betriebsinhaber
+        <span class="status-dot pending" id="nav-dot-betriebsinhaber" title="API nicht erreichbar"></span>
+    </a>
+    <a onclick="showPage('antragstellung')" data-page="antragstellung">
+        <span class="icon">&#9881;</span> Antragstellung
+        <span class="status-dot pending" id="nav-dot-antragstellung" title="API nicht erreichbar"></span>
+    </a>
+    <div class="nav-footer">
+        Spring Boot 4 &middot; Spring Modulith &middot; DDD
+    </div>
+</nav>
+
+<main>
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+        <div class="page-header">
+            <h2>Dashboard</h2>
+        </div>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="label">Betriebsinhaber</div>
+                <div class="value" id="stat-betriebsinhaber">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">API-Status</div>
+                <div class="value" id="stat-health" style="font-size:1.2em">--</div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>API-Endpunkte</h3>
+            <table>
+                <thead>
+                    <tr><th>Endpunkt</th><th>Modul</th><th>Status</th></tr>
+                </thead>
+                <tbody id="endpoint-status"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Betriebsinhaber -->
+    <div class="page" id="page-betriebsinhaber">
+        <div class="page-header">
+            <h2>Betriebsinhaber</h2>
+        </div>
+        <div class="card" id="betriebsinhaber-content">
+            <div class="empty-state">
+                <p>Wird geladen...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Antragstellung -->
+    <div class="page" id="page-antragstellung">
+        <div class="page-header">
+            <h2>Antragstellung</h2>
+        </div>
+        <div class="card">
+            <div class="empty-state">
+                <p><strong>Antragstellung-Modul</strong></p>
+                <p>Verwende die REST API um Antragsmappen zu erstellen und einzureichen.</p>
+                <p style="margin-top:16px;font-size:0.85em;color:var(--text-muted)">
+                    POST /api/antragstellung/antragsmappen - Neue AntragsMappe<br>
+                    POST /api/antragstellung/antragsmappen/{id}/einreichen - Einreichen
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="toast-container" id="toasts"></div>
+
+<script>
+    const API = {
+        betriebsinhaber: '/api/betriebsinhaber',
+        health: '/actuator/health'
+    };
+
+    const endpoints = [
+        { url: '/actuator/health', label: 'Health (Actuator)', module: 'Core' },
+        { url: '/api/betriebsinhaber', label: 'GET /api/betriebsinhaber', module: 'Betriebsinhaber' },
+        { url: '/api/antragstellung/antragsmappen', label: 'POST /api/antragstellung/antragsmappen', module: 'Antragstellung' },
+    ];
+
+    function showPage(name) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        document.getElementById('page-' + name).classList.add('active');
+        document.querySelector(`nav a[data-page="${name}"]`).classList.add('active');
+
+        if (name === 'betriebsinhaber') loadBetriebsinhaber();
+        if (name === 'dashboard') refreshDashboard();
+    }
+
+    function toast(message, type = 'success') {
+        const container = document.getElementById('toasts');
+        const el = document.createElement('div');
+        el.className = 'toast ' + type;
+        el.textContent = message;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+    }
+
+    function esc(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    async function loadBetriebsinhaber() {
+        const container = document.getElementById('betriebsinhaber-content');
+        try {
+            const res = await fetch(API.betriebsinhaber);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const items = await res.json();
+
+            if (!items.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p><strong>Noch keine Betriebsinhaber vorhanden</strong></p>
+                        <p>Erstelle Betriebsinhaber ueber die REST API.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Name</th><th>Betriebsnummer</th><th>Anschrift</th></tr>
+                    </thead>
+                    <tbody>
+                        ${items.map(b => `
+                            <tr>
+                                <td>${b.id}</td>
+                                <td><strong>${esc(b.name)}</strong></td>
+                                <td>${esc(b.betriebsnummer || '--')}</td>
+                                <td>${b.anschrift ? esc(b.anschrift.strasse + ', ' + b.anschrift.postleitzahl + ' ' + b.anschrift.ort) : '--'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>`;
+        } catch {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <p><strong>API nicht erreichbar</strong></p>
+                </div>`;
+        }
+    }
+
+    async function checkEndpoint(url) {
+        try {
+            const res = await fetch(url);
+            return res.ok ? 'ok' : 'off';
+        } catch {
+            return 'off';
+        }
+    }
+
+    async function refreshDashboard() {
+        const healthEl = document.getElementById('stat-health');
+        try {
+            const res = await fetch(API.health);
+            const data = await res.json();
+            healthEl.textContent = data.status === 'UP' ? 'Gesund' : data.status;
+            healthEl.style.color = data.status === 'UP' ? 'var(--success)' : 'var(--danger)';
+        } catch {
+            healthEl.textContent = 'Offline';
+            healthEl.style.color = 'var(--danger)';
+        }
+
+        const biEl = document.getElementById('stat-betriebsinhaber');
+        try {
+            const res = await fetch(API.betriebsinhaber);
+            if (!res.ok) throw new Error();
+            const items = await res.json();
+            biEl.textContent = items.length;
+            setNavDot('betriebsinhaber', 'ok');
+        } catch {
+            biEl.textContent = '--';
+            setNavDot('betriebsinhaber', 'off');
+        }
+
+        const tbody = document.getElementById('endpoint-status');
+        tbody.innerHTML = '';
+        for (const ep of endpoints) {
+            const status = await checkEndpoint(ep.url);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><code>${esc(ep.label)}</code></td>
+                <td><span class="badge badge-blue">${ep.module}</span></td>
+                <td><span class="badge ${status === 'ok' ? 'badge-green' : 'badge-red'}">${status === 'ok' ? 'Verfuegbar' : 'Nicht verfuegbar'}</span></td>
+            `;
+            tbody.appendChild(row);
+        }
+    }
+
+    function setNavDot(name, status) {
+        const dot = document.getElementById('nav-dot-' + name);
+        if (dot) {
+            dot.className = 'status-dot ' + status;
+            dot.title = status === 'ok' ? 'API erreichbar' : 'API nicht erreichbar';
+        }
+    }
+
+    refreshDashboard();
+</script>
+
+</body>
+</html>
