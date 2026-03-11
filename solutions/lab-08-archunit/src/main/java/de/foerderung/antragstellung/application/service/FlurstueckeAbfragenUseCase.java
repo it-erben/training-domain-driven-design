@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import de.foerderung.antragstellung.domain.model.AntragId;
 import de.foerderung.antragstellung.domain.model.AntragsMappe;
 import de.foerderung.antragstellung.domain.model.AntragsmappeNichtGefundenException;
 import de.foerderung.antragstellung.domain.model.Flurstueck;
@@ -38,8 +39,9 @@ public class FlurstueckeAbfragenUseCase {
 
     @Transactional(readOnly = true)
     public List<FlurstueckInfo> abfragen(UUID antragsmappeId) {
-        AntragsMappe mappe = repository.findById(antragsmappeId)
-                .orElseThrow(() -> new AntragsmappeNichtGefundenException(antragsmappeId));
+        AntragId id = new AntragId(antragsmappeId);
+        AntragsMappe mappe = repository.findById(id)
+                .orElseThrow(() -> new AntragsmappeNichtGefundenException(id));
 
         return mappe.getFlurstuecke().stream()
                 .map(this::toInfo)
@@ -48,7 +50,7 @@ public class FlurstueckeAbfragenUseCase {
 
     private FlurstueckInfo toInfo(Flurstueck flurstueck) {
         return new FlurstueckInfo(
-                flurstueck.getId(),
+                flurstueck.getId().value(),
                 flurstueck.getNummer().wert(),
                 flurstueck.getFlaeche(),
                 flurstueck.getBemerkung(),

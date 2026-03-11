@@ -9,9 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import de.foerderung.antragstellung.domain.model.AntragId;
 import de.foerderung.antragstellung.domain.model.AntragsMappe;
 import de.foerderung.antragstellung.domain.model.AntragStatus;
 import de.foerderung.antragstellung.domain.model.Flurstueck;
+import de.foerderung.antragstellung.domain.model.FlurstueckId;
 import de.foerderung.antragstellung.domain.model.FlurstueckNummer;
 import de.foerderung.antragstellung.domain.model.Foerderbetrag;
 import de.foerderung.antragstellung.domain.model.Foerderquote;
@@ -23,10 +25,10 @@ public class TestDataInitializer implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(TestDataInitializer.class);
 
-    private static final UUID MAPPE_ID_WITH_FLURSTUECKE =
-            UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID MAPPE_ID_EMPTY =
-            UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final AntragId MAPPE_ID_WITH_FLURSTUECKE =
+            new AntragId(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+    private static final AntragId MAPPE_ID_EMPTY =
+            new AntragId(UUID.fromString("22222222-2222-2222-2222-222222222222"));
 
     private final AntragsMappeRepository repository;
 
@@ -43,7 +45,7 @@ public class TestDataInitializer implements CommandLineRunner {
                 MAPPE_ID_WITH_FLURSTUECKE, MAPPE_ID_EMPTY);
     }
 
-    private void seedIfMissing(UUID mappeId, AntragsMappe mappe) {
+    private void seedIfMissing(AntragId mappeId, AntragsMappe mappe) {
         if (repository.findById(mappeId).isEmpty()) {
             repository.save(mappe);
         }
@@ -51,14 +53,14 @@ public class TestDataInitializer implements CommandLineRunner {
 
     private AntragsMappe createMappeWithFlurstuecke() {
         Flurstueck geprueft = Flurstueck.rekonstruieren(
-                UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                new FlurstueckId(UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
                 new FlurstueckNummer("042/0815"),
                 new BigDecimal("12.50"),
                 "Ackerland",
                 true);
 
         Flurstueck ungeprueft = Flurstueck.rekonstruieren(
-                UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                new FlurstueckId(UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")),
                 new FlurstueckNummer("042/0816"),
                 new BigDecimal("8.30"),
                 "Gruenland",

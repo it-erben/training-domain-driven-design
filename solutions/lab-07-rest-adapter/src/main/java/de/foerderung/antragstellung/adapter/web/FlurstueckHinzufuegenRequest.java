@@ -1,6 +1,7 @@
 package de.foerderung.antragstellung.adapter.web;
 
 import de.foerderung.antragstellung.application.command.FlurstueckHinzufuegenCommand;
+import de.foerderung.antragstellung.domain.model.AntragId;
 import de.foerderung.antragstellung.domain.model.FlurstueckNummer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +16,6 @@ public record FlurstueckHinzufuegenRequest(
 ) {
     public FlurstueckHinzufuegenCommand toCommand(UUID antragsmappeId) {
         return new FlurstueckHinzufuegenCommand(
-            antragsmappeId, new FlurstueckNummer(flurstueckNummer), flaeche);
+            new AntragId(antragsmappeId), new FlurstueckNummer(flurstueckNummer), flaeche);
     }
 }

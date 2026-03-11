@@ -4,7 +4,7 @@ import de.foerderung.antragstellung.application.command.FlurstueckHinzufuegenCom
 import de.foerderung.antragstellung.application.command.FlurstueckHinzufuegenResult;
 import de.foerderung.antragstellung.domain.model.AntragsMappe;
 import de.foerderung.antragstellung.domain.model.AntragsmappeNichtGefundenException;
-import de.foerderung.antragstellung.domain.model.Flurstueck;
+import de.foerderung.antragstellung.domain.model.FlurstueckId;
 import de.foerderung.antragstellung.domain.port.AntragsMappeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,13 +28,14 @@ public class FlurstueckHinzufuegenService {
                 .orElseThrow(() -> new AntragsmappeNichtGefundenException(
                         command.antragsmappeId()));
 
-        Flurstueck flurstueck = mappe.flurstueckHinzufuegen(
+        FlurstueckId flurstueckId = mappe.flurstueckHinzufuegen(
                 command.flurstueckNummer(),
                 command.flaeche(),
                 null);
 
         repository.save(mappe);
 
-        return new FlurstueckHinzufuegenResult(flurstueck.getId(), mappe.getId());
+        return new FlurstueckHinzufuegenResult(flurstueckId, mappe.getId(),
+                command.flurstueckNummer(), command.flaeche());
     }
 }

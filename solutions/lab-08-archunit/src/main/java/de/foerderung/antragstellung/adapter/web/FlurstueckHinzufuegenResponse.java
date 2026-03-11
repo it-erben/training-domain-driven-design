@@ -9,6 +9,6 @@ public record FlurstueckHinzufuegenResponse(
         UUID antragsmappeId
 ) {
     public static FlurstueckHinzufuegenResponse from(FlurstueckHinzufuegenResult result) {
-        return new FlurstueckHinzufuegenResponse(result.flurstueckId(), result.antragsmappeId());
+        return new FlurstueckHinzufuegenResponse(result.flurstueckId().value(), result.antragsmappeId().value());
     }
 }

@@ -1,5 +1,6 @@
 package de.foerderung.antragstellung.application.service;
 
+import de.foerderung.antragstellung.domain.model.AntragId;
 import de.foerderung.antragstellung.domain.model.AntragsMappe;
 import de.foerderung.antragstellung.domain.model.AntragsmappeNichtGefundenException;
 import de.foerderung.antragstellung.domain.model.Flurstueck;
@@ -24,8 +25,9 @@ public class FlurstueckeAbfragenUseCase {
 
     @Transactional(readOnly = true)
     public List<Flurstueck> abfragen(UUID antragsmappeId) {
-        AntragsMappe mappe = repository.findById(antragsmappeId)
-                .orElseThrow(() -> new AntragsmappeNichtGefundenException(antragsmappeId));
+        AntragId id = new AntragId(antragsmappeId);
+        AntragsMappe mappe = repository.findById(id)
+                .orElseThrow(() -> new AntragsmappeNichtGefundenException(id));
         return mappe.getFlurstuecke();
     }
 }
