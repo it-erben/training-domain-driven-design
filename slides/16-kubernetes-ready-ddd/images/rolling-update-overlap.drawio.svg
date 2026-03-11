@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="360" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">Rolling Update — Überlappungsphase</text>
+
+  <!-- Timeline arrow -->
+  <line x1="60" y1="340" x2="680" y2="340" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="690" y="345" font-family="Arial, sans-serif" font-size="12" fill="#666">Zeit</text>
+
+  <!-- Time markers -->
+  <line x1="180" y1="335" x2="180" y2="345" stroke="#333" stroke-width="1"/>
+  <text x="180" y="360" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">t₁ neuer Pod startet</text>
+  <line x1="500" y1="335" x2="500" y2="345" stroke="#333" stroke-width="1"/>
+  <text x="500" y="360" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">t₂ alter Pod stoppt</text>
+
+  <!-- Old Pod -->
+  <rect x="80" y="60" width="420" height="60" rx="8" fill="#FFCDD2" stroke="#E53935" stroke-width="2"/>
+  <text x="290" y="95" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#B71C1C">Pod v1 (alt)</text>
+
+  <!-- New Pod -->
+  <rect x="180" y="140" width="480" height="60" rx="8" fill="#C8E6C9" stroke="#43A047" stroke-width="2"/>
+  <text x="420" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1B5E20">Pod v2 (neu)</text>
+
+  <!-- Overlap zone -->
+  <rect x="180" y="55" width="320" height="150" rx="0" fill="#FFF9C4" fill-opacity="0.4" stroke="#F9A825" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="340" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#E65100">⚠ Überlappung: beide Instanzen aktiv</text>
+
+  <!-- Database -->
+  <ellipse cx="360" cy="285" rx="60" ry="16" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+  <rect x="300" y="270" width="120" height="30" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+  <ellipse cx="360" cy="300" rx="60" ry="16" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+  <text x="360" y="304" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0D47A1">Datenbank</text>
+
+  <!-- Connection lines -->
+  <line x1="290" y1="120" x2="330" y2="270" stroke="#E53935" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="420" y1="200" x2="390" y2="270" stroke="#43A047" stroke-width="1.5" stroke-dasharray="4,3"/>
+</svg>

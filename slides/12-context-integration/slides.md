@@ -285,7 +285,7 @@ public void poll() {
 > **OOM-Falle:** `findAllUnpublished()` ohne Limit lädt bei einem Backlog
 > von 50.000 Events alles in den Heap — Pod-Kill garantiert.
 > Immer in Batches verarbeiten (`findTop100...`, `LIMIT 100`).
-
+>
 > Garantie: Event wird genau dann publiziert, wenn der Domänen-Zustand
 > persistiert wurde. Crash vor dem Poller → Event bleibt in der Outbox → Retry.
 
