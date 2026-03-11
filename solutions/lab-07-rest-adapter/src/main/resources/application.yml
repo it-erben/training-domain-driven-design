@@ -1,8 +1,8 @@
 spring:
   application:
-    name: immobilien-crm
+    name: foerderantragsverwaltung
   datasource:
-    url: jdbc:h2:mem:realestate
+    url: jdbc:h2:mem:foerderantrag
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -11,7 +11,7 @@ spring:
       ddl-auto: update
     show-sql: true
   mvc:
-    problemdetail:
+    problemdetails:
       enabled: true
   threads:
     virtual:

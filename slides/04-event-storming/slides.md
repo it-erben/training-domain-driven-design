@@ -15,7 +15,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Das Format Event Storming nach Alberto Brandolini kennen
 - Die Farben und Elemente korrekt einsetzen können
 - Den Ablauf einer Event-Storming-Session leiten können
-- Events, Commands und Aggregates für das Immobilien-CRM identifizieren
+- Events, Commands und Aggregates für die Förderantragsverwaltung identifizieren
 - Den Übergang von Event Storming zu Bounded Contexts verstehen
 
 ---
@@ -32,6 +32,26 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 > *"It is not the domain expert's knowledge that goes into production,
 > it is the developer's assumption of that knowledge."*
 > Alberto Brandolini
+
+---
+
+## Warum ein Board und keine Spezifikation?
+
+Ein Dokument beschreibt, was **eine Person** verstanden hat.
+Ein Board zeigt, was **ein Team** gemeinsam modelliert.
+
+Der Unterschied:
+
+```
+Dokument:   Eine Person schreibt → andere lesen → jeder versteht es anders
+Board:      Alle schreiben → alle diskutieren → gemeinsames Bild entsteht
+```
+
+> Wenn zwei Menschen auf ein Event zeigen und verschiedene Dinge meinen,
+> ist das kein Fehler des Workshops — es ist das wichtigste Ergebnis.
+> Das Board macht Unterschiede im Verständnis **sichtbar**, bevor sie im Code landen.
+
+**Faustregel:** Wenn alle sofort einig sind, habt ihr noch nicht tief genug gegraben.
 
 ---
 
@@ -63,7 +83,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Beschreibt ein fachliches Ergebnis, kein technisches
 - Zeitlich geordnet von links nach rechts
 
-### Beispiele aus dem Immobilien-CRM
+### Beispiele aus der Förderantragsverwaltung
 
 ![Domain Event Beispiele](images/domain-event-beispiele.drawio.svg)
 
@@ -86,9 +106,9 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 | Command | → | Domain Event |
 |---------|---|-------------|
-| `KontaktiereEigentümer` | → | `EigentümerKontaktiert` |
-| `BewerteObjekt` | → | `ObjektBewertet` |
-| `ErstelleExposé` | → | `ExposéErstellt` |
+| `FlurstückeDigitalisieren` | → | `FlurstückeDigitalisiert` |
+| `AntragsmappeEinreichen` | → | `AntragsmappeEingereicht` |
+| `KontrolleDurchführen` | → | `KontrolleDurchgeführt` |
 
 > Command = die Absicht, Event = das Ergebnis.
 
@@ -108,10 +128,10 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 | Aggregate | Verantwortlich für | Beispiel-Regel |
 |-----------|-------------------|----------------|
-| `Immobilie` | Objektdaten, Bewertung | Kann nur bewertet werden, wenn erfasst |
-| `Maklerauftrag` | Vertragskonditionen | Nur ein aktiver Vertrag pro Objekt |
-| `Vermittlungsvorgang` | Besichtigungen, Angebote | Notartermin nur mit angenommenem Angebot |
-| `Exposé` | Inhalte, Freigabe | Nur bewertete Objekte bekommen ein Exposé |
+| `AntragsMappe` | Flurstücke, Status, Einreichung | Einreichung nur mit mindestens einem Flurstück |
+| `Prüfvorgang` | Fachliche Prüfschritte | Prüfung nur für eingereichte Anträge startbar |
+| `Kontrolle` | Vor-Ort-Prüfung, Ergebnis | Kontrollergebnis erfordert begonnene Kontrolle |
+| `Bescheid` | Förderentscheidung, Versand | Bescheid nur für positiv geprüfte Anträge |
 
 ---
 
@@ -135,14 +155,14 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Löst einen neuen Command aus - verknüpft Events miteinander
 - Steht unterhalb des auslösenden Events
 
-### Beispiele aus dem Immobilien-CRM
+### Beispiele aus der Förderantragsverwaltung
 
 | Auslösendes Event | Policy | Resultierender Command |
 |-------------------|--------|----------------------|
-| `ObjektBewertet` | Wenn bewertet → Exposé vorbereiten | `ErstelleExposé` |
-| `MaklervertragUnterschrieben` | Wenn Vertrag → Vermarktung starten | `StarteVermarktung` |
-| `ExposéErstellt` | Wenn Exposé fertig → veröffentlichen | `VeröffentlicheInserat` |
-| `AngebotAngenommen` | Wenn angenommen → Notar planen | `VereinbareNotartermin` |
+| `FlurstückeDigitalisiert` | Wenn digitalisiert → Fläche prüfen | `FlaecheValidieren` |
+| `AntragsmappeEingereicht` | Wenn eingereicht → Prüfung starten | `FachlichePrüfungStarten` |
+| `KontrolleDurchgeführt` | Wenn OK → Bescheid vorbereiten | `BescheidVorbereiten` |
+| `AntragPositivBeschieden` | Wenn beschieden → Zahlungsantrag anlegen | `ZahlungsantragAnlegen` |
 
 > Policies sind der Klebstoff zwischen den Phasen eines Geschäftsprozesses.
 
@@ -153,7 +173,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ### External System - Systeme außerhalb unserer Domäne
 
-- Beispiele: ImmoScout24-API, Grundbuchamt, E-Mail-Provider, Notar-Portal, Bank
+- Beispiele: EU-IACS (InVeKoS-Daten), Bundesanstalt für Landwirtschaft, E-Mail-Provider, ZID (Zentrales Identitätsmanagement)
 - Können Events empfangen oder Commands auslösen
 
 ### Read Model - Daten, die ein Akteur für seine Entscheidung braucht
@@ -164,7 +184,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ![Read Model Akteur Command](images/read-model-akteur-command.drawio.svg)
 
-> Der Makler sieht die Übersicht (Read Model) → entscheidet → löst Command aus.
+> Die Sachbearbeiterin sieht die Antragsliste (Read Model) → entscheidet → löst Command aus.
 
 ---
 <style scoped>section { font-size: 1.5em; }</style>
@@ -183,12 +203,61 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Fehlende Informationen
 - Stellen, an denen sich die Ubiquitous Language ändert (→ BC-Grenze!)
 
-### Beispiele aus dem Immobilien-CRM
+### Beispiele aus der Förderantragsverwaltung
 
-- "Kann ein Objekt mehrere Maklerverträge gleichzeitig haben?"
-- "Wann genau gilt ein Exposé als fertig?"
-- "Wer darf den Angebotspreis ändern - der Makler oder der Eigentümer?"
-- "Was passiert, wenn ein Kaufinteressent sein Angebot zurückzieht?"
+- "Kann eine AntragsMappe nach der Einreichung noch Flurstücke hinzufügen?"
+- "Wann gilt eine Kontrolle als abgeschlossen — nach Besuch oder nach Dokumentation?"
+- "Wer darf eine Bewilligungsentscheidung zurücknehmen — Sachbearbeiterin oder Behördenleitung?"
+- "Was passiert, wenn ein Zahlungsantrag nach dem Bescheid korrigiert werden muss?"
+
+---
+<style scoped>section { font-size: 1.45em; }</style>
+
+## Ubiquitous Language: Förderantragsverwaltung
+
+> Unser Glossar — Begriffe, die im gesamten System eine eindeutige Bedeutung haben müssen
+
+| Begriff | Bedeutung im Kontext |
+|---------|---------------------|
+| **AntragsMappe** | Das zentrale Aggregate: Gesamtheit aller Dokumente eines Förderantrags |
+| **Antragsteller** | Landwirt / Betriebsinhaberin, die den Förderantrag stellt |
+| **Sachbearbeiterin** | Mitarbeiterin der Bewilligungsstelle, die den Antrag prüft |
+| **Bewilligungsstelle** | Behörde, die Förderanträge genehmigt oder ablehnt |
+| **Flurstück** | Katasterparzelle — kleinste landwirtschaftliche Flächeneinheit |
+| **AenderungsArt** | Art der Zustandsänderung: `UPDATED` · `REACTIVATED` · `REMOVED` · `ARCHIVED` |
+| **Bescheid** | Rechtsmittelfähiges Verwaltungsdokument mit der Förderentscheidung |
+| **Zahlungsantrag (ZA)** | Antrag auf Auszahlung einer bewilligten Förderung |
+| **ELER** | Europäischer Landwirtschaftsfonds für die Entwicklung des ländlichen Raums |
+| **Direktzahlungen (DZ)** | Flächenbezogene EU-Direktzahlungen an Landwirte |
+| **Registerable** | Fachliches Interface: alles, was mit einer Registrierungsnummer versioniert wird |
+| **MDB** | Message Driven Bean — der EJB-Empfänger von JMS-Nachrichten |
+
+> Hot Spot: Bedeutet "Antrag" in der Antragstellung dasselbe wie in der Auszahlung?
+> Nein — das ist bereits ein Signal für eine Bounded-Context-Grenze.
+
+---
+<style scoped>section { font-size: 1.5em; }</style>
+
+## Beispiel: ELER-Direktzahlungen — Event Storming Board
+
+### Kern-Events des ELER-Förderantragsprozesses
+
+| 🟦 Command | 🟧 Domain Event | 🟨 Aggregate | Akteur | 🟪 Policy |
+|-----------|---------------|------------|--------|----------|
+| AntragsMappeErfassen | **AntragsmappeErstellt** | AntragsMappe | Antragsteller | — |
+| FlurstückeDigitalisieren | **FlurstückeDigitalisiert** | AntragsMappe | GIS-Bearbeiterin | Wenn digitalisiert → Fläche prüfen |
+| AntragsmappeEinreichen | **AntragsmappeEingereicht** | AntragsMappe | Antragsteller | Wenn eingereicht → Prüfung starten |
+| FachlichePrüfungStarten | **FachlichePrüfungGestartet** | Prüfvorgang | System | — |
+| KontrolleDurchführen | **KontrolleDurchgeführt** | Kontrolle | Kontrolleur | Wenn OK → Bescheid vorbereiten |
+| AntragBescheiden | **AntragPositivBeschieden** | Bescheid | Bewilligungsstelle | Wenn beschieden → ZA anlegen |
+| ZahlungAnweisen | **ZahlungAngewiesen** | Zahlungsantrag | Zahlstelle | Wenn angewiesen → Bescheid versenden |
+| BescheidVersenden | **BescheidVersandt** | Bescheid | System | — |
+
+### 🔴 Typische Hot Spots in diesem Prozess
+
+- *"Wann ist eine AntragsMappe 'fertig'?"* — kein explizites Abschluss-Event, Zustand wird aus `AenderungsArt` inferiert
+- *"Meinen Antragstellung und Auszahlung dasselbe mit 'Antrag'?"* — Sprachgrenze = BC-Grenze
+- *"Wer darf eine Bewilligungsentscheidung zurücknehmen?"* — mehrere Konsumenten hören auf dasselbe Event, keine klare Verantwortung
 
 ---
 
@@ -245,7 +314,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 - Blaue Sticky Notes für Commands links neben die Events
 - Akteure identifizieren: Wer löst den Command aus?
-  - Makler, Eigentümer, Interessent, System, Zeitablauf
+  - Antragsteller, Sachbearbeiterin, Kontrolleur, Zahlstelle, System, Zeitablauf
 
 ### Phase 5: Aggregates und Policies
 
@@ -258,3 +327,37 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ### Das Board sieht dann so aus:
 
 ![Event Storming Board Layout](images/event-storming-board-layout.drawio.svg)
+
+---
+
+## Domain Storytelling — eine ergänzende Technik
+
+Event Storming erforscht **Was** passiert im Prozess. Domain Storytelling geht tiefer: es erklärt **Wer** mit **was** interagiert, **wie** und **warum**.
+
+> *"Domain Storytelling bridges the gap between domain experts and developers by visually modeling processes in narrative form."*
+> — Santana, „Domain-Driven Design with Java" (2026), Kap. 13
+
+| Aspekt | Event Storming | Domain Storytelling |
+|--------|---------------|---------------------|
+| Fokus | Was passiert? | Wer macht was, womit, wie? |
+| Technik | Sticky Notes (5 Farben) | Akteure + Arbeitsschritte + Fachgegenstände |
+| Output | Prozess-Timeline mit Events | Narrative Prozessdiagramme |
+| Versionierung | Foto/Miro | JSON-Dateien `.egn` in Git (Egon.io) |
+| DDD-Beitrag | Bounded Contexts, Events | Ubiquitous Language, Interaktionen |
+
+### Egon.io in der Praxis
+
+- Browser-Tool, kein Account nötig: [egon.io](https://egon.io)
+- Export als `.egn`-Datei → direkt in Git committen
+- Bilder über einen Export als SVG/PNG dokumentierbar
+- Ergänzt den Code als lebendige Domänendokumentation
+
+> **Tipp:** Event Storming am Tag 1 — Domain Storytelling zur Vertiefung einzelner Prozesse.
+> Santana, „Domain-Driven Design with Java" (2026), Kap. 13: Domain Storytelling als letzter Schritt vor der Implementierung.
+
+---
+
+## Zum Nachlesen
+
+- Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 12: EventStorming — Prozesse visualisieren und gemeinsames Verständnis aufbauen
+- Santana, „Domain-Driven Design with Java" (2026), Kap. 13: Domain Storytelling — Brücke zwischen Fachexpertise und Code

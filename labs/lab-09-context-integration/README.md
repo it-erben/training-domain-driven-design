@@ -1,212 +1,238 @@
 # Lab 09: Context-Integration – Bounded Contexts verbinden
 
-In unserem Immobilien-CRM gibt es bisher nur den Brokerage-Bounded Context, der
-sich um die Vermarktung von Immobilien kümmert (Besichtigungen, Angebote etc.).
-Aber wie entsteht eigentlich ein Vermarktungsprozess?
+In der Förderantragsverwaltung gibt es bisher den Antragstellung-Bounded Context,
+der sich um die Erfassung und Einreichung von Förderanträgen kümmert. Aber was
+passiert nach der Einreichung?
 
-In der Fachdomäne beginnt alles mit einem **Maklervertrag**:
-Ein Eigentümer beauftragt das Unternehmen mit der Vermarktung seiner Immobilie.
-Erst wenn dieser Vertrag abgeschlossen ist, soll automatisch ein neuer
-`BrokerageProcess` im Brokerage-BC angelegt werden. Diesen vorgelagerten Schritt
-bilden wir in einem zweiten Bounded Context ab – der **Akquise** (Acquisition).
-Der Acquisition-BC verwaltet die Maklerverträge
-(`BrokerageContract`) und veröffentlicht bei Vertragsabschluss ein
-Integrations-Event, auf das der Brokerage-BC reagiert.
+In der Fachdomäne beginnt die **fachliche Prüfung**: Eine Sachbearbeiterin der
+Bewilligungsstelle prüft den eingereichten Antrag. Erst wenn die AntragsMappe
+eingereicht ist, soll automatisch ein `Pruefvorgang` im Prüfungs-BC angelegt
+werden. Diesen nachgelagerten Schritt bilden wir in einem zweiten Bounded
+Context ab — der **Fachlichen Prüfung**.
 
-## Schritt 1: Minimalen Acquisition-Bounded Context erstellen
+Der Antragstellung-BC publiziert bei Einreichung ein Integrations-Event, auf
+das der Prüfungs-BC über einen **Anti-Corruption Layer** reagiert.
 
-Erstelle die Entity `BrokerageContract` im Package
-`de.realestate.acquisition.domain.model`:
+## Schritt 1: Integrations-Event im Antragstellung-BC
 
-- Felder: `id` (UUID), `ownerId` (UUID), `propertyId` (UUID), `askingPrice` (
-  BigDecimal), `currency` (String), `commissionPercentage` (BigDecimal),
-  `closedAt` (LocalDateTime)
-- Domain-Events-Liste (wie bei `BrokerageProcess`)
-- Methode: `close()` setzt `closedAt` und registriert ein `ContractSigned`-Event
+Erstelle das Integrations-Event `AntragsmappeEingereicht` als Record im
+Root-Package `de.foerderung.antragstellung` (öffentliche API des Moduls):
 
 ```java
-public class BrokerageContract {
+package de.foerderung.antragstellung;
 
-    private final UUID id;
-    private final UUID ownerId;
-    private final UUID propertyId;
-    private final BigDecimal askingPrice;
-    private final String currency;
-    private final BigDecimal commissionPercentage;
-    private LocalDateTime closedAt;
-    private final transient List<Object> domainEvents = new ArrayList<>();
-
-    // Private Constructor, factory methods create() und reconstruct()
-
-    public void close() {
-        // 1. closedAt setzen
-        // 2. ContractSigned-Event in domainEvents registrieren
-    }
-
-    // getDomainEvents(), clearDomainEvents()
-}
-```
-
-## Schritt 2: Integrations-Event erstellen
-
-Erstelle das Integrations-Event `ContractSigned` als Record im Package
-`de.realestate.acquisition.domain.event`. Das Event muss alle Informationen
-enthalten, die der Brokerage-BC braucht, um einen BrokerageProcess anzulegen:
-
-```java
-public record ContractSigned(
-        UUID contractId,
-        UUID propertyId,
-        LocalDateTime closedAt,
-        BigDecimal askingPrice,
-        String currency,
-        BigDecimal commissionPercentage
+public record AntragsmappeEingereicht(
+    UUID antragsmappeId,
+    String registrierungsNummer,
+    Instant eingereichtAm
 ) {
+    public AntragsmappeEingereicht(UUID antragsmappeId, String registrierungsNummer) {
+        this(antragsmappeId, registrierungsNummer, Instant.now());
+    }
 }
 ```
 
-## Schritt 3: Application Service im Acquisition-BC
+Das Event verwendet primitive Typen (UUID, String, Instant) — keine Value Objects
+des Antragstellung-BCs. Andere Module dürfen dieses Record importieren.
 
-Erstelle den Service `CloseContractUseCase` im Package
-`de.realestate.acquisition.application.service`:
+## Schritt 2: Application Service im Antragstellung-BC
 
-- Injiziert `BrokerageContractRepository` und `ApplicationEventPublisher`
-- Methode `close(UUID contractId)`:
-    1. Lade den BrokerageContract
-    2. Rufe `close()` auf (registriert das Event im Aggregate)
+Erstelle den Service `AntragEinreichenService` im Package
+`de.foerderung.antragstellung.internal.application`:
+
+- Injiziert `AntragsMappeRepository` und `ApplicationEventPublisher`
+- Methode `execute(AntragEinreichenCommand cmd)`:
+    1. Lade die `AntragsMappe`
+    2. Rufe `einreichen()` auf (registriert das Event im Aggregate)
     3. Speichere
     4. Lese die Domain Events aus dem Aggregate und publiziere sie über
        `ApplicationEventPublisher`
     5. Lösche die Domain Events im Aggregate
 
 ```java
-
 @Service
 @Transactional
-public class CloseContractUseCase {
+@RequiredArgsConstructor
+public class AntragEinreichenService {
 
-    private final BrokerageContractRepository repository;
+    private final AntragsMappeRepository repository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public void close(UUID contractId) {
-        BrokerageContract contract = repository.findById(contractId).orElseThrow(...);
-
-        contract.close();
-        repository.save(contract);
-
-        contract.getDomainEvents().forEach(eventPublisher::publishEvent);
-        contract.clearDomainEvents();
-    }
-
-    public BrokerageContract create(UUID ownerId, UUID propertyId,
-                                    BigDecimal askingPrice, String currency,
-                                    BigDecimal commissionPercentage) {
-        // Factory Method aufrufen, speichern und zurückgeben
+    public void execute(AntragEinreichenCommand cmd) {
+        var mappe = repository.findById(cmd.antragsmappeId()).orElseThrow();
+        mappe.einreichen();
+        repository.save(mappe);
+        mappe.domainEvents().forEach(eventPublisher::publishEvent);
+        mappe.clearDomainEvents();
     }
 }
 ```
 
-## Schritt 4: Event-Listener im Brokerage-BC
+## Schritt 3: ACL-Translator im Prüfungs-BC
 
-Erstelle den Listener `ContractSignedListener` im Package
-`de.realestate.brokerage.application.listener`. Der Listener verwendet die
-fachlichen Werte aus dem Event (keine hardcodierten Dummy-Werte):
+Erstelle den Translator `AntragstellungEventTranslator` im Package
+`de.foerderung.pruefung.internal.adapter.acl`. Der Translator übersetzt das
+fremde Event in einen eigenen Command — mit eigenen Value Objects:
 
 ```java
-
 @Component
-public class ContractSignedListener {
+public class AntragstellungEventTranslator {
 
-    private final BrokerageProcessRepository repository;
-
-    @EventListener
-    public void handle(ContractSigned event) {
-        AskingPrice askingPrice = new AskingPrice(event.askingPrice(), event.currency());
-        Commission commission = new Commission(event.commissionPercentage());
-
-        BrokerageProcess process = BrokerageProcess.create(
-                event.propertyId(), askingPrice, commission);
-
-        repository.save(process);
+    public PruefungStartenCommand translate(AntragsmappeEingereicht event) {
+        return new PruefungStartenCommand(
+            new AntragsReferenz(event.antragsmappeId()),      // eigenes Value Object!
+            new RegistrierungsNummer(event.registrierungsNummer()), // eigenes VO!
+            event.eingereichtAm()
+        );
     }
 }
 ```
 
-## Schritt 5: REST-Adapter für den Acquisition-BC
+**Wichtig:** Der Translator ist ein reiner Mapper — keine Geschäftslogik.
+Fremde IDs werden in eigene Value Objects gewrappt, fremde Begriffe in die
+eigene Domänensprache übersetzt:
+`AntragsmappeEingereicht` (Antragstellung) → `PruefungStartenCommand` (Prüfung).
 
-Erstelle einen `BrokerageContractController` im Package
-`de.realestate.acquisition.adapter.web`:
+## Schritt 4: Event-Listener im Prüfungs-BC
 
-- `POST /api/acquisition/contracts` – Erstellt einen neuen Vertrag (mit
-  askingPrice, currency, commissionPercentage)
-- `POST /api/acquisition/contracts/{id}/close` – Schließt den Vertrag ab (
-  triggert das Event)
+Erstelle den Listener `AntragstellungEventListener` im selben ACL-Package.
+Der Listener delegiert sofort an den Translator — der Application Service
+kennt nur eigene Commands:
+
+```java
+@Component
+@RequiredArgsConstructor
+public class AntragstellungEventListener {
+
+    private final AntragstellungEventTranslator translator;
+    private final PruefungStartenService service;
+
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    public void on(AntragsmappeEingereicht event) {
+        var command = translator.translate(event);
+        service.start(command);
+    }
+}
+```
+
+## Schritt 5: Application Service mit Idempotenz im Prüfungs-BC
+
+Erstelle den `PruefungStartenService` im Package
+`de.foerderung.pruefung.internal.application`:
+
+```java
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class PruefungStartenService {
+
+    private final PruefvorgangRepository repository;
+
+    public void start(PruefungStartenCommand cmd) {
+        // Idempotenz: bereits vorhanden?
+        if (repository.existsByAntragsReferenz(cmd.antragsReferenz())) {
+            log.info("Pruefvorgang fuer Antrag {} bereits vorhanden",
+                cmd.antragsReferenz());
+            return;  // stille Deduplizierung
+        }
+        var pruefvorgang = Pruefvorgang.starten(
+            PruefvorgangId.generate(), cmd.antragsReferenz(), cmd.eingereichtAm());
+        repository.save(pruefvorgang);
+    }
+}
+```
+
+**Warum Idempotenz?** Bei At-Least-Once Delivery (z. B. mit Spring Modulith
+EventPublicationRegistry oder Kafka) können Events mehrfach zugestellt werden.
+Ohne Idempotenz-Check würde ein `Pruefvorgang` doppelt angelegt.
+
+## Schritt 6: REST-Adapter für den Antragstellung-BC
+
+Erstelle einen `AntragsMappeController` im Package
+`de.foerderung.antragstellung.internal.adapter.web`:
+
+- `POST /api/antragstellung/antraege` – Erstellt eine neue AntragsMappe
+- `POST /api/antragstellung/antraege/{id}/einreichen` – Reicht den Antrag ein
+  (triggert das Event)
 
 So kann der gesamte Fluss über die API getestet werden:
 
-1. Contract anlegen
-2. Contract abschließen
-3. BrokerageProcess erscheint automatisch im Brokerage-BC
-
-## Schritt 6: DemoDataInitializer anpassen
-
-Ersetze den bisherigen `Lab07TestDataInitializer` durch einen
-`DemoDataInitializer`, der Contracts über den `CloseContractUseCase` anlegt und
-abschließt. So entstehen die BrokerageProcesses durch den tatsächlichen
-Event-Flow statt durch `reconstitute()`.
+1. AntragsMappe anlegen
+2. AntragsMappe einreichen
+3. Pruefvorgang erscheint automatisch im Prüfungs-BC
 
 ## Schritt 7: Test
 
 Schreibe einen Integrationstest, der den gesamten Ablauf verifiziert:
 
-1. Erstelle einen `BrokerageContract` mit konkreten Preis- und Provisionswerten
-2. Schließe ihn ab (über den Use Case)
-3. Suche den erstellten `BrokerageProcess` gezielt per `propertyId`
-4. Prüfe, dass die fachlichen Werte (askingPrice, currency, commission) korrekt
-   übernommen wurden
+1. Erstelle eine `AntragsMappe` mit konkreten Werten
+2. Reiche sie ein (über den Service)
+3. Suche den erstellten `Pruefvorgang` gezielt per `antragsReferenz`
+4. Prüfe, dass die fachlichen Werte korrekt übernommen wurden
 
 ```java
-
 @Test
-void shouldCreateBrokerageProcessWhenContractIsSigned() {
-    UUID propertyId = UUID.randomUUID();
+void shouldCreatePruefvorgangWhenAntragsmappeEingereicht() {
+    UUID mappeId = UUID.randomUUID();
+    String regNr = "DE-ELER-2026-001";
 
-    BrokerageContract contract = closeContractUseCase.create(
-            ownerId, propertyId,
-            new BigDecimal("450000.00"), "EUR", new BigDecimal("5.95"));
+    AntragsMappe mappe = antragEinreichenService.create(mappeId, regNr);
+    antragEinreichenService.execute(new AntragEinreichenCommand(mappe.getId()));
 
-    closeContractUseCase.close(contract.getId());
+    Optional<Pruefvorgang> pruefvorgang =
+        pruefvorgangRepository.findByAntragsReferenz(new AntragsReferenz(mappeId));
 
-    Optional<BrokerageProcess> process =
-            brokerageProcessRepository.findByPropertyId(propertyId);
-
-    assertTrue(process.isPresent());
-    assertEquals(propertyId, process.get().getPropertyId());
-    assertEquals(new BigDecimal("450000.00"), process.get().getAskingPrice().amount());
+    assertTrue(pruefvorgang.isPresent());
+    assertEquals(regNr, pruefvorgang.get().getRegistrierungsNummer().value());
 }
 ```
 
 ## Gut zu wissen
 
+### Paketstruktur: Wo lebt der ACL?
+
+```
+de.foerderung/
+├── antragstellung/
+│   ├── AntragsmappeEingereicht.java     ← öffentliche API (Event Record)
+│   └── internal/
+│       ├── domain/
+│       │   └── AntragsMappe.java        ← Aggregate Root
+│       ├── application/
+│       │   └── AntragEinreichenService.java
+│       └── adapter/
+│           └── web/AntragsMappeController.java
+└── pruefung/
+    └── internal/
+        ├── domain/
+        │   ├── Pruefvorgang.java         ← eigenes Aggregate, eigene Sprache
+        │   ├── AntragsReferenz.java      ← eigenes Value Object (nur ID!)
+        │   └── RegistrierungsNummer.java ← eigenes Value Object
+        ├── application/
+        │   └── PruefungStartenService.java
+        └── adapter/
+            └── acl/                      ← hier lebt der Anti-Corruption Layer
+                ├── AntragstellungEventTranslator.java
+                └── AntragstellungEventListener.java
+```
+
 ### Event-Publishing: Aggregate vs. Application Service
 
-In dieser Lösung registriert das Aggregate (`BrokerageContract`) das Event
-intern in `close()`. Der Application Service liest die Events anschließend aus
-und publiziert sie. Das ist konsistent mit dem Muster im Brokerage-BC (
-`BrokerageProcess.domainEvents`)
-und stellt sicher, dass nur fachlich gültige Events entstehen.
+In dieser Lösung registriert das Aggregate (`AntragsMappe`) das Event
+intern in `einreichen()`. Der Application Service liest die Events anschließend
+aus und publiziert sie. Das stellt sicher, dass nur fachlich gültige Events
+entstehen.
 
 ### Shared Kernel und Abhängigkeiten
 
-Der Brokerage-BC importiert das `ContractSigned`-Event direkt aus dem Package
-`de.realestate.acquisition.domain.event`. Das erzeugt einen **impliziten Shared
-Kernel**
-zwischen den beiden Bounded Contexts.
+Der Prüfungs-BC importiert das `AntragsmappeEingereicht`-Event direkt aus dem
+Package `de.foerderung.antragstellung`. Das erzeugt einen **impliziten Shared
+Kernel** zwischen den beiden Bounded Contexts.
 
 Alternativen wären:
 
 - Ein **separates Shared-Events-Modul**, aus dem beide BCs importieren
-- Ein **eigenes Event-Interface im Brokerage-BC** (Anti-Corruption Layer), das
+- Ein **eigenes Event-Interface im Prüfungs-BC** (Anti-Corruption Layer), das
   vom Listener auf die eigene Sprache gemappt wird
 - In einem verteilten System: **Serialisierung** (z.B. JSON), sodass keine
   Compile-Time-Abhängigkeit entsteht
@@ -214,12 +240,28 @@ Alternativen wären:
 Für einen Monolithen ist der direkte Import ein pragmatischer Kompromiss. In
 einem verteilten System wäre eine stärkere Entkopplung nötig.
 
-### @EventListener vs. @TransactionalEventListener
+### @TransactionalEventListener — At-Most-Once
 
-Die aktuelle Lösung nutzt `@EventListener`, das synchron in derselben
-Transaktion läuft.
+Die aktuelle Lösung nutzt `@TransactionalEventListener(phase = AFTER_COMMIT)`.
+Das Event wird nach dem Commit des Publishers verarbeitet — aber ohne Retry.
+Crasht der Listener, geht das Event verloren (**At-Most-Once**).
 
-**Bonus:** Stelle den Listener auf
-`@TransactionalEventListener(phase = AFTER_COMMIT)` um und beobachte, was mit
-dem Integrationstest passiert. Was müsste am Test geändert werden, damit er
-weiterhin funktioniert?
+**Bonus:** Aktiviere die Spring Modulith EventPublicationRegistry (JDBC) für
+At-Least-Once Delivery. Was muss am Idempotenz-Check geändert werden?
+(Antwort: Nichts — der Check ist bereits vorhanden.)
+
+### JMS-Konzepte → DDD-Konzepte
+
+In gewachsenen Systemen findet man oft JMS-basierte Messaging-Patterns. Diese
+Tabelle zeigt die konzeptionelle Zuordnung:
+
+| JMS / EJB (Legacy-System) | Spring / DDD (modernes System) |
+|---------------------------|--------------------------------|
+| `@MessageDriven` | `@TransactionalEventListener` |
+| JMS Topic (Pub/Sub) | `ApplicationEventPublisher` + mehrere `@EventListener` |
+| `messageSelector` auf `messageObjectClass` | Java-Typ-basiertes Event-Routing (automatisch) |
+| `ObjectMessage` + Cast | Typsicheres Java Record |
+| JMS Queue (Point-to-Point) | Command per direktem Service-Aufruf |
+
+> Der `messageSelector` ist **Event-Routing**, kein ACL.
+> Der ACL ist der Translator, der aus dem fremden Typ einen eigenen Command macht.

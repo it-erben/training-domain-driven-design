@@ -22,6 +22,8 @@ Geschätzte Dauer: ca. 75 Minuten
 - Repository Integration Tests mit `@DataJpaTest` umsetzen
 - Web/API Tests mit `@WebMvcTest` schreiben
 - InMemory-Repositories als leichtgewichtige Test-Doubles einsetzen
+- `@DisplayName`-Konvention und AAA-Muster anwenden
+- Parametrisierte Tests mit `@ParameterizedTest` + `@CsvSource` schreiben
 
 ---
 
@@ -59,34 +61,33 @@ Was fällt darunter?
 ## Aggregate Root testen
 
 ```java
-class BrokerageProcessTest {
+class AntragsMappeTest {
 
     @Test
-    void should_schedule_viewing() {
+    void fluerstueck_hinzufuegen_funktioniert() {
         // Arrange
-        var process = BrokerageProcess.create(
-            ProcessId.generate(),
-            new PropertyId(UUID.randomUUID()),
-            new ContactId(UUID.randomUUID()));
+        var mappe = AntragsMappe.erstellen(
+            new AntragId(UUID.randomUUID()),
+            new RegistrierungsNummer("DZ-BW-2024-0042"),
+            new Foerderbetrag(BigDecimal.ZERO, "EUR"));
 
         // Act
-        var viewingId = process.scheduleViewing(
-            new ContactId(UUID.randomUUID()),
-            LocalDateTime.now().plusDays(3));
+        var flurstueckId = mappe.flurstueckHinzufuegen(
+            new FlurstueckNummer("BW-0012-0034-0001"),
+            new BigDecimal("3.75"));
 
         // Assert
-        assertThat(viewingId).isNotNull();
-        assertThat(process.getViewings()).hasSize(1);
+        assertThat(flurstueckId).isNotNull();
+        assertThat(mappe.getFlurstuecke()).hasSize(1);
     }
 
     @Test
-    void should_throw_error_when_process_not_active() {
-        var process = BrokerageProcessFixture.completed();
+    void einreichen_fehlschlagen_wenn_kein_flurstueck() {
+        var mappe = AntragsMappeFixture.leer();
 
-        assertThatThrownBy(() -> process.scheduleViewing(
-                new ContactId(UUID.randomUUID()),
-                LocalDateTime.now().plusDays(1)))
-            .isInstanceOf(ProcessNotActiveException.class);
+        assertThatThrownBy(() -> mappe.einreichen())
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Flurstück");
     }
 }
 ```
@@ -94,34 +95,97 @@ class BrokerageProcessTest {
 ---
 <style scoped>section { font-size: 1.3em; }</style>
 
+## Testkonventionen: @DisplayName und AAA
+
+Lesbare Tests helfen dem Team, die Domäne zu verstehen — nicht nur zu verifizieren.
+
+```java
+class FoerderquoteTest {
+
+    @Test
+    @DisplayName("negativer Prozentsatz wird abgelehnt")
+    void negativer_prozentsatz_wird_abgelehnt() {
+        // Arrange
+        BigDecimal negativerProzentsatz = new BigDecimal("-0.1");
+
+        // Act & Assert
+        assertThatThrownBy(() -> new Foerderquote(negativerProzentsatz))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Foerderquote");
+    }
+}
+```
+
+- **AAA-Muster:** Arrange / Act / Assert — Kommentare helfen beim Lesen
+- **@DisplayName:** Fachliche Beschreibung in Deutsch — spricht Ubiquitous Language
+- Testnamen sind ausführbare Spezifikationen der Fachregeln
+- Methodennamen in `snake_case` oder `camelCase` — Team-Konvention wählen und durchhalten
+
+---
+<style scoped>section { font-size: 1.35em; }</style>
+
+## Parametrisierte Tests: viele Szenarien, ein Test
+
+```java
+@DisplayName("verschiedene Foerderquoten liefern korrekte Förderbeträge")
+@ParameterizedTest(name = "Foerderquote {0} ergibt Betrag {1} EUR")
+@CsvSource({
+    "0.00,   0.00",
+    "0.35, 3500.00",
+    "1.00, 10000.00"
+})
+void shouldCalculateCorrectAmountForDifferentQuotes(
+        String quotePct, String expectedBetrag) {
+
+    // Arrange
+    var betrag = new Foerderbetrag(new BigDecimal("10000"), "EUR");
+    var quote  = new Foerderquote(new BigDecimal(quotePct));
+
+    // Act
+    var ergebnis = betrag.anwenden(quote);
+
+    // Assert
+    assertThat(ergebnis.betrag())
+        .isEqualByComparingTo(new BigDecimal(expectedBetrag));
+}
+```
+
+- `@CsvSource` — kompakte Tabellenform, gut lesbar im Code
+- `@ParameterizedTest(name = "...")` — jeder Fall erscheint mit eigenem Namen im Report
+- Deckt Grenzfälle (0, 100%) mit minimalem Boilerplate ab
+
+---
+
 ## Value Objects und Berechnung testen
 
 ```java
-class AddressTest {
+class FlurstueckNummerTest {
 
     @Test
-    void should_reject_empty_street() {
-        assertThatThrownBy(() -> new Address("", "50667", "Köln"))
+    void soll_leere_nummer_ablehnen() {
+        assertThatThrownBy(() -> new FlurstueckNummer(""))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("street");
+            .hasMessageContaining("FlurstueckNummer");
     }
 
     @Test
-    void should_recognize_equal_addresses() {
-        var a1 = new Address("Domstraße 1", "50667", "Köln");
-        var a2 = new Address("Domstraße 1", "50667", "Köln");
-        assertThat(a1).isEqualTo(a2);
+    void gleiche_nummern_sind_gleich() {
+        var n1 = new FlurstueckNummer("BW-0012-0034-0001");
+        var n2 = new FlurstueckNummer("BW-0012-0034-0001");
+        assertThat(n1).isEqualTo(n2);
     }
 }
 
-class AskingPriceTest {
+class FoerderbetragTest {
 
     @Test
-    void should_calculate_commission_correctly() {
-        var price = new AskingPrice(BigDecimal.valueOf(300_000));
-        var commission = price.calculateCommission(new CommissionRate(3.57));
-        assertThat(commission.amount())
-            .isEqualByComparingTo(BigDecimal.valueOf(10_710.00));
+    void foerderquote_wird_korrekt_berechnet() {
+        var betrag = new Foerderbetrag(new BigDecimal("10000"), "EUR");
+        var quote = new Foerderquote(new BigDecimal("0.35")); // 35 %
+        // Foerderbetrag.anwenden(Foerderquote) ist definiert in Modul 06
+        var ergebnis = betrag.anwenden(quote);
+        assertThat(ergebnis.betrag())
+            .isEqualByComparingTo(new BigDecimal("3500.00"));
     }
 }
 ```
@@ -133,22 +197,22 @@ class AskingPriceTest {
 
 ```java
 @Test
-void should_produce_domain_event_when_scheduling_viewing() {
-    var process = BrokerageProcessFixture.active();
+void fluerstueck_hinzufuegen_erzeugt_domain_event() {
+    var mappe = AntragsMappeFixture.aktiv();
 
-    process.scheduleViewing(
-        new ContactId(UUID.randomUUID()),
-        LocalDateTime.now().plusDays(3));
+    mappe.flurstueckHinzufuegen(
+        new FlurstueckNummer("BW-0012-0034-0001"),
+        new BigDecimal("3.75"));
 
-    assertThat(process.domainEvents())
+    assertThat(mappe.domainEvents())
         .hasSize(1)
         .first()
-        .isInstanceOf(ViewingScheduledEvent.class);
+        .isInstanceOf(FlurstueckHinzugefuegt.class);
 }
 ```
 
 - Tests prüfen, dass Zustandsänderungen Domain Events erzeugen
-- Kein Spring Context, kein EventPublisher - nur die Event-Liste prüfen
+- Kein Spring Context, kein EventPublisher — nur die Event-Liste prüfen
 - Das ist der größte Vorteil des Event Collection Patterns
 
 ---
@@ -164,26 +228,26 @@ InMemory-Implementierungen ersetzen - kein Spring Context nötig.
 <style scoped>section { font-size: 1.7em; }</style>
 
 ```java
-class CreateViewingUseCaseTest {
+class FlurstueckHinzufuegenServiceTest {
 
-    private final BrokerageProcessRepository repository =
-        new InMemoryBrokerageProcessRepository();
-    private final DomainEventDispatcher eventDispatcher =
-        mock(DomainEventDispatcher.class);
-    private final CreateViewingUseCase useCase =
-        new CreateViewingUseCase(repository, eventDispatcher);
+    private final AntragsMappeRepository repository =
+        new InMemoryAntragsMappeRepository();
+    private final ApplicationEventPublisher eventPublisher =
+        mock(ApplicationEventPublisher.class);
+    private final FlurstueckHinzufuegenService useCase =
+        new FlurstueckHinzufuegenService(repository, eventPublisher);
 
     @Test
-    void should_create_viewing() {
-        var process = BrokerageProcessFixture.active();
-        repository.save(process);
+    void flurstueck_wird_hinzugefuegt() {
+        var mappe = AntragsMappeFixture.aktiv();
+        repository.save(mappe);
 
-        var result = useCase.execute(new CreateViewingCommand(
-            process.getId(), new ContactId(UUID.randomUUID()),
-            LocalDateTime.now().plusDays(3)));
+        var result = useCase.hinzufuegen(new FlurstueckHinzufuegenCommand(
+            mappe.getId(), new FlurstueckNummer("BW-0012-0034-0001"),
+            new BigDecimal("3.75")));
 
         assertThat(result).isNotNull();
-        verify(eventDispatcher).dispatchAll(anyList());
+        verify(eventPublisher, atLeastOnce()).publishEvent(any());
     }
 }
 ```
@@ -194,35 +258,33 @@ class CreateViewingUseCaseTest {
 ## Leichtgewichtiger als Mocks: InMemory-Repositories
 
 ```java
-public class InMemoryBrokerageProcessRepository
-        implements BrokerageProcessRepository {
+public class InMemoryAntragsMappeRepository
+        implements AntragsMappeRepository {
 
-    private final Map<ProcessId, BrokerageProcess> store =
+    private final Map<AntragId, AntragsMappe> store =
         new ConcurrentHashMap<>();
 
     @Override
-    public void save(BrokerageProcess process) {
-        store.put(process.getId(), process);
+    public void save(AntragsMappe mappe) {
+        store.put(mappe.getId(), mappe);
     }
 
     @Override
-    public Optional<BrokerageProcess> findById(ProcessId id) {
+    public Optional<AntragsMappe> findById(AntragId id) {
         return Optional.ofNullable(store.get(id));
     }
 
     @Override
-    public List<BrokerageProcess> findByStatus(ProcessStatus status) {
+    public Optional<AntragsMappe> findByRegistrierungsNummer(
+            RegistrierungsNummer nr) {
         return store.values().stream()
-            .filter(v -> v.getStatus() == status)
-            .toList();
+            .filter(m -> m.getRegistrierungsNummer().equals(nr))
+            .findFirst();
     }
 
     @Override
-    public ProcessId nextId() { return ProcessId.generate(); }
-
-    @Override
-    public void delete(BrokerageProcess process) {
-        store.remove(process.getId());
+    public void delete(AntragsMappe mappe) {
+        store.remove(mappe.getId());
     }
 }
 ```
@@ -237,17 +299,17 @@ public class InMemoryBrokerageProcessRepository
 
 ```java
 @Test
-void should_throw_error_when_process_not_found() {
-    // Repository is empty - findById returns Optional.empty()
+void soll_exception_werfen_wenn_antragsmappe_nicht_gefunden() {
+    // Repository ist leer — findById liefert Optional.empty()
 
-    assertThatThrownBy(() -> useCase.execute(
-            new CreateViewingCommand(
-                new ProcessId(UUID.randomUUID()),
-                new ContactId(UUID.randomUUID()),
-                LocalDateTime.now().plusDays(1))))
-        .isInstanceOf(ProcessNotFoundException.class);
+    assertThatThrownBy(() -> useCase.hinzufuegen(
+            new FlurstueckHinzufuegenCommand(
+                new AntragId(UUID.randomUUID()),
+                new FlurstueckNummer("BW-0012-0034-0001"),
+                new BigDecimal("3.75"))))
+        .isInstanceOf(AntragsmappeNichtGefundenException.class);
 
-    verifyNoInteractions(eventDispatcher);
+    verifyNoInteractions(eventPublisher);
 }
 ```
 
@@ -269,28 +331,28 @@ und Custom Queries in der Infrastruktur.
 
 ```java
 @DataJpaTest
-@Import(ProcessMapper.class)
-class JpaBrokerageProcessRepositoryTest {
+@Import(AntragsMappeMapper.class)
+class JpaAntragsMappeRepositoryTest {
 
-    @Autowired private ProcessSpringDataRepository springDataRepo;
-    @Autowired private ProcessMapper mapper;
+    @Autowired private AntragsMappeSpringDataRepository springDataRepo;
+    @Autowired private AntragsMappeMapper mapper;
 
-    private JpaBrokerageProcessRepository repository;
+    private JpaAntragsMappeRepository repository;
 
     @BeforeEach
     void setUp() {
-        repository = new JpaBrokerageProcessRepository(
+        repository = new JpaAntragsMappeRepository(
             springDataRepo, mapper);
     }
 
     @Test
-    void should_save_and_load_process() {
-        var process = BrokerageProcessFixture.active();
-        repository.save(process);
+    void soll_antragsmappe_speichern_und_laden() {
+        var mappe = AntragsMappeFixture.mitFlurstueck(); // Status: IN_BEARBEITUNG
+        repository.save(mappe);
 
-        var result = repository.findById(process.getId());
+        var result = repository.findById(mappe.getId());
         assertThat(result).isPresent();
-        assertThat(result.get().getStatus()).isEqualTo(ProcessStatus.ACTIVE);
+        assertThat(result.get().getStatus()).isEqualTo(AntragStatus.IN_BEARBEITUNG);
     }
 }
 ```
@@ -301,29 +363,33 @@ class JpaBrokerageProcessRepositoryTest {
 ## HTTP-Kontrakte prüfen mit @WebMvcTest
 
 ```java
-@WebMvcTest(ViewingController.class)
-class ViewingControllerTest {
+@WebMvcTest(FlurstueckController.class)
+class FlurstueckControllerTest {
 
     @Autowired private MockMvc mockMvc;
-    @MockitoBean private ScheduleViewing scheduleUseCase;
+    @MockitoBean private FlurstueckHinzufuegen hinzufuegenUseCase;
 
     @Test
-    void should_create_viewing_and_return_201() throws Exception {
-        var expectedId = new ViewingId(UUID.randomUUID());
-        when(scheduleUseCase.schedule(any())).thenReturn(expectedId);
+    void soll_flurstueck_erstellen_und_201_zurueckgeben() throws Exception {
+        var expectedId = new FlurstueckId(UUID.randomUUID());
+        when(hinzufuegenUseCase.hinzufuegen(any())).thenReturn(
+            new FlurstueckHinzufuegenResult(expectedId,
+                new AntragId(UUID.randomUUID()),
+                new FlurstueckNummer("BW-0012-0034-0001"),
+                new BigDecimal("3.75")));
 
-        mockMvc.perform(post("/api/v1/brokerage/viewings")
+        mockMvc.perform(post("/api/v1/antragstellung/flurstuecke")
                 .contentType(APPLICATION_JSON)
                 .content("""
                     {
-                      "processId": "550e8400-e29b-41d4-a716-446655440000",
-                      "prospectId": "660e8400-e29b-41d4-a716-446655440000",
-                      "appointmentDate": "2026-04-15T14:00:00"
+                      "antragsmappeId": "550e8400-e29b-41d4-a716-446655440000",
+                      "flurstueckNummer": "BW-0012-0034-0001",
+                      "flaeche": 3.75
                     }
                     """))
             .andExpect(status().isCreated())
             .andExpect(header().exists("Location"))
-            .andExpect(jsonPath("$.viewingId")
+            .andExpect(jsonPath("$.flurstueckId")
                 .value(expectedId.value().toString()));
     }
 }
@@ -341,27 +407,27 @@ ressourcenintensiv, prüfen dafür aber das Zusammenspiel aller Schichten.
 
 ```java
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class BrokerageIntegrationTest {
+class AntragstellungIntegrationTest {
 
     @Autowired private TestRestTemplate restTemplate;
 
     @Test
-    void should_create_viewing_and_retrieve() {
-        // Arrange: Create process via API
-        var processResponse = restTemplate.postForEntity(
-            "/api/v1/brokerage/processes", createProcessRequest(),
-            ProcessResponse.class);
-        assertThat(processResponse.getStatusCode())
+    void flurstueck_hinzufuegen_und_laden() {
+        // Arrange: AntragsMappe anlegen via API
+        var mappeResponse = restTemplate.postForEntity(
+            "/api/v1/antragstellung/antragsmappen", createMappeRequest(),
+            AntragsmappeResponse.class);
+        assertThat(mappeResponse.getStatusCode())
             .isEqualTo(HttpStatus.CREATED);
 
-        // Act: Create viewing for the process
-        var viewingResponse = restTemplate.postForEntity(
-            "/api/v1/brokerage/viewings",
-            createViewingRequest(processResponse.getBody().id()),
-            ViewingResponse.class);
+        // Act: Flurstück hinzufügen
+        var flurstueckResponse = restTemplate.postForEntity(
+            "/api/v1/antragstellung/flurstuecke",
+            createFlurstueckRequest(mappeResponse.getBody().id()),
+            FlurstueckResponse.class);
 
         // Assert
-        assertThat(viewingResponse.getStatusCode())
+        assertThat(flurstueckResponse.getStatusCode())
             .isEqualTo(HttpStatus.CREATED);
     }
 }
@@ -373,28 +439,28 @@ class BrokerageIntegrationTest {
 ## Test Fixtures - Wiederverwendbare Testdaten
 
 ```java
-public class BrokerageProcessFixture {
+public class AntragsMappeFixture {
 
-    public static BrokerageProcess active() {
-        return BrokerageProcess.create(
-            ProcessId.generate(),
-            new PropertyId(UUID.randomUUID()),
-            new ContactId(UUID.randomUUID()));
+    public static AntragsMappe aktiv() {
+        return AntragsMappe.erstellen(
+            new AntragId(UUID.randomUUID()),
+            new RegistrierungsNummer("DZ-BW-2024-0042"),
+            new Foerderbetrag(new BigDecimal("50000"), "EUR"));
     }
 
-    public static BrokerageProcess withViewing() {
-        var process = active();
-        process.scheduleViewing(
-            new ContactId(UUID.randomUUID()),
-            LocalDateTime.now().plusDays(3));
-        return process;
+    public static AntragsMappe mitFlurstueck() {
+        var mappe = aktiv();
+        mappe.flurstueckHinzufuegen(
+            new FlurstueckNummer("BW-0012-0034-0001"),
+            new BigDecimal("3.75"));
+        return mappe;
     }
 
-    public static BrokerageProcess completed() {
-        var process = active();
-        // Move process through all phases...
-        process.close();
-        return process;
+    public static AntragsMappe leer() {
+        return AntragsMappe.erstellen(
+            new AntragId(UUID.randomUUID()),
+            new RegistrierungsNummer("DZ-BW-2024-9999"),
+            new Foerderbetrag(BigDecimal.ZERO, "EUR"));
     }
 }
 ```
@@ -425,7 +491,18 @@ public class BrokerageProcessFixture {
 
 > Clean Architecture macht Testen einfacher: Wenn eure Domäne frei von Framework-Abhängigkeiten ist, könnt ihr den wertvollsten Code mit den schnellsten Tests abdecken.
 
-![h:300](images/vergleich-ohne-mit-clean-architecture.drawio.svg)
+- `@DisplayName("fachliche Aussage auf Deutsch")` — Tests als ausführbare Spezifikation
+- `@ParameterizedTest` + `@CsvSource` — Grenzfälle kompakt, lesbar, wartbar
+- InMemory-Repositories > Mocks für Application-Service-Tests
+- Domain Unit Tests (~60%): kein Spring, läuft in Millisekunden
+
+![h:200](images/vergleich-ohne-mit-clean-architecture.drawio.svg)
+
+### Zum Nachlesen
+
+- JUnit 5 User Guide: `@ParameterizedTest`, `@CsvSource`, `@DisplayName`
+- AssertJ Docs: `assertThatThrownBy`, Soft Assertions
+- Santana, „Domain-Driven Design with Java" (2026), Kap. 4: Testing and Validating DDD Applications
 
 ---
 
@@ -433,23 +510,41 @@ public class BrokerageProcessFixture {
 
 ### Aufgabe
 
-1. Domain Unit Test: `BrokerageProcess` Zustandsübergang testen
+1. Domain Unit Test: `AntragsMappe` Zustandsübergang testen
 2. Domain Unit Test: Value Object Validierung und Gleichheit testen
 3. Application Service Test: Use Case mit InMemory-Repository testen
 4. Repository Integration Test: Custom Query mit `@DataJpaTest`
-5. Web/API Test: `@WebMvcTest` für Controller-Endpunkt
-6. Bonus: Test Fixture-Klasse erstellen
+5. Web/API Test: `@WebMvcTest` für `FlurstueckController`-Endpunkt
+6. Bonus: `AntragsMappeFixture`-Klasse erstellen
 
 > Dauer: ca. 45 Minuten
 
 ---
 
-## Diskussion
+## Diskussion: Teststrategie in der Praxis
 
-> Welche Teststrategie verfolgt ihr aktuell?
+> Ein typisches Problem in gewachsenen Spring-Boot-Projekten:
+> **"`@SpringBootTest` wird reflexartig eingesetzt, auch wo es nicht nötig ist."**
+> Ziele: schnellere Tests, keine flaky Tests, bessere Wartbarkeit.
 
 - Wie sieht eure aktuelle Testpyramide aus - oder ist es eher ein "Test-Eisbecher"?
 - Wie viel Prozent eurer Tests laufen ohne Spring Context?
+- Welche Tests in euren Modulen könnten heute Domain Unit Tests sein, statt `@SpringBootTest`?
 - Nutzt ihr InMemory-Repositories als Test-Doubles?
-- Welche Test-Ebene bereitet euch die meisten Probleme?
-- Schreibt ihr Tests vor oder nach dem Produktivcode (TDD)?
+- **Bei Clean Architecture:** Warum sind ~60% der Tests reine Domain Unit Tests möglich?
+- Schreibt ihr Tests vor oder nach dem Produktivcode?
+
+**Tests und Implementierungsdetails:**
+
+> Santana, „Domain-Driven Design with Java" (2026), Kap. 12 (S. 203):
+> *„Tests that tightly couple themselves to implementation details rather than
+> business behavior become a maintenance burden: every internal refactoring breaks
+> a test, even if the observable behavior is unchanged."*
+
+- Welche eurer Tests prüfen **Verhalten** — und welche prüfen nur interne Implementierung?
+- Wie unterscheidet sich ein Test auf `AntragsMappe.einreichen()` von einem Mock-Test
+  auf `save()` im Repository?
+- Was passiert, wenn ein Test für ein refaktoriertes Aggregate bricht, obwohl die
+  fachliche Regel dieselbe geblieben ist?
+- Ist ein Test, der intern umstrukturierten Code bricht, ein Zeichen für schlechten Code
+  — oder für schlechten Test?

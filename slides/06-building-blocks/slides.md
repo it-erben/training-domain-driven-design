@@ -18,7 +18,9 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Aggregate-Regeln verstehen und korrekt anwenden
 - Domain Services, Domain Events, Factories und Repositories einordnen
 - Die "Primitive Obsession" als Anti-Pattern erkennen
-- Alle Building Blocks in Java 17+ idiomatisch umsetzen
+- Alle Building Blocks in Java 21+ idiomatisch umsetzen
+- DAO vs. DDD Repository unterscheiden
+- Fluent API und Builder Pattern kontextgerecht einsetzen
 
 ---
 
@@ -63,7 +65,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Hat einen Lebenszyklus: Erstellung → Änderung → ggf. Archivierung
 - Enthält Geschäftslogik als Methoden
 
-Im Immobilien-CRM sind das z.B. `BrokerageProcess`, `Viewing` oder `Contact` -
+In der Förderantragsverwaltung sind das z.B. `AntragsMappe`, `Flurstück` oder `Betriebsinhaber` -
 jeweils identifiziert durch eine `UUID`.
 
 ---
@@ -72,20 +74,20 @@ jeweils identifiziert durch eine `UUID`.
 ## Entity in Java
 
 ```java
-public class Contact {
+public class Betriebsinhaber {
 
     private final UUID id;
-    private String firstName;
-    private String lastName;
-    private Emailadresse email;
-    private ContactType type; // OWNER, PROSPECT
+    private String vorname;
+    private String nachname;
+    private BetriebsNummer betriebsNummer;
+    private BhbTyp typ; // ANTRAGSTELLER, SACHBEARBEITER
 
-    public Contact(UUID id, String firstName,
-                   String lastName, ContactType type) {
+    public Betriebsinhaber(UUID id, String vorname,
+                           String nachname, BhbTyp typ) {
         this.id = Objects.requireNonNull(id);
-        this.firstName = Objects.requireNonNull(firstName);
-        this.lastName = Objects.requireNonNull(lastName);
-        this.type = Objects.requireNonNull(type);
+        this.vorname = Objects.requireNonNull(vorname);
+        this.nachname = Objects.requireNonNull(nachname);
+        this.typ = Objects.requireNonNull(typ);
     }
 }
 ```
@@ -99,13 +101,13 @@ public class Contact {
 ## Gleichheit über ID
 
 ```java
-public class Contact {
+public class Betriebsinhaber {
     // ... fields and constructor
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Contact other)) return false;
+        if (!(o instanceof Betriebsinhaber other)) return false;
         return id.equals(other.id);
     }
 
@@ -116,8 +118,8 @@ public class Contact {
 }
 ```
 
-- Zwei Kontakte mit gleicher ID sind dasselbe Objekt
-- Auch wenn Vorname oder E-Mail sich geändert haben
+- Zwei Betriebsinhaber mit gleicher ID sind dasselbe Objekt
+- Auch wenn Vorname oder Betriebsnummer sich geändert haben
 - `instanceof` Pattern Matching (Java 16+)
 
 ---
@@ -130,13 +132,26 @@ Maße oder Konzepte - ohne eigene Identität.
 
 - Gleichheit durch Wertevergleich aller Attribute
 - Unveränderlich (immutable) - Änderung erzeugt neues Objekt
-- In Java 17+: ideal als Record umsetzbar
+- In Java 21+: ideal als Record umsetzbar
 
 | Value Object | Beschreibt |
 |-------------|-----------|
-| `Address` | Straße, PLZ, Ort |
-| `AskingPrice` | Betrag + Währung |
-| `Commission` | Prozentsatz |
+| `Foerderbetrag` | Betrag + Währung (beantragte Fördersumme) |
+| `Foerderquote` | Förderanteil als Dezimalfaktor (z. B. `0.35` = 35 %) |
+| `FlurstueckNummer` | Kataster-Parzellen-Kennung |
+
+```java
+public record Foerderquote(BigDecimal prozentsatz) {
+    public Foerderquote {
+        Objects.requireNonNull(prozentsatz);
+        if (prozentsatz.compareTo(BigDecimal.ZERO) < 0
+                || prozentsatz.compareTo(BigDecimal.ONE) > 0) {
+            throw new IllegalArgumentException(
+                "Foerderquote muss zwischen 0 und 1 liegen: " + prozentsatz);
+        }
+    }
+}
+```
 
 ---
 <style scoped>section { font-size: 1.7em; }</style>
@@ -144,23 +159,35 @@ Maße oder Konzepte - ohne eigene Identität.
 ## Value Object als Java Record
 
 ```java
-public record Address(String street, String postalCode, String city) {
+public record Foerderbetrag(BigDecimal betrag, String waehrung) {
 
-    // Compact constructor: validation
-    public Address {
-        Objects.requireNonNull(street, "Street must not be null");
-        Objects.requireNonNull(postalCode, "Postal code must not be null");
-        Objects.requireNonNull(city, "City must not be null");
-        if (!postalCode.matches("\\d{5}")) {
-            throw new IllegalArgumentException("Invalid postal code: " + postalCode);
+    public Foerderbetrag {
+        Objects.requireNonNull(betrag, "Betrag muss angegeben werden");
+        Objects.requireNonNull(waehrung, "Währung muss angegeben werden");
+        if (betrag.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                "Förderbetrag darf nicht negativ sein: " + betrag);
         }
+    }
+
+    /** Skaliert den Betrag mit einem Faktor (z. B. 1.05 für 5 % Bonus). */
+    public Foerderbetrag multiplizieren(BigDecimal faktor) {
+        return new Foerderbetrag(
+            betrag.multiply(faktor).setScale(2, RoundingMode.HALF_UP),
+            waehrung);
+    }
+
+    /** Wendet eine Foerderquote auf diesen Betrag an. */
+    public Foerderbetrag anwenden(Foerderquote quote) {
+        return multiplizieren(quote.prozentsatz());
     }
 }
 ```
 
 - Record = automatisch immutable + `equals()`/`hashCode()` by value
-- Compact Constructor für Validierung - kein new-Keyword im Body
-- Keine Getter-Boilerplate: `address.postalCode()` statt `address.getPostalCode()`
+- Compact Constructor für Validierung — kein `new`-Keyword im Body
+- Berechnungsmethoden geben ein **neues** Record zurück — niemals mutieren
+- `foerderbetrag.betrag()` statt `foerderbetrag.getBetrag()` (kein Boilerplate)
 
 ---
 
@@ -169,11 +196,11 @@ public record Address(String street, String postalCode, String city) {
 Exzessiver Einsatz von Primitives statt Value Objects gilt als Anti Pattern im Domain Driven Design.
 
 ```java
-public class BrokerageProcess {
-    private String ownerId;              // Welches Format?
-    private double purchasePrice;        // Welche Währung?
-    private double commission;           // Prozent oder absolut?
-    private String street, postalCode, city; // Braucht man immer zusammen.
+public class AntragsMappe {
+    private String antragstellerId;     // Welches Format?
+    private double foerderbetrag;       // Welche Währung?
+    private double foerderquote;        // Prozent oder absolut?
+    private String registrierungsNummer; // Welche Länge, welches Format?
 }
 ```
 
@@ -182,11 +209,31 @@ public class BrokerageProcess {
 ## Value Objects statt Primitives
 
 ```java
-public class BrokerageProcess {
-    private UUID ownerId;
-    private AskingPrice askingPrice;
-    private Commission commission;
-    private Address address;
+public class AntragsMappe {
+    private BhbNummer antragstellerId;
+    private Foerderbetrag beantragteFoerderung;
+    private Foerderquote foerderquote;
+    private RegistrierungsNummer registrierungsNummer;
+}
+```
+
+```java
+// Weitere Value Object Beispiele aus der Domäne
+public record FlurstueckNummer(String wert) {
+    public FlurstueckNummer {
+        Objects.requireNonNull(wert, "FlurstueckNummer darf nicht null sein");
+        if (wert.isBlank()) throw new IllegalArgumentException(
+            "FlurstueckNummer darf nicht leer sein");
+    }
+}
+
+public record RegistrierungsNummer(String wert) {
+    public RegistrierungsNummer {
+        Objects.requireNonNull(wert);
+        if (!wert.matches("DZ-[A-Z]{2}-\\d{4}-\\d{4}"))
+            throw new IllegalArgumentException(
+                "Ungültiges Format: " + wert);
+    }
 }
 ```
 
@@ -255,23 +302,32 @@ stellt sicher, dass das Aggregat immer in einem gültigen Zustand ist.
 ## Codebeispiel
 
 ```java
-public class BrokerageProcess {
+public class AntragsMappe {
 
-    private final UUID id;
-    private final UUID propertyId; // Reference by ID!
-    private AskingPrice askingPrice;
-    private ProcessStatus status;
-    private final List<Viewing> viewings = new ArrayList<>();
-    private final List<Offer> offers = new ArrayList<>();
-    private final List<BrokerageEvent> domainEvents = new ArrayList<>();
+    private final AntragId id;
+    private RegistrierungsNummer registrierungsNummer;
+    private Foerderbetrag beantragteFoerderung;
+    private AntragStatus status;
+    private final List<Flurstueck> flurstuecke = new ArrayList<>();
+    private final List<Nachweis> nachweise = new ArrayList<>();
+    private final List<AntragEvent> domainEvents = new ArrayList<>();
 
-    public UUID addViewing(
-            String prospect, LocalDateTime timestamp) {
-        var viewing = new Viewing(
-            UUID.randomUUID(), prospect, timestamp);
-        this.viewings.add(viewing);
-        this.status = ProcessStatus.VIEWING;
-        return viewing.getId();
+    public FlurstueckId flurstueckHinzufuegen(
+            FlurstueckNummer nummer, BigDecimal flaeche) {
+        var flurstueck = new Flurstueck(
+            FlurstueckId.generate(), nummer, flaeche);
+        this.flurstuecke.add(flurstueck);
+        this.status = AntragStatus.IN_BEARBEITUNG;
+        registerEvent(new FlurstueckHinzugefuegt(this.id, flurstueck.getId(), nummer, flaeche, Instant.now()));
+        return flurstueck.getId();
+    }
+
+    public NachweisId nachweisEinreichen(String dokumentTyp, String eingereichtVon) {
+        var nachweisId = NachweisId.generate();
+        var nachweis = new Nachweis(nachweisId, dokumentTyp, eingereichtVon, Instant.now());
+        this.nachweise.add(nachweis);
+        registerEvent(new NachweisEingereicht(this.id, nachweisId, dokumentTyp, Instant.now()));
+        return nachweisId;
     }
 }
 ```
@@ -281,23 +337,23 @@ public class BrokerageProcess {
 ## Invarianten schützen
 
 ```java
-public class BrokerageProcess {
+public class AntragsMappe {
 
-    public void setStatusToNotaryAppointment() {
-        boolean hasAcceptedOffer = offers.stream().anyMatch(Offer::isAccepted);
+    public void einreichen() {
+        boolean hatFlurstuecke = !flurstuecke.isEmpty();
 
-        if (!hasAcceptedOffer) {
-            // Invariante: Kein Notartermin ohne angenommenes Angebot
-            throw new IllegalStateException("Notary appointment requires an accepted offer");
-
+        if (!hatFlurstuecke) {
+            // Invariante: Einreichung nur mit mindestens einem Flurstück
+            throw new IllegalStateException(
+                "Antrag muss mindestens ein Flurstück enthalten");
         }
-        this.status = ProcessStatus.NOTARY_APPOINTMENT;
-        domainEvents.add(new NotaryAppointmentScheduled(this.id));
+        this.status = AntragStatus.EINGEREICHT;
+        registerEvent(new AntragsmappeEingereicht(this.id));
     }
 
     // Außenstehende können Liste nicht modifizieren, weil unmodifiable
-    public List<Viewing> getViewings() {
-        return Collections.unmodifiableList(viewings);
+    public List<Flurstueck> getFlurstuecke() {
+        return Collections.unmodifiableList(flurstuecke);
     }
 }
 ```
@@ -308,16 +364,32 @@ public class BrokerageProcess {
 ## Domain Event Collection Pattern: Events sammeln
 
 ```java
-public class BrokerageProcess {
+// Marker-Interface für alle Domain Events des BC Antragstellung
+public sealed interface AntragEvent
+    permits AntragsmappeErstellt, AntragsmappeEingereicht,
+            FlurstueckHinzugefuegt, NachweisEingereicht,
+            NachweisAkzeptiert, KontrolleDurchgefuehrt {}
+```
 
-    private final List<BrokerageEvent> domainEvents = new ArrayList<>();
+- `sealed` stellt sicher: nur definierte Event-Typen erlaubt
+- Kein Framework, keine Abhängigkeiten — reines Java
+
+---
+<style scoped>section { font-size: 1.6em; }</style>
+
+## Domain Event Collection Pattern: Events sammeln
+
+```java
+public class AntragsMappe {
+
+    private final List<AntragEvent> domainEvents = new ArrayList<>();
 
     // Wird von Business-Methoden aufgerufen
-    protected void registerEvent(BrokerageEvent event) {
+    protected void registerEvent(AntragEvent event) {
         this.domainEvents.add(event);
     }
 
-    public List<BrokerageEvent> getDomainEvents() {
+    public List<AntragEvent> domainEvents() {
         return Collections.unmodifiableList(domainEvents);
     }
 
@@ -345,32 +417,34 @@ angesiedelt, oft über Aggregate-Grenzen hinweg operierend.
 | **Enthält** | Geschäftslogik | Orchestrierung |
 | **Zustand** | Stateless | Stateless |
 | **Spring** | Kein Spring nötig | `@Service`, `@Transactional` |
-| **Beispiel** | Provisionsberechnung | ScheduleViewingUseCase |
+| **Beispiel** | FoerderbetragBerechner | FlurstueckHinzufuegenService |
 
 ---
 <style scoped>section { font-size: 1.6em; }</style>
 
-## Beispiel: CommissionCalculator
+## Beispiel: FoerderbetragBerechner
 
 ```java
 // Diese Klasse kommt ohne Abhängigkeiten zu Spring aus
-public class CommissionCalculator {
+public class FoerderbetragBerechner {
 
-    public Commission calculate(AskingPrice price,
-                                BigDecimal commissionRate,
-                                SplitModel model) {
-        var amount = price.amount()
-            .multiply(commissionRate)
-            .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+    // Flurstueck ist eine Entity mit expliziter flaeche()-Methode:
+    // public BigDecimal flaeche() { return this.flaeche; }
+    public Foerderbetrag berechnen(List<Flurstueck> flurstuecke,
+                                   Foerderquote quote,
+                                   FoerderProgramm programm) {
+        var gesamtFlaeche = flurstuecke.stream()
+            .map(Flurstueck::flaeche)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return switch (model) {
-            case BUYER_PAYS_ALL ->
-                new Commission(amount, BigDecimal.ZERO);
-            case FIFTY_FIFTY ->
-                new Commission(amount.divide(BigDecimal.TWO), amount.divide(BigDecimal.TWO));
-            case SELLER_PAYS_ALL ->
-                new Commission(BigDecimal.ZERO, amount);
-        };
+        // Foerderquote.prozentsatz() ist ein Dezimalfaktor (0.0–1.0):
+        // 10 ha × 0,35 × 300 EUR/ha = 1050 EUR — KEIN weiteres /100!
+        var betrag = gesamtFlaeche
+            .multiply(quote.prozentsatz())
+            .multiply(programm.basisBetragProHektar())
+            .setScale(2, RoundingMode.HALF_UP);
+
+        return new Foerderbetrag(betrag, "EUR");
     }
 }
 ```
@@ -385,25 +459,43 @@ Domain Events beschreiben Dinge, die in der Domäne passiert sind.
 Sie enthalten alle relevanten Daten des Ereignisses und ermöglichen
 lose Kopplung - sowohl intern als auch als Basis für spätere Integrationsereignisse.
 
-Beispiele: `ViewingCompleted`, `OfferAccepted`,
-`BrokerageCompleted`
+Beispiele: `KontrolleDurchgefuehrt`, `AntragsmappeEingereicht`,
+`AntragPositivBeschieden`
+
+> **Domain Events als Rückmeldung des Systems:**
+> Was in der Domäne passiert, sollte sichtbar werden — für andere Teile des Systems
+> und für Menschen. Ein Ereignis, das keiner kennt, kann keiner beantworten.
+> Domain Events sind Signale, keine Befehle. Sie beschreiben, was war —
+> und überlassen es anderen, was als Nächstes geschehen soll.
+>
+> *Wenn ein Prozess keine Ereignisse hat, hat er auch keine Rückmeldung.
+> Kein Rückmeldung = kein Lernen = keine Anpassung.*
 
 ---
 
 ## Domain Event als Record
 
 ```java
-public record ViewingCompleted(
-    UUID brokerageProcessId,
-    UUID viewingId,
-    LocalDateTime timestamp
-) {
-    public ViewingCompleted {
-        Objects.requireNonNull(brokerageProcessId);
-        Objects.requireNonNull(viewingId);
-        Objects.requireNonNull(timestamp);
+public record FlurstueckHinzugefuegt(
+    AntragId antragsmappeId, FlurstueckId flurstueckId,
+    FlurstueckNummer flurstueckNummer, BigDecimal flaeche,
+    Instant occurredAt
+) implements AntragEvent {
+    public FlurstueckHinzugefuegt {
+        Objects.requireNonNull(antragsmappeId);
+        Objects.requireNonNull(flurstueckId);
     }
 }
+
+public record NachweisEingereicht(
+    AntragId antragsmappeId, NachweisId nachweisId,
+    String dokumentTyp, Instant occurredAt
+) implements AntragEvent {}
+
+public record NachweisAkzeptiert(
+    AntragId antragsmappeId, NachweisId nachweisId,
+    Instant occurredAt
+) implements AntragEvent {}
 ```
 
 Records bieten sich an, weil sie unverändlich und kompakt zu definieren sind.
@@ -431,26 +523,41 @@ Records bieten sich an, weil sie unverändlich und kompakt zu definieren sind.
 ### Als statische Factory-Methode auf dem Aggregate Root
 
 ```java
-public class BrokerageProcess {
+public class AntragsMappe {
 
     // Private constructor
-    private BrokerageProcess(UUID id, UUID propertyId,
-            Address address, AskingPrice price, Commission commission) {
+    private AntragsMappe(AntragId id,
+            RegistrierungsNummer regNr, Foerderbetrag beantragteFoerderung) {
         this.id = id;
-        this.propertyId = propertyId;
-        this.address = address;
-        this.askingPrice = price;
-        this.commission = commission;
-        this.status = ProcessStatus.NEW;
+        this.registrierungsNummer = regNr;
+        this.beantragteFoerderung = beantragteFoerderung;
+        this.status = AntragStatus.NEU;
     }
 
-    public static BrokerageProcess create(
-            UUID propertyId, Address address,
-            AskingPrice price, Commission commission) {
-        var process = new BrokerageProcess(
-            UUID.randomUUID(), propertyId, address, price, commission);
-        process.registerEvent(new BrokerageStarted(process.id));
-        return process;
+    public static AntragsMappe erstellen(
+            AntragId id, RegistrierungsNummer regNr,
+            Foerderbetrag beantragteFoerderung) {
+        var mappe = new AntragsMappe(id, regNr, beantragteFoerderung);
+        mappe.registerEvent(new AntragsmappeErstellt(mappe.id));
+        return mappe;
+    }
+
+    /**
+     * Wiederherstellung aus der Datenbank — kein Domain Event.
+     * Wird ausschließlich vom Repository-Mapper aufgerufen.
+     */
+    public static AntragsMappe rekonstruieren(
+            AntragId id, AntragStatus status,
+            RegistrierungsNummer regNr,
+            Foerderbetrag beantragteFoerderung,
+            List<Flurstueck> flurstuecke,
+            List<Nachweis> nachweise) {
+        var mappe = new AntragsMappe(id, regNr, beantragteFoerderung);
+        mappe.status = status;
+        mappe.flurstuecke.addAll(flurstuecke);
+        mappe.nachweise.addAll(nachweise);
+        // Kein registerEvent() — Laden aus Persistenz ist kein Domänenereignis
+        return mappe;
     }
 }
 ```
@@ -458,6 +565,66 @@ public class BrokerageProcess {
 - Privater Konstruktor → Erstellung nur über Factory-Methode
 - Event wird direkt bei Erstellung registriert
 - Objekt ist sofort in einem gültigen Zustand
+
+---
+
+## Factories: Fluent API vs. Builder Pattern
+
+Komplexe Objekte entstehen oft über mehrere Schritte. Zwei bewährte Muster:
+
+| | **Builder Pattern** | **Fluent API** |
+|---|---|---|
+| Zweck | Schrittweise Objektkonstruktion | Geführter, domänensprachlicher Ablauf |
+| Reihenfolge | Beliebig, Validierung erst bei `build()` | Erzwungene logische Sequenz |
+| Fehlerhandling | Validation am Ende | Sofort bei jedem Schritt |
+| DDD-Eignung | Gut für optionale Parameter | Optimal — spricht Ubiquitous Language |
+
+```java
+// Builder Pattern — Reihenfolge ist optional, Validierung am Ende
+AntragsMappe.builder()
+    .registrierungsNummer("DZ-BW-2024-0042")
+    .foerderbetrag(new Foerderbetrag(BigDecimal.ZERO, "EUR"))
+    .build();
+
+// Fluent API — Ablauf ist durch Rückgabetypen vorgegeben
+AntragsMappe.fuerBetriebsinhaber(bhbNummer)
+    .mitRegistrierungsNummer("DZ-BW-2024-0042")
+    .erstellen();
+```
+
+> Eine gut gestaltete Fluent API liest sich wie ein Fachgespräch
+> und kann ungültige Zustände durch den Typen erzwingen.
+
+---
+
+## DAO vs. Repository — nicht dasselbe
+
+Ein häufiger Irrtum: `JpaRepository` aus Spring Data = DDD Repository.
+
+| | **DAO (Data Access Object)** | **DDD Repository** |
+|---|---|---|
+| Zweck | Technischer CRUD-Zugriff | Fachliche Collection-Abstraktion |
+| Sprache | `insert`, `select`, `update`, `delete` | `save`, `findByRegistrierungsNummer` |
+| Einheit | Datenbankzeile / Tabelle | Aggregate Root |
+| Abhängigkeit | Kennt Datenbank-Details | Kennt nur Domain-Typen |
+| Interface | Optional | Pflicht (Port in Domain-Schicht) |
+
+```java
+// DAO — technisch:
+public interface AntragsMappeJpaDao {
+    void insert(AntragsMappeJpaEntity entity);
+    Optional<AntragsMappeJpaEntity> selectById(UUID id);
+}
+
+// Repository — fachlich:
+public interface AntragsMappeRepository {
+    void save(AntragsMappe mappe);
+    Optional<AntragsMappe> findByRegistrierungsNummer(RegistrierungsNummer nr);
+}
+```
+
+> Ein Spring-Data `JpaRepository` ist ein DAO — kein DDD Repository.
+> Das DDD Repository-Interface lebt in der Domain-Schicht und delegiert intern an den DAO.
 
 ---
 
@@ -475,18 +642,21 @@ Definiert wird das Interface in der Domain-Schicht (Port), implementiert in der 
 
 ```java
 // Domain layer: pure Java, no Spring!
-public interface BrokerageProcessRepository {
+public interface AntragsMappeRepository {
 
-    Optional<BrokerageProcess> findById(UUID id);
+    Optional<AntragsMappe> findById(AntragId id);
 
-    void save(BrokerageProcess process);
+    Optional<AntragsMappe> findByRegistrierungsNummer(RegistrierungsNummer nr);
 
-    void deleteById(UUID id);
+    void save(AntragsMappe mappe);
+
+    void delete(AntragsMappe mappe);
 }
 ```
 
 - Kein `JpaRepository`, keine Spring-Abhängigkeit!
-- Spricht die Ubiquitous Language: `save`, `findById`
+- Kein primitiver `UUID`-Parameter — `AntragId` drückt die Rolle aus (Primitive Obsession vermieden)
+- Spricht die Ubiquitous Language: `save`, `findByRegistrierungsNummer`
 - Rückgabetyp: Domain-Objekt, nicht JPA-Entity
 
 ---
@@ -501,15 +671,19 @@ public interface BrokerageProcessRepository {
 | UUID.randomUUID() | Einfach, keine DB nötig, verteilt | Nicht sortierbar, 36 Chars |
 | UUIDv7 (zeitbasiert) | Sortierbar + einzigartig | Java-Library nötig |
 | DB-Sequence | Kompakt, sortierbar | Kopplung an DB |
-| Fachliche ID | Lesbar (`IMM-2024-0042`) | Eindeutigkeit schwerer sicherbar |
+| Fachliche ID | Lesbar (`DZ-BW-2024-0042`) | Eindeutigkeit schwerer sicherbar |
 
-### Empfehlung für diesen Workshop
+### Empfehlung: UUIDv7 für neue Projekte
 
 ```java
-UUID id = UUID.randomUUID();
+// Java 21.0.4+ / JDK 24 hat UUID.randomUUID(7) — bis dahin: externe Library
+// com.github.f4b6a3:uuid-creator
+UUID id = UuidCreator.getTimeOrderedEpoch(); // UUIDv7: sortierbar + einzigartig
 ```
 
-> ID wird im Domain Layer erzeugt (Factory-Methode), nicht von der Datenbank vergeben.
+> UUIDv7 ist zeitbasiert sortierbar → B-Tree-Indizes in der DB fragmentieren nicht.
+> Für diesen Workshop ist `UUID.randomUUID()` ausreichend, in Produktion UUIDv7 bevorzugen.
+> ID wird immer im Domain Layer erzeugt (Factory-Methode), nie von der Datenbank vergeben.
 
 ---
 
@@ -521,7 +695,7 @@ UUID id = UUID.randomUUID();
 
 ## Hands-on: Lab 04
 
-### Building Blocks im Immobilien-CRM implementieren
+### Building Blocks der Förderantragsverwaltung implementieren
 
 ---
 
@@ -533,8 +707,37 @@ UUID id = UUID.randomUUID();
 - Domain Service = zustandslose Geschäftslogik (kein Spring nötig)
 - Domain Event = was passiert ist, immutabel, Record
 - Factory = garantiert gültigen Initialzustand
-- Repository = Java Interface in der Domain-Schicht (Port)
+- Repository = Java Interface in der Domain-Schicht (Port) — kein Spring-Data DAO!
+- DAO (technisch) ≠ DDD Repository (fachlich) — Trennung bewusst halten
 - Primitive Obsession vermeiden → Value Objects nutzen!
+
+### Zum Nachlesen
+
+- Evans, „Domain-Driven Design" (2003), S. 89: Entity-Konzept — Identität über den Lebenszyklus
+- Evans, „Domain-Driven Design" (2003), S. 97: Value Objects — Gleichheit durch Wert
+- Evans, „Domain-Driven Design" (2003), S. 125: Aggregate — Konsistenzgrenzen und Invarianten
+- Evans, „Domain-Driven Design" (2003), S. 147: Repository — Collection-Abstraktion für Aggregate
+- Vernon, „Implementing Domain-Driven Design" (2013), S. 217: Value Objects in Java
+- Vernon, „Implementing Domain-Driven Design" (2013), S. 285: Domain Events
+- Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 6: Komplexe Business-Logik — Domain Model und Bausteine
+- Santana, „Domain-Driven Design with Java" (2026), Kap. 3: Tactical DDD — Entities, Value Objects, Aggregates
+- Santana, „Domain-Driven Design with Java" (2026), Kap. 12: Fluent API vs. Builder Pattern, Anemic vs. Rich Model
+
+---
+
+## Diskussion: Value Objects in der Praxis
+
+> **Primitive Obsession** ist eines der häufigsten Anti-Patterns in unserer Codebasis:
+> Fachbegriffe wie Registrierungsnummern, Beträge und Flächen werden als `String` oder `double`
+> gespeichert — ohne Validierung, ohne Typsicherheit, ohne Domänenbedeutung.
+
+- Wo seht ihr in euren Modulen heute Primitive Obsession?
+  - `String` statt `BhbNummer`, `String` statt `RegistrierungsNummer`, `double` statt `Foerderbetrag`?
+- Welche Validierungslogik liegt heute in Services, die eigentlich in Value Objects gehört?
+- Wie würdet ihr `AenderungsArt` (UPDATED/REACTIVATED/REMOVED/ARCHIVED) als Value Object modellieren?
+- **Wichtig:** Ein falsch eingegebener Förderbetrag in falscher Einheit = falsche Auszahlung.
+  Wie schützt `Foerderbetrag(BigDecimal, String)` davor besser als `double`?
+- Was ist der Unterschied zwischen einem `Foerderbetrag` als Value Object und einer Zahl?
 
 > Im nächsten Modul überführen wir diese Building Blocks
 > in eine Clean Architecture (Modul 07).

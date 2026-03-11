@@ -16,13 +16,13 @@
                         <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe flex-start; width: 1px; height: 1px; padding-top: 18px; margin-left: 43px;">
                             <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #6c8ebf; ">
                                 <div style="display: inline-block; font-size: 18px; font-family: &quot;Helvetica&quot;; color: light-dark(#6c8ebf, #5c79a3); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: nowrap; ">
-                                    Modul: Brokerage
+                                    Modul: Pruefung
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="43" y="36" fill="#6c8ebf" font-family="&quot;Helvetica&quot;" font-size="18px" font-weight="bold">
-                        Modul: Brokerage
+                        Modul: Pruefung
                     </text>
                 </switch>
             </g>

@@ -3,7 +3,7 @@
 Refactore den Code aus Lab 04 in die folgende Paketstruktur:
 
 ```
-de.realestate.brokerage/
+de.foerderung.antragstellung/
 ├── domain/
 │   ├── model/        (Aggregate Root, Entities, Value Objects, Enum)
 │   ├── port/         (Repository Interface = Outbound Port)
@@ -14,21 +14,23 @@ de.realestate.brokerage/
     └── persistence/  (JPA-Implementierung des Repositories)
 ```
 
-Außerdem überführst du den Code aus Lab 01 bezüglich Immobilienverwaltung in
+Außerdem überführst du den Code aus Lab 01 bezüglich Betriebsinhaber in
 die gleiche Struktur.
 
 ## Schritt 1: Paketstruktur anlegen
 
-Lege die oben gezeigte Paketstruktur unter `de.realestate.brokerage` an.
+Lege die oben gezeigte Paketstruktur unter `de.foerderung.antragstellung` an.
 
 ## Schritt 2: Domain-Schicht befüllen
 
 Verschiebe die folgenden Klassen aus Lab 04 in die entsprechenden Packages:
 
-- `domain/model/`: `AskingPrice`, `Commission`, `ProcessStatus`,
-  `Viewing`, `Offer`, `BrokerageProcess`
-- `domain/port/`: `BrokerageProcessRepository` (reines Java-Interface)
-- `domain/event/`: `ViewingCompleted`, `OfferReceived`, `OfferAccepted`
+- `domain/model/`: `Foerderbetrag`, `Foerderquote`, `FlurstueckNummer`,
+  `RegistrierungsNummer`, `AntragStatus`, `Flurstueck`, `Nachweis`,
+  `AntragsMappe`
+- `domain/port/`: `AntragsMappeRepository` (reines Java-Interface)
+- `domain/event/`: `AntragEvent`, `FlurstueckHinzugefuegt`,
+  `NachweisEingereicht`, `NachweisAkzeptiert`, `AntragsmappeEingereicht`
 
 Wichtig: KEINE Spring-Imports in der gesamten `domain`-Schicht! Die
 Domain-Schicht darf nur Standard-Java-Klassen verwenden.
@@ -37,45 +39,45 @@ Domain-Schicht darf nur Standard-Java-Klassen verwenden.
 
 Erstelle die folgenden Klassen im Package `infrastructure/persistence/`:
 
-JpaBrokerageProcess - JPA-`@Entity` mit Jakarta-Persistence-Annotationen:
+JpaAntragsMappe - JPA-`@Entity` mit Jakarta-Persistence-Annotationen:
 
 - Alle Felder des Domain-Modells als JPA-kompatible Felder
 - `@Id` für die ID
-- `@ElementCollection` für `viewings` und `offers`
+- `@ElementCollection` für `flurstuecke` und `nachweise`
 - Methoden `toModel()` und `static fromModel()` zur Konvertierung zwischen
   Domain-Modell und JPA-Entity
 
-JpaViewing - `@Embeddable` mit JPA-Feldern
+JpaFlurstueck - `@Embeddable` mit JPA-Feldern
 
-JpaOffer - `@Embeddable` mit JPA-Feldern
+JpaNachweis - `@Embeddable` mit JPA-Feldern
 
-JpaBrokerageProcessRepository - Interface, das
-`JpaRepository<JpaBrokerageProcess, UUID>` erweitert
+JpaAntragsMappeRepository - Interface, das
+`JpaRepository<JpaAntragsMappe, UUID>` erweitert
 
-BrokerageProcessRepositoryAdapter - `@Component`, implementiert das
-Domain-Interface `BrokerageProcessRepository`:
+AntragsMappeRepositoryAdapter - `@Component`, implementiert das
+Domain-Interface `AntragsMappeRepository`:
 
-- Injiziert `JpaBrokerageProcessRepository`
+- Injiziert `JpaAntragsMappeRepository`
 - Mappt zwischen Domain-Objekten und JPA-Entities
 
 ## Schritt 4: Application Service erstellen
 
-Erstelle `BrokerageProcessApplicationService` im Package `application/service/`:
+Erstelle `AntragsMappeApplicationService` im Package `application/service/`:
 
 - `@Service`, `@Transactional`
-- Hat ein `BrokerageProcessRepository` (Domain-Port-Interface) als Feld
+- Hat ein `AntragsMappeRepository` (Domain-Port-Interface) als Feld
 - Methoden:
-  - `create(UUID propertyId, AskingPrice askingPrice, Commission commission)` -
-    erstellt und persistiert einen neuen BrokerageProcess
-  - `findById(UUID id)` - gibt `Optional<BrokerageProcess>` zurück
+  - `erstellen(RegistrierungsNummer, Foerderbetrag, Foerderquote)` -
+    erstellt und persistiert eine neue AntragsMappe
+  - `findById(UUID id)` - gibt `Optional<AntragsMappe>` zurück
 
-## (OPTIONAL) Schritt 5: Property-Domäne neu strukturieren
+## (OPTIONAL) Schritt 5: Betriebsinhaber-Domäne neu strukturieren
 
 Gehe nun genauso mit dem Code aus Lab 01 vor, der noch in dem Paket
-`de.realestate.property` liegt.
+`de.foerderung.betriebsinhaber` liegt.
 
 ```
-de.realestate.property/
+de.foerderung.betriebsinhaber/
 ├── domain/
 │   ├── model/        (Aggregate Root, Entities, Value Objects, Enum)
 │   ├── port/         (Repository Interface = Outbound Port)
@@ -86,7 +88,7 @@ de.realestate.property/
     └── persistence/  (JPA-Implementierung des Repositories)
 ```
 
-Momentan befindet sich im `property`-Paket nur Code, der Infrastruktur-
+Momentan befindet sich im `betriebsinhaber`-Paket nur Code, der Infrastruktur-
 Abhängigkeiten hat. Lege neue Klassen an, um die obige Aufteilung zu erhalten.
 
 ## Ein paar Hinweise

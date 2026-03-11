@@ -8,6 +8,8 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 # Modul 01 - Willkommen & Einführung
 
+![bg right:45%](images/foerderantrag.svg)
+
 ---
 
 ## Vorstellungsrunde
@@ -54,20 +56,20 @@ Ein praxisorientierter Workshop für Java-Entwickler und
 Software-Architekten, die ihre Spring-Boot-Projekte auf ein solides
 architektonisches Fundament stellen wollen.
 
-- Durchgängige Übungsdomäne: Immobilien-CRM für Makler
+- Durchgängige Übungsdomäne: Förderantragsverwaltung
 - Theorie und Praxis im stetigen Wechsel
 
 ---
 
-## Übungsdomäne: Immobilien-CRM
+## Übungsdomäne: Förderantragsverwaltung
 
-Ein Maklerunternehmen benötigt ein CRM-System, das den gesamten
-Vermittlungsprozess abbildet - vom ersten Kontakt mit dem Eigentümer
-bis zum Notartermin.
+Eine Förderagentur benötigt ein System, das den gesamten
+Antragsprozess abbildet - von der Antragstellung durch den Betriebsinhaber
+über die Kontrolle der Flurstücke bis zur Bescheidung des Förderantrags.
 
 ---
 
-![bg center h:450](./images/crm.png)
+![bg center h:600](./images/foerderantragsverwaltung-overview.svg)
 
 ---
 
@@ -88,7 +90,22 @@ bis zum Notartermin.
 | 2 | Architektur gestalten | 05 Strategic Design · 06 Building Blocks · 07 Clean Architecture    | Lab 03-04 |
 | 3 | Implementierung starten | 08 Paketstruktur · 09 Use Cases · 10 REST Adapter                   | Lab 05-07 |
 | 4 | Qualität sichern | 11 ArchUnit · 12 Context Integration · 13 Modulith · 14 Querschnitt | Lab 08-11 |
-| 5 | Vertiefen & Reflektieren | 15 Teststrategie                                                    | Lab 12-13 |
+| 5 | Vertiefen & Reflektieren | 15 Teststrategie · 16 Zustand, Koordination & Resilienz             | Lab 12-13 |
+
+---
+
+## DDD ist bereits unsere Strategie
+
+> Aus einer **internen Architekturdokumentation**:
+>
+> *„Ein Modul beschreibt eine klar umrissene Fachlichkeit und entspricht
+> einem **Bounded Context** im Domain Driven Design."*
+>
+> *„Fange mit einem großen Modul an! Sammle Erfahrungen. Spalte bei Bedarf
+> Module ab, die einen **fachlich motivierten Bounded Context** beschreiben."*
+
+Dieser Workshop macht explizit, was in der Praxis bereits als Architekturprinzip
+dokumentiert ist — und gibt euch die Werkzeuge, es konsequent umzusetzen.
 
 ---
 
@@ -102,6 +119,36 @@ Nach diesen 5 Tagen könnt ihr:
 - Building Blocks (Entity, Value Object, Aggregate) idiomatisch in Java implementieren
 - Architekturregeln mit ArchUnit automatisiert durchsetzen
 - Spring Modulith für modulare Monolithen nutzen
+- Anwendungen zustandslos und Kubernetes-ready gestalten
+
+---
+
+## Software als gemeinsames Modell
+
+> *„Die größte Herausforderung bei Softwareprojekten ist nicht die Technologie.
+> Es ist das fehlende gemeinsame Verständnis davon, was gebaut werden soll."*
+
+DDD beantwortet eine fundamentale Frage:
+**Wie können Fachexpertinnen und Entwickler ein gemeinsames Modell der Wirklichkeit aufbauen?**
+
+- Ein **Bounded Context** ist nicht nur eine Codeeinheit — er ist der Bereich,
+  in dem eine bestimmte Sicht auf die Welt gilt und in der eine Gruppe von Menschen dieselbe Sprache spricht.
+- **Event Storming** ist kein Analyse-Workshop — es ist ein Format, in dem ein Team
+  gemeinsam ein Bild seiner eigenen Arbeit entwickelt.
+- **Hot Spots** zeigen nicht nur Unklarheiten im Code — sie zeigen,
+  wo Widersprüche im Verständnis zwischen Teams oder Rollen bestehen.
+
+> Wenn ihr im Workshop auf einen Hot Spot stoßt, ist das keine Schwäche des Prozesses —
+> es ist die wertvollste Information, die der Workshop erzeugen kann.
+
+---
+
+## Weiterführende Perspektive
+
+Wer über die Implementierung hinaus denken will:
+**„Architecture for Flow"** (Susanne Kaiser, 2025) verbindet DDD mit Wardley Mapping
+(strategische Positionierung) und Team Topologies (Organisationsdesign) zu einem
+ganzheitlichen Ansatz für adaptive Software-Systeme.
 
 ---
 
@@ -122,6 +169,6 @@ durch DDD und Clean Architecture zu lösen?
 
 - Starter-Projekt aus `labs/lab-01-setup-und-warmup/initial-project` importieren
 - Build und Start lokal prüfen: `mvn clean verify` und `mvn spring-boot:run`
-- Danach eine einfache Immobilien-CRUD-API umsetzen
-- Zusatzblöcke je nach Zeit: Geschäftsregeln, `Address` als Record, `@SoftDelete`,
+- Danach eine einfache Förderantrag-CRUD-API umsetzen
+- Zusatzblöcke je nach Zeit: Geschäftsregeln, `Foerderbetrag` als Record, `@SoftDelete`,
   `ProblemDetail`, Virtual Threads

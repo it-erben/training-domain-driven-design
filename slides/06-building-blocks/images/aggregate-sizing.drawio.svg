@@ -37,11 +37,11 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; ">
                                 <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b style="font-size:14px">
-                                        BrokerageProcess
+                                        Pruefvorgang
                                     </b>
                                     <hr/>
                                     <span style="font-size:12px">
-                                        ├── Property
+                                        ├── Antragsmappe
                                         <br/>
                                         ├── Owner
                                         <br/>
@@ -53,14 +53,14 @@
                                         <br/>
                                         ├── Expose
                                         <br/>
-                                        └── BrokerageContract
+                                        └── PruefungContract
                                     </span>
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="15" y="75" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="12px">
-                        BrokerageProcess├── Property...
+                        Pruefvorgang├── Antragsmappe...
                     </text>
                 </switch>
             </g>
@@ -105,7 +105,7 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #000000; ">
                                 <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b style="font-size:14px">
-                                        BrokerageProcess
+                                        Pruefvorgang
                                     </b>
                                     <br/>
                                     <i style="font-size:11px">
@@ -124,7 +124,7 @@
                         </div>
                     </foreignObject>
                     <text x="415" y="75" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="12px">
-                        BrokerageProcess...
+                        Pruefvorgang...
                     </text>
                 </switch>
             </g>
@@ -167,7 +167,7 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b style="font-size:14px">
-                                        Property
+                                        Antragsmappe
                                     </b>
                                     <br/>
                                     <i style="font-size:11px">
@@ -178,7 +178,7 @@
                         </div>
                     </foreignObject>
                     <text x="521" y="324" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="12px" text-anchor="middle">
-                        Property...
+                        Antragsmappe...
                     </text>
                 </switch>
             </g>

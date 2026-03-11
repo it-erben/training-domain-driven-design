@@ -44,19 +44,19 @@ Frameworks & Drivers        →    infrastructure.persistence, infrastructure.co
 ## Paketstruktur - Übersicht
 
 ```text
-de.realestate.brokerage            ← Bounded Context
-├── domain                            ← Ring 1: Entities
-│   ├── model                         ← Aggregates, Entities, Value Objects
-│   ├── event                         ← Domain Events (Records)
-│   └── port                          ← Outbound-Ports (Repository-Interfaces)
-├── application                       ← Ring 2: Use Cases
-│   ├── port                          ← Inbound-Ports (Use-Case-Interfaces) (optional)
-│   └── service                       ← Use-Case-Implementierungen
-├── adapter                           ← Ring 3: Interface Adapters
-│   └── web                           ← REST Controller, DTOs, Mapper
-└── infrastructure                    ← Ring 4: Frameworks & Drivers
-    ├── persistence                   ← JPA Entities, Spring Data Repos, Mapper
-    └── config                        ← Spring @Configuration
+de.foerderung.antragstellung  ← Bounded Context: Antragstellung
+├── domain                                   ← Ring 1: Entities
+│   ├── model                                ← AntragsMappe, Flurstück, Betriebsinhaber
+│   ├── event                                ← AntragsmappeErstellt, KontrolleDurchgefuehrt
+│   └── port                                 ← AntragsMappeRepository (Interface)
+├── application                              ← Ring 2: Use Cases
+│   ├── port                                 ← FlurstueckHinzufuegen (Inbound-Port)
+│   └── service                              ← FlurstueckHinzufuegenService
+├── adapter                                  ← Ring 3: Interface Adapters
+│   └── web                                  ← AntragsMappeController, DTOs, Mapper
+└── infrastructure                           ← Ring 4: Frameworks & Drivers
+    ├── persistence                          ← JPA Entities, Spring Data Repos, Mapper
+    └── config                               ← Spring @Configuration
 ```
 
 ---
@@ -71,22 +71,22 @@ de.realestate.brokerage            ← Bounded Context
 ---
 
 ```java
-package de.realestate.brokerage.domain.model;
+package de.foerderung.antragstellung.domain.model;
 // Keine Spring-Imports!
 
-public class BrokerageProcess {
-    private final ProcessId id;
-    private ProcessStatus status;
-    private final List<Viewing> viewings;
+public class AntragsMappe {
+    private final AntragId id;
+    private AntragStatus status;
+    private final List<Flurstueck> flurstuecke;
 
-    public ViewingId scheduleViewing(ContactId prospect,
-                                     LocalDateTime appointmentDate) {
-        if (status != ProcessStatus.ACTIVE) {
-            throw new ProcessNotActiveException(id);
+    public FlurstueckId flurstueckHinzufuegen(FlurstueckNummer nummer,
+                                            BigDecimal flaeche) {
+        if (status == AntragStatus.EINGEREICHT) {
+            throw new AntragBereitsEingereichtException(id);
         }
-        var viewing = new Viewing(ViewingId.generate(), prospect, appointmentDate);
-        viewings.add(viewing);
-        return viewing.getId();
+        var flurstueck = new Flurstueck(FlurstueckId.generate(), nummer, flaeche);
+        flurstuecke.add(flurstueck);
+        return flurstueck.getId();
     }
 }
 ```
@@ -102,15 +102,14 @@ public class BrokerageProcess {
 ---
 
 ```java
-package de.realestate.brokerage.domain.port;
+package de.foerderung.antragstellung.domain.port;
 
-public interface BrokerageProcessRepository {
+public interface AntragsMappeRepository {
 
-    ProcessId nextId();
-    void save(BrokerageProcess process);
-    Optional<BrokerageProcess> findById(ProcessId id);
-    List<BrokerageProcess> findByStatus(ProcessStatus status);
-    void delete(BrokerageProcess process);
+    void save(AntragsMappe mappe);
+    Optional<AntragsMappe> findById(AntragId id);
+    Optional<AntragsMappe> findByRegistrierungsNummer(RegistrierungsNummer nr);
+    void delete(AntragsMappe mappe);
 }
 ```
 
@@ -127,16 +126,16 @@ Kein `extends JpaRepository` - das ist ein reines Domain-Interface!
 ---
 
 ```java
-package de.realestate.brokerage.domain.event;
+package de.foerderung.antragstellung.domain.event;
 
-public record ViewingScheduled(
-    ProcessId processId, ViewingId viewingId,
-    ContactId prospectId, LocalDateTime appointmentDate,
+public record FlurstueckHinzugefuegt(
+    AntragId antragsmappeId, FlurstueckId flurstueckId,
+    FlurstueckNummer flurstueckNummer, BigDecimal flaeche,
     Instant occurredAt
 ) {
-    public ViewingScheduled {
-        Objects.requireNonNull(processId);
-        Objects.requireNonNull(viewingId);
+    public FlurstueckHinzugefuegt {
+        Objects.requireNonNull(antragsmappeId);
+        Objects.requireNonNull(flurstueckId);
     }
 }
 ```
@@ -154,22 +153,29 @@ Events werden im Aggregate gesammelt und nach dem Speichern von der Infrastruktu
 ---
 
 ```java
-package de.realestate.brokerage.application.port;
+package de.foerderung.antragstellung.application.port;
 
-public interface ScheduleViewing {
-    ViewingId schedule(ScheduleViewingCommand command);
+public interface FlurstueckHinzufuegen {
+    FlurstueckHinzufuegenResult hinzufuegen(FlurstueckHinzufuegenCommand command);
 }
 
-public record ScheduleViewingCommand(
-    ProcessId processId,
-    ContactId prospectId,
-    LocalDateTime appointmentDate
+public record FlurstueckHinzufuegenCommand(
+    AntragId antragsmappeId,
+    FlurstueckNummer flurstueckNummer,
+    BigDecimal flaeche
 ) {
-    public ScheduleViewingCommand {
-        Objects.requireNonNull(processId);
-        Objects.requireNonNull(appointmentDate, "Appointment date is required");
+    public FlurstueckHinzufuegenCommand {
+        Objects.requireNonNull(antragsmappeId);
+        Objects.requireNonNull(flurstueckNummer, "Flurstuecknummer ist erforderlich");
     }
 }
+
+public record FlurstueckHinzufuegenResult(
+    FlurstueckId flurstueckId,
+    AntragId antragsmappeId,
+    FlurstueckNummer flurstueckNummer,
+    BigDecimal flaeche
+) {}
 ```
 
 ---
@@ -185,26 +191,28 @@ public record ScheduleViewingCommand(
 <style scoped>section { font-size: 1.7em; }</style>
 
 ```java
-package de.realestate.brokerage.application.service;
+package de.foerderung.antragstellung.application.service;
 
 @Service
 @Transactional
-public class ScheduleViewingService implements ScheduleViewing {
+public class FlurstueckHinzufuegenService implements FlurstueckHinzufuegen {
 
-    private final BrokerageProcessRepository repository;
+    private final AntragsMappeRepository repository;
 
-    public ScheduleViewingService(BrokerageProcessRepository repository) {
+    public FlurstueckHinzufuegenService(AntragsMappeRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public ViewingId schedule(ScheduleViewingCommand cmd) {
-        var process = repository.findById(cmd.processId())
-            .orElseThrow(() -> new ProcessNotFound(cmd.processId()));
-        var viewingId = process.scheduleViewing(
-            cmd.prospectId(), cmd.appointmentDate());
-        repository.save(process);
-        return viewingId;
+    public FlurstueckHinzufuegenResult hinzufuegen(FlurstueckHinzufuegenCommand cmd) {
+        var mappe = repository.findById(cmd.antragsmappeId())
+            .orElseThrow(() -> new AntragsmappeNichtGefundenException(cmd.antragsmappeId()));
+        var flurstueckId = mappe.flurstueckHinzufuegen(
+            cmd.flurstueckNummer(), cmd.flaeche());
+        repository.save(mappe);
+        return new FlurstueckHinzufuegenResult(
+            flurstueckId, mappe.getId(),
+            cmd.flurstueckNummer(), cmd.flaeche());
     }
 }
 ```
@@ -222,24 +230,26 @@ public class ScheduleViewingService implements ScheduleViewing {
 <style scoped>section { font-size: 1.8em; }</style>
 
 ```java
-package de.realestate.brokerage.adapter.web;
+package de.foerderung.antragstellung.adapter.web;
 
 @RestController
-@RequestMapping("/api/brokerage/viewings")
-public class ViewingController {
+@RequestMapping("/api/antragstellung/flurstuecke")
+public class FlurstueckController {
 
-    private final ScheduleViewing useCase;
+    private final FlurstueckHinzufuegen useCase;
 
-    public ViewingController(ScheduleViewing useCase) {
+    public FlurstueckController(FlurstueckHinzufuegen useCase) {
         this.useCase = useCase;
     }
 
     @PostMapping
-    public ResponseEntity<ViewingResponse> schedule(
-            @Valid @RequestBody ViewingRequest request) {
-        var id = useCase.schedule(request.toCommand());
-        var uri = URI.create("/api/brokerage/viewings/" + id.value());
-        return ResponseEntity.created(uri).body(new ViewingResponse(id.value()));
+    public ResponseEntity<FlurstueckResponse> hinzufuegen(
+            @Valid @RequestBody FlurstueckRequest request) {
+        var result = useCase.hinzufuegen(request.toCommand());
+        var uri = URI.create("/api/antragstellung/flurstuecke/"
+            + result.flurstueckId().value());
+        return ResponseEntity.created(uri)
+            .body(new FlurstueckResponse(result.flurstueckId().value()));
     }
 }
 ```
@@ -253,21 +263,21 @@ public class ViewingController {
 // Adapter dienen der Übersetzung der äußeren Schicht in die innere.
 
 // Request DTO: kommt von außen und wird validiert
-public record ViewingRequest(
-    @NotNull UUID processId,
-    @NotNull UUID prospectId,
-    @NotNull @Future LocalDateTime appointmentDate
+public record FlurstueckRequest(
+    @NotNull UUID antragsmappeId,
+    @NotNull @Size(min = 1, max = 30) String flurstueckNummer,
+    @NotNull @Positive BigDecimal flaeche
 ) {
-    public ScheduleViewingCommand toCommand() {
-        return new ScheduleViewingCommand(
-            new ProcessId(processId),
-            new ContactId(prospectId),
-            appointmentDate);
+    public FlurstueckHinzufuegenCommand toCommand() {
+        return new FlurstueckHinzufuegenCommand(
+            new AntragId(antragsmappeId),
+            new FlurstueckNummer(flurstueckNummer),
+            flaeche);
     }
 }
 
 // Response DTO: geht nach außen
-public record ViewingResponse(UUID viewingId) {}
+public record FlurstueckResponse(UUID flurstueckId) {}
 ```
 
 ---
@@ -276,25 +286,28 @@ public record ViewingResponse(UUID viewingId) {}
 ## Infrastructure: JPA-Entity (separates Modell)
 
 ```java
-package de.realestate.brokerage.infrastructure.persistence;
+package de.foerderung.antragstellung.infrastructure.persistence;
 
 @Entity
-@Table(name = "brokerage_process")
-public class ProcessJpaEntity {
+@Table(name = "antragsmappe")
+public class AntragsMappeJpaEntity {
 
     @Id
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    private ProcessStatus status;
+    private AntragStatus status;
 
-    private UUID propertyId;
+    private String registrierungsNummer;
+
+    @Column(name = "beantragte_foerderung_betrag")
+    private BigDecimal beantragteFoerderungBetrag;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "process_id")
-    private List<ViewingJpaEntity> viewings = new ArrayList<>();
+    @JoinColumn(name = "antragsmappe_id")
+    private List<FlurstueckJpaEntity> flurstuecke = new ArrayList<>();
 
-    protected ProcessJpaEntity() {} // Default Constructor für JPA
+    protected AntragsMappeJpaEntity() {} // Default Constructor für JPA
 
     // Getter und Setter
 }
@@ -307,27 +320,30 @@ public class ProcessJpaEntity {
 
 ```java
 @Component
-public class ProcessMapper {
+public class AntragsMappeMapper {
 
-    public ProcessJpaEntity toJpaEntity(BrokerageProcess domain) {
-        var entity = new ProcessJpaEntity();
+    public AntragsMappeJpaEntity toJpaEntity(AntragsMappe domain) {
+        var entity = new AntragsMappeJpaEntity();
         entity.setId(domain.getId().value());
         entity.setStatus(domain.getStatus());
-        entity.setPropertyId(domain.getPropertyId().value());
-        entity.setViewings(
-            domain.getViewings().stream()
-                .map(this::toViewingJpa)
+        entity.setRegistrierungsNummer(domain.getRegistrierungsNummer().wert());
+        entity.setBeantragteFoerderungBetrag(
+            domain.getBeantragteFoerderung().betrag());
+        entity.setFlurstuecke(
+            domain.getFlurstuecke().stream()
+                .map(this::toFlurstueckJpa)
                 .toList());
         return entity;
     }
 
-    public BrokerageProcess toDomain(ProcessJpaEntity entity) {
-        return BrokerageProcess.reconstitute(
-            new ProcessId(entity.getId()),
+    public AntragsMappe toDomain(AntragsMappeJpaEntity entity) {
+        return AntragsMappe.rekonstruieren(
+            new AntragId(entity.getId()),
             entity.getStatus(),
-            new PropertyId(entity.getPropertyId()),
-            entity.getViewings().stream()
-                .map(this::toViewingDomain)
+            new RegistrierungsNummer(entity.getRegistrierungsNummer()),
+            new Foerderbetrag(entity.getBeantragteFoerderungBetrag(), "EUR"),
+            entity.getFlurstuecke().stream()
+                .map(this::toFlurstueckDomain)
                 .toList());
     }
 }
@@ -340,35 +356,33 @@ public class ProcessMapper {
 
 ```java
 @Repository
-public class JpaBrokerageProcessRepository
-        implements BrokerageProcessRepository {
+public class JpaAntragsMappeRepository
+        implements AntragsMappeRepository {
 
-    private final ProcessSpringDataRepository jpaRepo;
-    private final ProcessMapper mapper;
+    private final AntragsMappeSpringDataRepository jpaRepo;
+    private final AntragsMappeMapper mapper;
 
-    public JpaBrokerageProcessRepository(
-            ProcessSpringDataRepository jpaRepo,
-            ProcessMapper mapper) {
+    public JpaAntragsMappeRepository(
+            AntragsMappeSpringDataRepository jpaRepo,
+            AntragsMappeMapper mapper) {
         this.jpaRepo = jpaRepo;
         this.mapper = mapper;
     }
 
     @Override
-    public void save(BrokerageProcess process) {
-        jpaRepo.save(mapper.toJpaEntity(process));
+    public void save(AntragsMappe mappe) {
+        jpaRepo.save(mapper.toJpaEntity(mappe));
     }
 
     @Override
-    public Optional<BrokerageProcess> findById(ProcessId id) {
+    public Optional<AntragsMappe> findById(AntragId id) {
         return jpaRepo.findById(id.value())
             .map(mapper::toDomain);
     }
 
-    @Override
-    public ProcessId nextId() {
-        return new ProcessId(UUID.randomUUID());
-    }
 }
+// IDs werden von AntragId.generate() (Factory im Domain Layer) erzeugt,
+// nicht vom Repository.
 ```
 
 ---
@@ -376,18 +390,19 @@ public class JpaBrokerageProcessRepository
 ## Infrastructure: Spring Data (interne Hilfsschnittstelle)
 
 ```java
-package de.realestate.brokerage.infrastructure.persistence;
+package de.foerderung.antragstellung.infrastructure.persistence;
 
 // Not public! Only used by the repository adapter.
-interface ProcessSpringDataRepository
-        extends JpaRepository<ProcessJpaEntity, UUID> {
+interface AntragsMappeSpringDataRepository
+        extends JpaRepository<AntragsMappeJpaEntity, UUID> {
 
-    List<ProcessJpaEntity> findByStatus(ProcessStatus status);
+    List<AntragsMappeJpaEntity> findByStatus(AntragStatus status);
+    Optional<AntragsMappeJpaEntity> findByRegistrierungsNummer(String nr);
 }
 ```
 
 - Package-private (`interface` ohne `public`)
-- Wird nur vom `JpaBrokerageProcessRepository` verwendet
+- Wird nur vom `JpaAntragsMappeRepository` verwendet
 - Kein Code außerhalb von `infrastructure.persistence` kennt diese Schnittstelle
 
 ---
@@ -426,11 +441,11 @@ interface ProcessSpringDataRepository
 
 ```xml
 <modules>
-    <module>brokerage-domain</module>      <!-- No Spring dependency! -->
-    <module>brokerage-application</module> <!-- Only domain + @Service -->
-    <module>brokerage-infrastructure</module>
-    <module>brokerage-adapter-web</module>
-    <module>brokerage-boot</module>        <!-- Entry point, all modules -->
+    <module>antragstellung-domain</module>      <!-- No Spring dependency! -->
+    <module>antragstellung-application</module> <!-- Only domain + @Service -->
+    <module>antragstellung-infrastructure</module>
+    <module>antragstellung-adapter-web</module>
+    <module>antragstellung-boot</module>        <!-- Entry point, all modules -->
 </modules>
 ```
 
@@ -442,6 +457,19 @@ interface ProcessSpringDataRepository
 
 - Jede Schicht hat eigene Datenstrukturen (DTO ≠ Command ≠ Domain ≠ JPA)
 - Abhängigkeiten zeigen nur nach innen (Richtung Domain)
+
+---
+
+## Diskussion: Paketstruktur in der Praxis
+
+> Ein typisches Problem in gewachsenen Backends:
+> Packages wie `features`, `converter`, `formatter` und `client`
+> landen im Service-Bereich, obwohl sie dort nicht hingehören.
+
+- Wo liegen in euren Modulen heute Packages an der falschen Stelle?
+- Welche Packages würden ihr nach Clean Architecture in welchen Ring verschieben?
+- Wie hilft ArchUnit dabei, solche Verschiebungen dauerhaft abzusichern?
+- *„Vermeide Entitäten-Frameworks!"* — Wie passt das zur Domain-Schicht ohne JPA-Annotationen?
 
 ---
 

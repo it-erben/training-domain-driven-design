@@ -46,8 +46,8 @@ Geschätzte Dauer: ca. 70 Minuten
 ```java
 // NEVER:
 @GetMapping("/{id}")
-public BrokerageProcess getById(@PathVariable UUID id) {
-    return repository.findById(new ProcessId(id)).orElseThrow();
+public AntragsMappe getById(@PathVariable UUID id) {
+    return repository.findById(new AntragId(id)).orElseThrow();
 }
 ```
 
@@ -58,19 +58,19 @@ public BrokerageProcess getById(@PathVariable UUID id) {
 ## Record-basierte DTOs - Request
 
 ```java
-package de.realestate.brokerage.adapter.web;
+package de.foerderung.antragstellung.adapter.web;
 
-public record CreateViewingRequest(
-    @NotNull UUID processId,
-    @NotNull @Future LocalDateTime appointmentDate,
-    @NotNull UUID prospectId
+public record FlurstuckHinzufuegenRequest(
+    @NotNull UUID antragsmappeId,
+    @NotNull @Size(min = 1, max = 30) String flurstueckNummer,
+    @NotNull @Positive BigDecimal flaeche
 ) {
     // Mapping: DTO → Command (primitive types → value objects)
-    public ScheduleViewingCommand toCommand() {
-        return new ScheduleViewingCommand(
-            new ProcessId(processId),
-            new ContactId(prospectId),
-            appointmentDate);
+    public FlurstueckHinzufuegenCommand toCommand() {
+        return new FlurstueckHinzufuegenCommand(
+            new AntragId(antragsmappeId),
+            new FlurstueckNummer(flurstueckNummer),
+            flaeche);
     }
 }
 ```
@@ -90,20 +90,20 @@ public record CreateViewingRequest(
 ## Record-basierte DTOs - Response
 
 ```java
-public record ViewingResponse(
-    UUID viewingId,
-    UUID processId,
-    LocalDateTime appointmentDate,
-    String status
+public record FlurstueckResponse(
+    UUID flurstueckId,
+    UUID antragsmappeId,
+    String flurstueckNummer,
+    BigDecimal flaeche
 ) {
     // Factory: domain result → response DTO
-    public static ViewingResponse from(
-            ViewingId id,
-            ProcessId processId,
-            LocalDateTime appointmentDate,
-            ViewingStatus status) {
-        return new ViewingResponse(
-            id.value(), processId.value(), appointmentDate, status.name());
+    public static FlurstueckResponse from(
+            FlurstueckId id,
+            AntragId antragsmappeId,
+            FlurstueckNummer nummer,
+            BigDecimal flaeche) {
+        return new FlurstueckResponse(
+            id.value(), antragsmappeId.value(), nummer.wert(), flaeche);
     }
 }
 ```
@@ -113,11 +113,11 @@ public record ViewingResponse(
 ## Record-basierte DTOs - Response
 
 ```java
-public record ProcessDetailResponse(
-    UUID id, String status, int viewingCount,
-    List<ViewingSummaryResponse> viewings
+public record AntragsmappeDetailResponse(
+    UUID id, String status, int flurstueckAnzahl,
+    List<FlurstueckSummaryResponse> flurstuecke
 ) {
-    public static ProcessDetailResponse from(ProcessDetails details) { /* ... */ }
+    public static AntragsmappeDetailResponse from(AntragsmappeDetails details) { /* ... */ }
 }
 ```
 
@@ -131,30 +131,30 @@ public record ProcessDetailResponse(
 
 ```java
 @RestController
-@RequestMapping("/api/v1/brokerage/viewings")
-public class ViewingController {
+@RequestMapping("/api/v1/antragstellung/flurstuecke")
+public class FlurstueckController {
 
-    private final ScheduleViewing scheduleUseCase;
-    private final QueryViewings queryUseCase;
-    private final CompleteViewing completeUseCase;
+    private final FlurstueckHinzufuegen hinzufuegenUseCase;
+    private final FlurstueckeAbfragen abfragenUseCase;
+    private final AntragEinreichen einreichenUseCase;
 
-    public ViewingController(ScheduleViewing scheduleUseCase,
-                             QueryViewings queryUseCase,
-                             CompleteViewing completeUseCase) {
-        this.scheduleUseCase = scheduleUseCase;
-        this.queryUseCase = queryUseCase;
-        this.completeUseCase = completeUseCase;
+    public FlurstueckController(FlurstueckHinzufuegen hinzufuegenUseCase,
+                                FlurstueckeAbfragen abfragenUseCase,
+                                AntragEinreichen einreichenUseCase) {
+        this.hinzufuegenUseCase = hinzufuegenUseCase;
+        this.abfragenUseCase = abfragenUseCase;
+        this.einreichenUseCase = einreichenUseCase;
     }
 
     @PostMapping
-    public ResponseEntity<ViewingResponse> create(
-            @Valid @RequestBody CreateViewingRequest request) {
-        var result = scheduleUseCase.schedule(request.toCommand());
+    public ResponseEntity<FlurstueckResponse> create(
+            @Valid @RequestBody FlurstuckHinzufuegenRequest request) {
+        var result = hinzufuegenUseCase.hinzufuegen(request.toCommand());
         var uri = ServletUriComponentsBuilder.fromCurrentRequest()
-            .path("/{id}").buildAndExpand(result.id().value()).toUri();
-        var response = ViewingResponse.from(
-            result.id(), result.processId(),
-            result.appointmentDate(), result.status());
+            .path("/{id}").buildAndExpand(result.flurstueckId().value()).toUri();
+        var response = FlurstueckResponse.from(
+            result.flurstueckId(), result.antragsmappeId(),
+            result.flurstueckNummer(), result.flaeche());
         return ResponseEntity.created(uri).body(response);
     }
 }
@@ -169,25 +169,25 @@ public class ViewingController {
 
 ```java
 @GetMapping("/{id}")
-public ResponseEntity<ViewingResponse> getById(
+public ResponseEntity<FlurstueckResponse> getById(
         @PathVariable UUID id) {
-    return queryUseCase.findById(new ViewingId(id))
-        .map(ViewingResponse::from)
+    return abfragenUseCase.findById(new FlurstueckId(id))
+        .map(FlurstueckResponse::from)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
 }
 
-@PutMapping("/{id}/complete")
-public ResponseEntity<Void> complete(@PathVariable UUID id) {
-    completeUseCase.execute(
-        new CompleteViewingCommand(new ViewingId(id)));
+@PutMapping("/{antragsmappeId}/einreichen")
+public ResponseEntity<Void> einreichen(@PathVariable UUID antragsmappeId) {
+    einreichenUseCase.execute(
+        new AntragEinreichenCommand(new AntragId(antragsmappeId)));
     return ResponseEntity.noContent().build();
 }
 ```
 
 - Alle Use Cases sind im Konstruktor deklariert (vorherige Slide)
-- GET gibt `ViewingResponse` zurück - konsistent mit dem Ressourcen-Typ
-- PUT auf Sub-Ressource `/complete` modelliert eine fachliche Aktion
+- GET gibt `FlurstueckResponse` zurück - konsistent mit dem Ressourcen-Typ
+- PUT auf Sub-Ressource `/einreichen` modelliert die fachliche Aktion "Antrag einreichen"
 
 ---
 
@@ -207,7 +207,7 @@ public ResponseEntity<Void> complete(@PathVariable UUID id) {
 | Kategorie | HTTP-Status | Beispiel |
 |-----------|------------|---------|
 | Syntaktisch ungültig | `400 Bad Request` | Bean Validation fehlgeschlagen |
-| Ressource nicht gefunden | `404 Not Found` | Unbekannte ProcessId |
+| Ressource nicht gefunden | `404 Not Found` | Unbekannte AntragId |
 | Fachliche Regel verletzt | `422 Unprocessable Entity` | Max. Besichtigungen erreicht |
 | Interner Fehler | `500 Internal Server Error` | Unerwarteter Datenbankfehler |
 
@@ -220,11 +220,11 @@ Spring Boot 4 unterstützt RFC 9457 nativ mit der `ProblemDetail`-Klasse:
 
 ```json
 {
-  "type": "https://api.immo-crm.de/errors/process-not-found",
-  "title": "BrokerageProcess not found",
+  "type": "https://api.foerderung.example/errors/antragsmappe-nicht-gefunden",
+  "title": "AntragsMappe nicht gefunden",
   "status": 404,
-  "detail": "No process with ID 550e8400-e29b-41d4-a716-446655440000",
-  "instance": "/api/v1/brokerage/viewings"
+  "detail": "Keine AntragsMappe mit ID 550e8400-e29b-41d4-a716-446655440000",
+  "instance": "/api/v1/antragstellung/flurstuecke"
 }
 ```
 
@@ -251,23 +251,23 @@ spring:
 @RestControllerAdvice
 public class DomainExceptionHandler {
 
-    @ExceptionHandler(ProcessNotFoundException.class)
-    public ProblemDetail handleNotFound(ProcessNotFoundException ex) {
+    @ExceptionHandler(AntragsmappeNichtGefundenException.class)
+    public ProblemDetail handleNotFound(AntragsmappeNichtGefundenException ex) {
         var problem = ProblemDetail.forStatusAndDetail(
             HttpStatus.NOT_FOUND, ex.getMessage());
-        problem.setTitle("BrokerageProcess not found");
+        problem.setTitle("AntragsMappe nicht gefunden");
         problem.setType(URI.create(
-            "https://api.immo-crm.de/errors/process-not-found"));
+            "https://api.foerderung.example/errors/antragsmappe-nicht-gefunden"));
         return problem;
     }
 
-    @ExceptionHandler(DomainException.class)
-    public ProblemDetail handleDomainViolation(DomainException ex) {
+    @ExceptionHandler(AntragstellungDomainException.class)
+    public ProblemDetail handleDomainViolation(AntragstellungDomainException ex) {
         var problem = ProblemDetail.forStatusAndDetail(
             HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
-        problem.setTitle("Domain rule violated");
+        problem.setTitle("Fachliche Regel verletzt");
         problem.setType(URI.create(
-            "https://api.immo-crm.de/errors/domain-violation"));
+            "https://api.foerderung.example/errors/domaene-verletzt"));
         return problem;
     }
 }
@@ -281,36 +281,36 @@ public class DomainExceptionHandler {
 ## Integration Test mit @WebMvcTest
 
 ```java
-@WebMvcTest(ViewingController.class)
-class ViewingControllerTest {
+@WebMvcTest(FlurstueckController.class)
+class FlurstueckControllerTest {
 
     @Autowired private MockMvc mockMvc;
-    @MockitoBean private ScheduleViewing scheduleUseCase;
-    @MockitoBean private QueryViewings queryUseCase;
-    @MockitoBean private CompleteViewing completeUseCase;
+    @MockitoBean private FlurstueckHinzufuegen hinzufuegenUseCase;
+    @MockitoBean private FlurstueckeAbfragen abfragenUseCase;
+    @MockitoBean private AntragEinreichen einreichenUseCase;
 
     @Test
-    void should_create_viewing() throws Exception {
-        var result = new ScheduleViewingResult(
-            new ViewingId(UUID.randomUUID()),
-            new ProcessId(UUID.randomUUID()),
-            LocalDateTime.of(2026, 4, 15, 14, 0),
-            ViewingStatus.SCHEDULED);
-        when(scheduleUseCase.schedule(any())).thenReturn(result);
+    void flurstueck_hinzufuegen_erstellt_ressource() throws Exception {
+        var result = new FlurstueckHinzufuegenResult(
+            new FlurstueckId(UUID.randomUUID()),
+            new AntragId(UUID.randomUUID()),
+            new FlurstueckNummer("BW-0012-0034-0001"),
+            new BigDecimal("3.75"));
+        when(hinzufuegenUseCase.hinzufuegen(any())).thenReturn(result);
 
-        mockMvc.perform(post("/api/v1/brokerage/viewings")
+        mockMvc.perform(post("/api/v1/antragstellung/flurstuecke")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
-                      "processId": "550e8400-e29b-41d4-a716-446655440000",
-                      "prospectId": "660e8400-e29b-41d4-a716-446655440000",
-                      "appointmentDate": "2026-04-15T14:00:00"
+                      "antragsmappeId": "550e8400-e29b-41d4-a716-446655440000",
+                      "flurstueckNummer": "BW-0012-0034-0001",
+                      "flaeche": 3.75
                     }
                     """))
             .andExpect(status().isCreated())
             .andExpect(header().exists("Location"))
-            .andExpect(jsonPath("$.viewingId").value(
-                result.id().value().toString()));
+            .andExpect(jsonPath("$.flurstueckId").value(
+                result.flurstueckId().value().toString()));
     }
 }
 ```
@@ -322,23 +322,23 @@ class ViewingControllerTest {
 
 ```java
 @Test
-void should_return_404_when_process_does_not_exist() throws Exception {
-    when(scheduleUseCase.schedule(any()))
-        .thenThrow(new ProcessNotFoundException(
-            new ProcessId(UUID.randomUUID())));
+void unbekannte_antragsmappe_gibt_404() throws Exception {
+    when(hinzufuegenUseCase.hinzufuegen(any()))
+        .thenThrow(new AntragsmappeNichtGefundenException(
+            new AntragId(UUID.randomUUID())));
 
-    mockMvc.perform(post("/api/v1/brokerage/viewings")
+    mockMvc.perform(post("/api/v1/antragstellung/flurstuecke")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
-                  "processId": "550e8400-e29b-41d4-a716-446655440000",
-                  "prospectId": "660e8400-e29b-41d4-a716-446655440000",
-                  "appointmentDate": "2026-04-15T14:00:00"
+                  "antragsmappeId": "550e8400-e29b-41d4-a716-446655440000",
+                  "flurstueckNummer": "BW-0012-0034-0001",
+                  "flaeche": 3.75
                 }
                 """))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.title")
-            .value("BrokerageProcess not found"));
+            .value("AntragsMappe nicht gefunden"));
 }
 ```
 
@@ -365,7 +365,7 @@ void should_return_404_when_process_does_not_exist() throws Exception {
 ### REST-Adapter implementieren
 
 1. Request- und Response-DTOs als Java Records erstellen
-2. `ViewingController` mit POST und GET Endpunkt implementieren
+2. `FlurstueckController` mit POST und GET Endpunkt implementieren
 3. Manuelles Mapping: `toCommand()` und `from()` Methoden
 4. `@RestControllerAdvice` mit Problem Details (RFC 9457) einrichten
 5. Integration Test mit `@WebMvcTest` schreiben
@@ -375,9 +375,36 @@ void should_return_404_when_process_does_not_exist() throws Exception {
 
 ---
 
-## Diskussion
+## Diskussion: Adapter-Grenzen in der Praxis
 
 > Welche API-Design-Entscheidungen sind in eurem Kontext wichtig?
 
 - Wie handhabt ihr API-Versionierung (URL-Pfad, Header, Query-Parameter)?
 - Wie dokumentiert ihr eure APIs (OpenAPI/Swagger, Spring REST Docs)?
+
+**Externe DTOs und das ACL-Prinzip:**
+
+> Ein typisches Muster in integrierten Systemen: externe Systeme liefern Datenstrukturen
+> (z.B. Buchungscodes, Berechtigungsmodelle, Statuswerte), die direkt als Request-DTO
+> ins Domain-Modell wandern — ohne Übersetzung an der Adapter-Grenze.
+
+```java
+// ❌ Externes DTO direkt im Controller als Domain-Input verwenden
+@PostMapping("/berechtigungen")
+public void setzeBerechtigungen(ExternesSystemBerechtigungDTO dto) {
+    // externes Datenmodell direkt im Domain-Service!
+    berechtigungService.apply(dto);
+}
+
+// ✅ Übersetzung im Adapter — Domain kennt externe Formate nicht
+@PostMapping("/berechtigungen")
+public void setzeBerechtigungen(ExternesSystemBerechtigungDTO dto) {
+    var command = translator.translate(dto); // ← ACL im Adapter
+    berechtigungService.anwenden(command);
+}
+```
+
+- Welche Request-DTOs in euren Controllern stammen direkt aus einem externen System?
+- Wo übernimmt ein Controller heute Aufgaben, die eigentlich ein ACL-Translator erledigen sollte?
+- Was passiert, wenn das externe System sein DTO ändert — wie weit reicht die Änderung?
+- Wer ist verantwortlich für die Übersetzung: Controller, Service, oder ein dedizierter Translator?

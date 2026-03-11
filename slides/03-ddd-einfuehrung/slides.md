@@ -60,12 +60,12 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ```java
 @Entity
-public class Property {
+public class Antrag {
     @Id @GeneratedValue
     private Long id;
-    private String title;
-    private BigDecimal purchasePrice;
-    private String status; // "NEW", "APPRAISED", "PUBLISHED"
+    private String titel;
+    private BigDecimal foerderbetrag;
+    private String status; // "ERFASST", "GEPRUEFT", "EINGEREICHT"
 
     // Only getters and setters - no behavior!
 }
@@ -84,19 +84,19 @@ public class Property {
 
 ```java
 @Service
-public class PropertyService {
+public class AntragService {
 
-    public void publish(Long id) {
-        Property property = repo.findById(id).orElseThrow();
-        if (!"APPRAISED".equals(property.getStatus())) {
-            throw new IllegalStateException("Only appraised properties!");
+    public void einreichen(Long id) {
+        Antrag antrag = repo.findById(id).orElseThrow();
+        if (!"ERFASST".equals(antrag.getStatus())) {
+            throw new IllegalStateException("Only erfasst antraege!");
         }
-        if (property.getPurchasePrice() == null) {
-            throw new IllegalStateException("Purchase price missing!");
+        if (antrag.getFoerderbetrag() == null) {
+            throw new IllegalStateException("Foerderbetrag missing!");
         }
-        property.setStatus("PUBLISHED");
-        repo.save(property);
-        emailService.sendNotification(property);
+        antrag.setStatus("EINGEREICHT");
+        repo.save(antrag);
+        emailService.sendNotification(antrag);
     }
 }
 ```
@@ -111,19 +111,20 @@ public class PropertyService {
 ## Das Gegenbeispiel: Rich Domain Model
 
 ```java
-public class Property {
-    private PropertyId id;
-    private Title title;
-    private PurchasePrice purchasePrice;
-    private PropertyStatus status;
+public class AntragsMappe {
+    private AntragId id;
+    private List<Flurstueck> flurstuecke = new ArrayList<>();
+    private Foerderbetrag foerderbetrag;
+    private AntragStatus status;
 
-    public void publish() {
-        if (this.status != PropertyStatus.APPRAISED) {
-            throw new PropertyNotReadyException(this.id);
+    public void einreichen() {
+        if (this.flurstuecke.isEmpty()) {
+            throw new IllegalStateException(
+                "Antrag muss mindestens ein Flurstück enthalten");
         }
-        Objects.requireNonNull(this.purchasePrice, "Purchase price missing");
-        this.status = PropertyStatus.PUBLISHED;
-        registerEvent(new PropertyPublished(this.id));
+        Objects.requireNonNull(this.foerderbetrag, "Foerderbetrag fehlt");
+        this.status = AntragStatus.EINGEREICHT;
+        registerEvent(new AntragsmappeEingereicht(this.id));
     }
 }
 ```
@@ -154,7 +155,20 @@ Wo lebt die Geschäftslogik in euren aktuellen Projekten?
 3. Ein gemeinsames Modell als Grundlage für Code und Kommunikation
 4. Komplexität wird durch Modularisierung (Bounded Contexts) beherrschbar
 
-> *"The heart of software is its ability to solve domain-related problems for its user."* - Eric Evans
+> *"The heart of software is its ability to solve domain-related problems for its user."*
+> — Eric Evans, „Domain-Driven Design", Seite 4
+
+### Die Standardwerke
+
+| Buch | Autor | Schwerpunkt |
+|------|-------|-------------|
+| „Domain-Driven Design" (2003) | Eric Evans | Strategisches + taktisches DDD, Ubiquitous Language |
+| „Implementing Domain-Driven Design" (2013) | Vaughn Vernon | Konkretes Java/Scala, Aggregates, Events |
+| „Einführung in Domain-Driven Design" (2022) | Vlad Khononov | Moderner Einstieg, strategisch + taktisch, C# |
+| „Architecture for Flow" (2025) | Susanne Kaiser | DDD + Wardley Mapping + Team Topologies — adaptive Systeme |
+| „Domain-Driven Design with Java" (2026) | Otavio Santana | Java 21, jMolecules, ArchUnit, Testing-Patterns |
+
+> Die Evans- und Vernon-Bücher gelten auch in internen Architekturdokumentationen als Standardwerke.
 
 ---
 
@@ -189,16 +203,16 @@ Nicht jede Subdomäne braucht volle DDD-Umsetzung. Die Kunst liegt in der richti
 
 ---
 
-## Beispiel: Glossar für das Immobilien-CRM
+## Beispiel: Glossar für die Förderantragsverwaltung
 
-| Fachbegriff             | Bedeutung im Kontext                                      |
-|-------------------------|-----------------------------------------------------------|
-| Maklervertrag       | Exklusive Vereinbarung zwischen Eigentümer und Makler     |
-| Exposé              | Strukturierte Verkaufsunterlage für eine Immobilie        |
-| Besichtigung        | Terminierter Vor-Ort-Termin mit einem Interessenten       |
-| Provision           | Prozentuale Vergütung bei erfolgreichem Verkaufsabschluss |
-| Vermittlungsvorgang | Der gesamte Prozess von Akquise bis Notartermin           |
-| Preisvorstellung    | Gewünschter Verkaufspreis des Eigentümers                 |
+| Fachbegriff             | Bedeutung im Kontext                                                  |
+|-------------------------|-----------------------------------------------------------------------|
+| AntragsMappe        | Gesamtheit aller Unterlagen eines Förderantrags eines Betriebsinhabers |
+| Betriebsinhaber     | Natürliche oder juristische Person, die den Förderantrag stellt       |
+| Flurstück           | Landwirtschaftliche Teilfläche, für die Förderung beantragt wird      |
+| Foerderbetrag       | Berechneter Geldbetrag, der dem Antragsteller zusteht                 |
+| Foerderquote        | Prozentualer Anteil der förderfähigen Fläche am Gesamtbetrag          |
+| Bescheidung         | Behördliche Entscheidung über Bewilligung oder Ablehnung des Antrags  |
 
 ---
 
@@ -224,17 +238,50 @@ public void updateStatus(Long id, String newStatus) { ... }
 Fachlich getriebene Modellierung ist im Domain Driven Design sinnvoller:
 
 ```java
-public class BrokerageProcess {
-    private AskingPrice askingPrice;
-    private Address address;
-    private Commission commission;
+public class AntragsMappe {
+    private Foerderbetrag foerderbetrag;
+    private Foerderquote foerderquote;
+    private List<Flurstueck> flurstuecke;
 }
 
-public void conductViewing(ViewingId id) { ... }
-public void acceptOffer(OfferId id) { ... }
+public void flurstueckHinzufuegen(FlurstueckNummer nummer, BigDecimal flaeche) { ... }
+public void einreichen() { ... }
 ```
 
 Der Code liest sich wie ein Fachgespräch. Neue Teammitglieder verstehen die Domäne durch das Lesen des Codes.
+
+---
+
+## Ubiquitous Language: Deutsche Sprache im Code
+
+> Aus dem Projekt-Styleguide:
+> *„Nutze deutsche Sprache im Quellcode! Auch wenn das im Java-Umfeld ungewöhnlich wirkt —
+> die Ubiquitous Language unserer Fachdomäne ist deutsch."*
+
+### Warum Deutsch?
+
+- Fachbegriffe wie `Betriebsinhaber`, `Flurstück`, `Bescheidung` haben keine präzisen englischen Entsprechungen
+- Englische Übersetzungen (`ApplicationForm`, `FieldParcel`) verlieren Präzision und Fachlichkeit
+- Der Code soll für Fachexperten lesbar sein — nicht nur für Entwickler
+- Konsistenz zwischen Fachgespräch und Quellcode minimiert Übersetzungsfehler
+
+### Das Prinzip in der Praxis
+
+```java
+// ❌ Technisch englisch — Domäne geht verloren
+public class ApplicationService {
+    public void submitApplication(Long formId) { ... }
+}
+
+// ✅ Fachlich deutsch — Domäne wird sichtbar
+public class AntragEinreichenService {
+    public void einreichen(AntragsmappeId mappenId) { ... }
+}
+```
+
+> Gilt für: Klassen, Methoden, Felder, Packages, Tests — überall dort,
+> wo Domänenbegriffe auftauchen. Technische Infrastruktur (HTTP, JPA, Kafka)
+> bleibt englisch.
 
 ---
 
@@ -251,16 +298,16 @@ Der Code liest sich wie ein Fachgespräch. Neue Teammitglieder verstehen die Dom
 | Warnsignal | Beispiel |
 |-----------|---------|
 | Technische Begriffe im Domain-Code | `DataProcessor`, `EntityManager`, `Helper` |
-| Abkürzungen statt Fachbegriffe | `prop`, `bp`, `val` statt `Property`, `BrokerageProcess`, `Valuation` |
-| Gleicher Begriff, verschiedene Bedeutung | "Objekt" meint in der Akquise etwas anderes als in der Vermarktung |
-| Unterschiedliche Begriffe, gleiche Sache | "Kunde", "Interessent", "Kontakt" für dieselbe Person |
+| Abkürzungen statt Fachbegriffe | `am`, `bi`, `fb` statt `AntragsMappe`, `Betriebsinhaber`, `Foerderbetrag` |
+| Gleicher Begriff, verschiedene Bedeutung | "Antrag" meint im Antragseingang etwas anderes als in der Bescheidung |
+| Unterschiedliche Begriffe, gleiche Sache | "Landwirt", "Betriebsinhaber", "Antragsteller" für dieselbe Person |
 
 ---
 
 ## Strategic Design
 
 Das strategische Design bezeichnet die grobe Strukturierung unserer Software in abgegrenzte Bereiche, die wir aus den Domänen ableiten.
-Diese Bereiche nennen sich **Bounded Countexts**.
+Diese Bereiche nennen sich **Bounded Contexts**.
 
 Bounded Contexts gehören zum **Lösungsraum** der Probleme, die durch die Domäne beschrieben werden.
 
@@ -270,7 +317,7 @@ Bounded Contexts gehören zum **Lösungsraum** der Probleme, die durch die Domä
 
 ### Ein Modell gilt innerhalb seiner Grenze
 
-![Bounded Context: Immobilie im Vergleich](images/bounded-context-immobilie-vergleich.drawio.svg)
+![Bounded Context: "Antrag" im Vergleich](images/bounded-context-antrag-vergleich.drawio.svg)
 
 Derselbe Begriff kann in verschiedenen BCs verschiedene Dinge bedeuten. Jeder BC hat sein eigenes Modell - keine "Über-Entity", die alles kennt. Die Grenzen werden durch die Ubiquitous Language sichtbar
 
@@ -312,6 +359,28 @@ Der Begriff taktisches Design bezeichnet die konkrete Umsetzung unserer Strategi
 
 ---
 
+## Wie genau hilft DDD? — Nicht-funktionale Anforderungen
+
+DDD-Muster adressieren nicht nur fachliche Komplexität — sie haben direkte Auswirkungen
+auf nicht-funktionale Anforderungen wie Zuverlässigkeit, Konsistenz und Skalierbarkeit.
+
+<style scoped>table { font-size: 0.75em; }</style>
+
+| NFR | Problem ohne DDD | DDD-Lösung |
+|-----|-----------------|------------|
+| **Zuverlässigkeit** | Events gehen bei Systemabsturz verloren | Transactional Outbox Pattern (→ Modul 12) |
+| **Konsistenz** | Parallele Updates überschreiben sich | Aggregate als Konsistenzgrenze + Optimistic Locking |
+| **Skalierbarkeit** | Lese- und Schreibpfade blockieren sich | CQRS: getrennte Read- und Write-Modelle (→ Modul 9) |
+| **Wartbarkeit** | Änderung in Modul A bricht Modul B | Bounded Contexts + Anti-Corruption Layer |
+| **Testbarkeit** | Tests brauchen vollständigen Spring Context | Domäne frei von Frameworks → reine Unit Tests |
+| **Asynchronität** | Direkte Abhängigkeiten bei modulübergreifenden Vorgängen | Domain Events entkoppeln Sender und Empfänger |
+| **Auditierbarkeit** | Zustandsänderungen nicht nachvollziehbar | Domain Events = unveränderliches Protokoll der Geschäftsvorgänge |
+
+> Das Entscheidende: DDD zwingt dazu, Verantwortlichkeiten explizit zu machen.
+> Explizite Grenzen ermöglichen explizite Garantien — auch für nicht-funktionale Anforderungen.
+
+---
+
 ## Zusammenfassung
 
 - Das Rich Domain Model verankert Geschäftsregeln im Objekt selbst
@@ -320,5 +389,6 @@ Der Begriff taktisches Design bezeichnet die konkrete Umsetzung unserer Strategi
 - Strategic Design: Bounded Contexts definieren die Makro-Architektur
 - Tactical Design: Building Blocks strukturieren die Mikro-Ebene
 - DDD ist kein Dogma - gezielt dort einsetzen, wo Komplexität herrscht
+- DDD-Muster adressieren NFRs direkt: Zuverlässigkeit, Konsistenz, Testbarkeit
 
 > Im nächsten Modul erkunden wir unsere Domäne mit Event Storming.

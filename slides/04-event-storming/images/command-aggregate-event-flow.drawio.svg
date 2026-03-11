@@ -13,13 +13,13 @@
                         <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 38px; margin-left: 1px;">
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
-                                    Makler
+                                    Prüfer
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="30" y="41" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="12px" text-anchor="middle" font-weight="bold">
-                        Makler
+                        Prüfer
                     </text>
                 </switch>
             </g>
@@ -40,7 +40,7 @@
                                         Aggregate
                                     </b>
                                     <br/>
-                                    (Immobilie)
+                                    (Antragsmappe)
                                 </div>
                             </div>
                         </div>
@@ -67,7 +67,7 @@
                                         Domain Event
                                     </b>
                                     <br/>
-                                    (ObjektBewertet)
+                                    (AntragBewertet)
                                 </div>
                             </div>
                         </div>
@@ -94,7 +94,7 @@
                                         Command
                                     </b>
                                     <br/>
-                                    (BewerteObjekt)
+                                    (BewerteAntrag)
                                 </div>
                             </div>
                         </div>

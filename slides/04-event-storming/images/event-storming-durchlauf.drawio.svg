@@ -13,13 +13,13 @@
                         <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 43px; height: 1px; padding-top: 28px; margin-left: 204px;">
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
-                                    Makler
+                                    Prüfer
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="225" y="31" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle" font-weight="bold">
-                        Makler
+                        Prüfer
                     </text>
                 </switch>
             </g>
@@ -36,13 +36,13 @@
                         <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 43px; height: 1px; padding-top: 28px; margin-left: 664px;">
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
-                                    Makler
+                                    Prüfer
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="685" y="31" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle" font-weight="bold">
-                        Makler
+                        Prüfer
                     </text>
                 </switch>
             </g>
@@ -85,7 +85,7 @@
                                     <b>
                                         Kontaktiere
                                         <br/>
-                                        Eigentümer
+                                        Antragsteller
                                     </b>
                                 </div>
                             </div>
@@ -112,7 +112,7 @@
                                     <b>
                                         Bewerte
                                         <br/>
-                                        Objekt
+                                        Antrag
                                     </b>
                                 </div>
                             </div>
@@ -139,7 +139,7 @@
                                     <b>
                                         Unterschreibe
                                         <br/>
-                                        Maklervertrag
+                                        Prüfervertrag
                                     </b>
                                 </div>
                             </div>
@@ -193,7 +193,7 @@
                                     <b>
                                         Veröffentliche
                                         <br/>
-                                        Inserat
+                                        Zahlungsantrag
                                     </b>
                                 </div>
                             </div>
@@ -275,14 +275,14 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b>
-                                        Immobilie
+                                        Antragsmappe
                                     </b>
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="225" y="219" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="12px" text-anchor="middle">
-                        Immobilie
+                        Antragsmappe
                     </text>
                 </switch>
             </g>
@@ -300,14 +300,14 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b>
-                                        Maklerauftrag
+                                        Dashboard
                                     </b>
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="390" y="219" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="12px" text-anchor="middle">
-                        Maklerauftrag
+                        Dashboard
                     </text>
                 </switch>
             </g>
@@ -350,14 +350,14 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b>
-                                        Inserat
+                                        Zahlungsantrag
                                     </b>
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="845" y="219" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="12px" text-anchor="middle">
-                        Inserat
+                        Zahlungsantrag
                     </text>
                 </switch>
             </g>
@@ -410,7 +410,7 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b>
-                                        Eigentümer
+                                        Antragsteller
                                         <br/>
                                         Kontaktiert
                                     </b>
@@ -419,7 +419,7 @@
                         </div>
                     </foreignObject>
                     <text x="65" y="318" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle">
-                        Eigentümer...
+                        Antragsteller...
                     </text>
                 </switch>
             </g>
@@ -437,7 +437,7 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b>
-                                        Objekt
+                                        Antrag
                                         <br/>
                                         Bewertet
                                     </b>
@@ -446,7 +446,7 @@
                         </div>
                     </foreignObject>
                     <text x="225" y="318" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle">
-                        Objekt...
+                        Antrag...
                     </text>
                 </switch>
             </g>
@@ -464,7 +464,7 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b>
-                                        Maklervertrag
+                                        Prüfervertrag
                                         <br/>
                                         Unterschrieben
                                     </b>
@@ -473,7 +473,7 @@
                         </div>
                     </foreignObject>
                     <text x="390" y="318" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle">
-                        Maklervertrag...
+                        Prüfervertrag...
                     </text>
                 </switch>
             </g>
@@ -518,7 +518,7 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b>
-                                        Inserat
+                                        Zahlungsantrag
                                         <br/>
                                         Veröffentlicht
                                     </b>
@@ -527,7 +527,7 @@
                         </div>
                     </foreignObject>
                     <text x="845" y="318" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle">
-                        Inserat...
+                        Zahlungsantrag...
                     </text>
                 </switch>
             </g>

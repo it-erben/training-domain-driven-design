@@ -92,7 +92,7 @@
                                         <br/>
                                     </font>
                                     <br/>
-                                    PropertyController
+                                    AntragsmappeController
                                 </div>
                             </div>
                         </div>
@@ -122,7 +122,7 @@
                                         <br/>
                                     </font>
                                     <br/>
-                                    PropertyService
+                                    AntragsmappeService
                                 </div>
                             </div>
                         </div>
@@ -159,7 +159,7 @@
                                         <br/>
                                     </font>
                                     <br/>
-                                    PropertyRepository
+                                    AntragsmappeRepository
                                 </div>
                             </div>
                         </div>

@@ -475,13 +475,13 @@
                                     <b>
                                         Anemic Domain Model:
                                     </b>
-                                    Domain-Objekte sind reine Datencontainer – die gesamte Logik steckt im Service
+                                    Domain-Antrage sind reine Datencontainer – die gesamte Logik steckt im Service
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="271" y="452" fill="#666666" font-family="&quot;Helvetica&quot;" font-size="14px">
-                        Anemic Domain Model: Domain-Objekte sind reine...
+                        Anemic Domain Model: Domain-Antrage sind reine...
                     </text>
                 </switch>
             </g>

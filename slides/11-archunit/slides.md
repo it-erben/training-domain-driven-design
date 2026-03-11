@@ -20,6 +20,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Namenskonventionen und Annotation-Regeln formulieren
 - Onion Architecture als vordefinierte Form nutzen
 - Architektur-Baseline für bestehenden Code einsetzen
+- jMolecules-Annotationen mit ArchUnit kombinieren
 
 ---
 
@@ -73,7 +74,7 @@ Woche 24: "Wir müssen die Architektur neu aufsetzen"      [GAME OVER]
 ## Grundlegende API
 
 ```java
-@AnalyzeClasses(packages = "de.realestate")
+@AnalyzeClasses(packages = "de.foerderung")
 class ArchitectureRulesTest {
 
     @ArchTest
@@ -290,51 +291,51 @@ static final ArchRule layered_architecture =
 
 ```java
 @ArchTest
-static final ArchRule brokerage_does_not_access_acquisition_domain =
+static final ArchRule antragstellung_greift_nicht_auf_auszahlung_zu =
     noClasses()
-        .that().resideInAPackage("..brokerage.domain..")
+        .that().resideInAPackage("..antragstellung.domain..")
         .should().dependOnClassesThat()
-            .resideInAPackage("..acquisition.domain..")
-        .as("Brokerage domain must not directly access "
-            + "Acquisition domain");
+            .resideInAPackage("..auszahlung.domain..")
+        .as("Antragstellung domain darf nicht direkt auf "
+            + "Auszahlung domain zugreifen");
 
 @ArchTest
-static final ArchRule bcs_communicate_only_via_events =
-    slices().matching("de.realestate.(*).domain..")
+static final ArchRule bcs_kommunizieren_nur_ueber_events =
+    slices().matching("de.foerderung.(*).domain..")
         .should().notDependOnEachOther()
-        .as("Domain layers of different BCs "
-            + "must not depend on each other");
+        .as("Domain-Schichten verschiedener BCs "
+            + "duerfen nicht direkt voneinander abhaengen");
 ```
 
 - Stellt sicher, dass Bounded Contexts isoliert bleiben
 - Kommunikation zwischen BCs nur über Events oder definierte APIs
 - `slices()` prüft alle BC-Kombinationen auf einmal
+- **Typisch in gewachsenen Systemen:** 330 MDBs kommunizieren ohne diese Isolation!
 
 ---
 <style scoped>section { font-size: 1.7em; }</style>
 
 ## Architektur-Baseline: Legacy-Code schrittweise verbessern
 
-### Problem: 47 bestehende Verstöße - Build bricht sofort
+### Problem: 217 MDBs nutzen `AenderungAnElerAntragsMappe` direkt — Build würde sofort brechen
 
 ```java
 // FreezingArchRule: "freeze" existing violations
 @ArchTest
-static final ArchRule domain_framework_free =
+static final ArchRule keine_direkten_mdb_importe =
     FreezingArchRule.freeze(
         noClasses()
-            .that().resideInAPackage("..domain..")
+            .that().resideInAPackage("..mdb..")
             .should().dependOnClassesThat()
-                .resideInAPackage("org.springframework.."));
+                .resideInAPackage("..registerable.."));
 ```
 
-- Erster Lauf: alle Verstöße werden in `archunit_store/` gespeichert
-- Folgende Läufe: nur neue Verstöße brechen den Build
+- Erster Lauf: alle 217 Verstöße werden in `archunit_store/` gespeichert
+- Folgende Läufe: nur *neue* Verstöße brechen den Build — keine neuen MDBs ohne ACL!
 - Bestehende Verstöße werden schrittweise abgebaut
-- Datei `archunit_store/` in `.gitignore` aufnehmen oder committen (Team-Entscheidung)
+- `archunit_store/` in git committen → Team sieht Fortschritt
 
-> Ideal für Legacy-Projekte: Regeln sofort einführen,
-> ohne alle bestehenden Verstöße auf einmal fixen zu müssen.
+> **Sofort einsetzbar in bestehenden Modulen:** Regeln einführen, ohne alle Abhängigkeiten auf einmal refactorn zu müssen.
 
 ---
 <style scoped>section { font-size: 1.7em; }</style>
@@ -361,17 +362,181 @@ static final ArchRule domain_framework_free =
 
 ---
 
+## jMolecules: DDD-Annotations + ArchUnit
+
+jMolecules ergänzt ArchUnit um eine ausdrucksstarke DDD-Annotation-Bibliothek.
+Klassen kommunizieren ihre Rolle direkt im Code — und ArchUnit prüft die Konsistenz automatisch.
+
+```xml
+<dependency>
+    <groupId>org.jmolecules</groupId>
+    <artifactId>jmolecules-ddd</artifactId>
+    <version>1.9.0</version>
+</dependency>
+<dependency>
+    <groupId>org.jmolecules.integrations</groupId>
+    <artifactId>jmolecules-archunit</artifactId>
+    <version>1.9.0</version>
+    <scope>test</scope>
+</dependency>
+```
+
+---
+<style scoped>section { font-size: 1.6em; }</style>
+
+## jMolecules: Annotationen im Domain-Modell
+
+```java
+import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Entity;
+import org.jmolecules.ddd.annotation.ValueObject;
+import org.jmolecules.ddd.annotation.Identity;
+import org.jmolecules.ddd.annotation.Association;
+
+@AggregateRoot
+public class AntragsMappe {
+    @Identity
+    private final AntragId id;
+
+    @Association
+    private BetriebsinhaberRef betriebsinhaber; // Referenz per ID, nicht per Objekt
+}
+
+@ValueObject
+public record Foerderbetrag(BigDecimal betrag, String waehrung) { }
+
+@Entity
+public class Flurstueck {
+    @Identity
+    private final FlurstueckId id;
+}
+```
+
+---
+<style scoped>section { font-size: 1.6em; }</style>
+
+## jMolecules ArchUnit-Integration
+
+```java
+import static org.jmolecules.archunit.JMoleculesDddRules.*;
+import static org.jmolecules.archunit.JMoleculesArchitectureRules.*;
+
+@AnalyzeClasses(packages = "de.foerderung")
+class JMoleculesArchitectureTest {
+
+    // Prüft alle DDD-Regeln: AggregateRoot, Entity, ValueObject-Constraints
+    @ArchTest
+    ArchRule ddd_rules = JMoleculesDddRules.all();
+
+    // Prüft Layering gemäß jMolecules-Schichtenmodell
+    @ArchTest
+    ArchRule architecture_rules =
+        JMoleculesArchitectureRules.ensureLayering();
+}
+```
+
+- `JMoleculesDddRules.all()` prüft u.a.: Aggregate-Roots haben eine `@Identity`, Value Objects sind immutabel, keine direkten Aggregate-Referenzen
+- Kombinierbar mit eigenen ArchUnit-Regeln
+- Annotationen dienen gleichzeitig als Dokumentation und als prüfbare Constraints
+
+---
+
+## ArchUnit in der Praxis
+
+### Das Problem ohne Architektur-Governance
+
+> *"Es gibt keine Dokumentation der Architektur als Code. Architekturprinzipien —
+> Layer-Abhängigkeiten, keine zyklischen Abhängigkeiten, Annotationsvorgaben —
+> sollten modelliert und automatisch prüfbar sein."*
+> — Internes Architektur-Review
+
+### Konkrete ArchUnit-Regeln aus bestehenden Modulen
+
+```java
+// Kein direkt instanziierter ObjectMapper — nur per Dependency Injection
+@ArchTest
+static final ArchRule kein_neuer_objectmapper =
+    noClasses()
+        .should().callConstructor(ObjectMapper.class)
+        .as("ObjectMapper nicht direkt instanziieren — nur per @Bean / @Inject");
+
+// Services dürfen nur auf ihr eigenes Repository zugreifen
+@ArchTest
+static final ArchRule service_greift_nur_auf_eigenes_repo_zu =
+    noClasses()
+        .that().resideInAPackage("..antragstellung.application..")
+        .should().dependOnClassesThat()
+            .resideInAPackage("..pruefung.infrastructure..")
+        .as("Ein Service darf nicht auf das Repository eines fremden Aggregates zugreifen");
+```
+
+- `ObjectMapper`-Regel: Verhindert Konfigurationsfehler durch inkonsistente ObjectMapper-Instanzen
+- Service/Repository-Isolation: Erzwingt Aggregate-Grenzen — kein Service darf "am eigenen Repo vorbeikoppeln"
+
+---
+<style scoped>section { font-size: 1.7em; }</style>
+
+## FreezingArchRule: Best Practice für bestehende Module
+
+> *"Die FreezingArchRule soll an einem Pilotmodul
+> evaluiert werden — als Best Practice für alle weiteren Module."*
+> *Ziel: Regeln einführen, ohne den Build sofort zu brechen.*
+
+```java
+// Schritt 1: Baseline erfassen (erste Ausführung speichert alle Verstöße)
+@ArchTest
+static final ArchRule baseline_kein_entitymanager_in_services =
+    FreezingArchRule.freeze(
+        noClasses()
+            .that().resideInAPackage("..application..")
+            .should().dependOnClassesThat()
+                .haveFullyQualifiedName(
+                    "jakarta.persistence.EntityManager")
+            .as("EntityManager nicht direkt in Application Services verwenden"));
+```
+
+```
+Erstlauf: 4 Verstöße → gespeichert in archunit_store/
+Folgeläufe: Nur NEUE Verstöße brechen den Build
+→ Team kann schrittweise sanieren, ohne Stillstand
+```
+
+> `archunit_store/` in Git committen: Team sieht historischen Fortschritt der Sanierung.
+
+---
+
 ## Hands-on: Lab-08
 
-### ArchUnit-Tests für das Immobilien-CRM
+### ArchUnit-Tests für die Förderantragsverwaltung
+
+---
+
+## Zusammenfassung
+
+- ArchUnit prüft Architekturregeln automatisch bei jedem Build — kein manuelles Review
+- `FreezingArchRule` ermöglicht schrittweise Migration ohne sofortigen Build-Break
+- jMolecules ergänzt ArchUnit: Annotationen dokumentieren DDD-Rollen und prüfen sie gleichzeitig
+- `JMoleculesDddRules.all()` deckt typische Aggregate/Entity/ValueObject-Fehler ab
+
+### Zum Nachlesen
+
+- ArchUnit Docs: [archunit.org](https://www.archunit.org/userguide/html/000_Index.html)
+- jMolecules: [github.com/xmolecules/jmolecules](https://github.com/xmolecules/jmolecules)
+- Santana, „Domain-Driven Design with Java" (2026), Kap. 4: Testing and Validating DDD Applications
 
 ---
 
 ## Diskussion
 
-> Welche Architekturregeln würdet ihr in eurem Projekt einführen?
+> Welche Architekturregeln brauchen wir für unsere Module?
 
-- Habt ihr heute schon Architekturregeln - und werden sie eingehalten?
-- Welche Namenskonventionen gelten in euren Projekten?
+- Wie verhindern wir, dass neue Module das Webhook-Antimuster wiederholen?
+- Welche ArchUnit-Regel würde verhindern, dass Domain-Klassen JPA-Annotationen bekommen?
 - Wie unterscheidet sich ArchUnit von Code-Review in der Praxis?
+- **FreezingArchRule als Einstieg:** Wie könnte sie in einem bestehenden Modul schrittweise MDB-Abhängigkeiten isolieren helfen?
 - Wo ist die Grenze zwischen sinnvoller Governance und Over-Engineering?
+- **Konkrete Regeln aus unserem Alltag:**
+  - Welche Coding-Konventionen in euren Projekten würden von einer ArchUnit-Regel profitieren?
+    *(Beispiel: "Kein direkt instanziierter ObjectMapper" — einfach umsetzbar, sofort wertvoll)*
+  - Wie verhindert ihr, dass ein Service direkt auf das Repository eines anderen Aggregates zugreift?
+  - Welche ArchUnit-Regel würde die "Services dürfen nur auf ihr eigenes Repo zugreifen"-Anforderung durchsetzen?

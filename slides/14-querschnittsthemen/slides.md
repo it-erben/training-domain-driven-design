@@ -48,9 +48,15 @@ Querschnittsthemen betreffen mehrere Schichten - sie müssen sauber integriert w
 
 ## Optimistic Locking - Warum?
 
+> Anna und Beate öffnen gleichzeitig denselben Förderantrag.
+> Anna speichert zuerst. Beates Änderung überschreibt Annas Arbeit — **stillschweigend**.
+> Das System meldet keinen Fehler. Die Änderung ist einfach weg.
+> Das nennt sich **Lost Update** — und es ist ein fachliches Problem, kein technisches.
+
 - Aggregate Roots sind Konsistenzgrenzen
 - Mehrere Benutzer können gleichzeitig dasselbe Aggregat bearbeiten
-- Ohne Locking: Lost Updates - letzte Änderung gewinnt stillschweigend
+- Ohne Locking: Lost Updates — letzte Änderung gewinnt stillschweigend
+- **Fachliche Frage:** Muss das System den Konflikt erkennen? Wem gehört die Entscheidung?
 
 ---
 
@@ -73,11 +79,11 @@ pre { font-size: 16px; }
 </style>
 
 ```java
-package de.realestate.brokerage.infrastructure.persistence;
+package de.foerderung.antragstellung.infrastructure.persistence;
 
 @Entity
-@Table(name = "brokerage_process")
-public class ProcessJpaEntity {
+@Table(name = "antragsmappe")
+public class AntragsMappeJpaEntity {
 
     @Id
     private UUID id;
@@ -86,15 +92,15 @@ public class ProcessJpaEntity {
     private Long version;
 
     @Enumerated(EnumType.STRING)
-    private ProcessStatus status;
+    private AntragStatus status;
 
-    private UUID propertyId;
+    private String registrierungsNummer;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "process_id")
-    private List<ViewingJpaEntity> viewings = new ArrayList<>();
+    @JoinColumn(name = "antragsmappe_id")
+    private List<FlurstueckJpaEntity> flurstuecke = new ArrayList<>();
 
-    protected ProcessJpaEntity() {}
+    protected AntragsMappeJpaEntity() {}
     // Getter, Setter
 }
 ```
@@ -105,8 +111,8 @@ public class ProcessJpaEntity {
 
 ```sql
 -- JPA generates automatically:
-UPDATE brokerage_process
-SET status = ?, property_id = ?, version = 2
+UPDATE antragsmappe
+SET status = ?, registrierungs_nummer = ?, version = 2
 WHERE id = ? AND version = 1;
 -- If 0 rows affected → OptimisticLockException
 ```
@@ -132,9 +138,9 @@ public ProblemDetail handleConflict(
         OptimisticLockingFailureException ex) {
     var problem = ProblemDetail.forStatusAndDetail(
         HttpStatus.CONFLICT,
-        "The data has been modified in the meantime. "
-        + "Please reload the current version.");
-    problem.setTitle("Conflict: concurrent modification");
+        "Die Daten wurden zwischenzeitlich verändert. "
+        + "Bitte die aktuelle Version neu laden.");
+    problem.setTitle("Konflikt: gleichzeitige Änderung");
     return problem;
 }
 ```
@@ -144,14 +150,14 @@ public ProblemDetail handleConflict(
 
 ## Auditing - Wer hat wann was geändert?
 
-- Für Compliance und Nachvollziehbarkeit im Immobilien-CRM
+- Für Compliance und Nachvollziehbarkeit in der Förderantragsverwaltung
 - Spring Data JPA bietet deklaratives Auditing
 - Automatische Befüllung von Zeitstempeln und Benutzerinformationen
 
 ### Aktivierung
 
 ```java
-package de.realestate.infrastructure.config;
+package de.foerderung.infrastructure.config;
 
 @Configuration
 @EnableJpaAuditing
@@ -178,7 +184,7 @@ pre { font-size: 15px; }
 </style>
 
 ```java
-package de.realestate.infrastructure.persistence;
+package de.foerderung.infrastructure.persistence;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -212,8 +218,8 @@ public abstract class AuditableJpaEntity {
 
 ```java
 @Entity
-@Table(name = "brokerage_process")
-public class ProcessJpaEntity extends AuditableJpaEntity {
+@Table(name = "antragsmappe")
+public class AntragsMappeJpaEntity extends AuditableJpaEntity {
 
     @Id
     private UUID id;
@@ -222,7 +228,7 @@ public class ProcessJpaEntity extends AuditableJpaEntity {
     private Long version;
 
     @Enumerated(EnumType.STRING)
-    private ProcessStatus status;
+    private AntragStatus status;
 
     // ...
 }
@@ -234,7 +240,7 @@ public class ProcessJpaEntity extends AuditableJpaEntity {
 
 - `createdAt` / `createdBy` werden beim Anlegen gesetzt
 - `updatedAt` / `updatedBy` werden bei jeder Änderung aktualisiert
-- Die Domain-Klasse `BrokerageProcess` weiß davon nichts
+- Die Domain-Klasse `AntragsMappe` weiß davon nichts
 - Auditing ist ein rein technisches Concern der Infrastruktur
 
 ---
@@ -247,7 +253,7 @@ public class ProcessJpaEntity extends AuditableJpaEntity {
 
 ---
 
-## Soft Delete - Implementierung
+## Soft Delete - Implementierung (Hibernate 7)
 
 <style scoped>
 section { font-size: 22px; }
@@ -256,31 +262,38 @@ pre { font-size: 18px; }
 
 ```java
 @Entity
-@Table(name = "brokerage_process")
-@SQLRestriction("deleted = false")  // Hibernate 6.4+
-public class ProcessJpaEntity extends AuditableJpaEntity {
+@Table(name = "antragsmappe")
+@SoftDelete(columnName = "deleted")  // Hibernate 7 — nativ, kein Custom-Code
+public class AntragsMappeJpaEntity extends AuditableJpaEntity {
 
     @Id private UUID id;
     @Version private Long version;
 
-    private boolean deleted = false;
-    private Instant deletedAt;
-
-    public void markAsDeleted() {
-        this.deleted = true;
-        this.deletedAt = Instant.now();
-    }
+    @Enumerated(EnumType.STRING)
+    private AntragStatus status;
+    // 'deleted'-Spalte wird von Hibernate automatisch verwaltet!
 }
 ```
 
-- `@SQLRestriction` filtert gelöschte Einträge automatisch aus Queries
-- Physisches Löschen wird durch `markAsDeleted()` ersetzt
+```java
+// Repository-Adapter: delete() ruft jpaRepo.delete() auf →
+// Hibernate setzt 'deleted = true', kein physisches DELETE
+@Override
+public void delete(AntragsMappe mappe) {
+    jpaRepo.findById(mappe.getId().value())
+        .ifPresent(jpaRepo::delete);  // → UPDATE ... SET deleted = true
+}
+```
+
+- `@SoftDelete` fügt die `deleted`-Spalte automatisch hinzu und filtert sie in allen Queries
+- Kein manuelles `markAsDeleted()` nötig — Hibernate 7 übernimmt alles
+- Domain bleibt vollständig frei von diesem Infrastruktur-Concern
 
 ---
 
 ## Multi-Tenancy - Überblick
 
-Mandantenfähigkeit: Mehrere Maklerbüros auf einer Plattform
+Mandantenfähigkeit: Mehrere Förderagenturen auf einer Plattform
 
 | Strategie | Isolation | Komplexität | Einsatz |
 |-----------|-----------|-------------|---------|
@@ -300,7 +313,7 @@ Mandantenfähigkeit: Mehrere Maklerbüros auf einer Plattform
     parameters = @ParamDef(name = "tenantId", type = String.class))
 @Filter(name = "tenantFilter",
     condition = "tenant_id = :tenantId")
-public class ProcessJpaEntity {
+public class AntragsMappeJpaEntity {
 
     @Column(name = "tenant_id", nullable = false)
     private String tenantId;
@@ -327,7 +340,7 @@ table { font-size: 20px; }
 |-------|-----|-------------------|
 | Optimistic Locking | `@Version` auf JPA-Entity | Nur `version`-Feld (ohne Annotation) |
 | Auditing | `AuditableJpaEntity` in infrastructure | Nein |
-| Soft Delete | `@SQLRestriction` auf JPA-Entity | Nein |
+| Soft Delete | `@SoftDelete` auf JPA-Entity (Hibernate 7) | Nein |
 | Multi-Tenancy | `@Filter` + Discriminator auf JPA-Entity | Nein |
 | Exception Mapping | `@RestControllerAdvice` in adapter | Nein |
 
@@ -341,7 +354,7 @@ table { font-size: 20px; }
 
 ### Aufgabe
 
-1. `@Version` auf der JPA-Entity `ProcessJpaEntity` ergänzen
+1. `@Version` auf der JPA-Entity `AntragsMappeJpaEntity` ergänzen
 2. `version`-Feld im Domain-Model und Mapper hinzufügen
 3. `AuditableJpaEntity` als MappedSuperclass erstellen (in `infrastructure`)
 4. JPA Auditing aktivieren (`@EnableJpaAuditing`)
@@ -356,8 +369,27 @@ table { font-size: 20px; }
 
 > Wie ordnet ihr Querschnittsthemen in eure Architektur ein?
 
-- Wo lebt Auditing in euren Projekten - in der Domain oder Infrastruktur?
-- Nutzt ihr Optimistic oder Pessimistic Locking?
-- Welche Multi-Tenancy-Strategie passt zu eurem Kontext?
-- Habt ihr Erfahrungen mit Soft Delete - Fluch oder Segen?
+**Optimistic Locking und Versionierung:**
+
+- Ein typisches Problem in der Praxis: Optimistic Lock Exception wirft einen rohen JPA-Fehler.
+  Wie würdet ihr eine fachliche `KonkurrenteAenderungException` modellieren?
+- Wo passiert in euren Systemen Lost Update, weil kein Locking vorhanden ist?
+- Was ist der Unterschied zwischen Optimistic und Pessimistic Locking — wann welches?
+- **Domain Object Versioning (Fowler Temporal Pattern):** Wie unterscheidet sich das Speichern des *aktuellen Zustands* von der *Zustandshistorie*?
+  Das Temporal Pattern trennt `Entity` (Kontinuität der Identität) von `Snapshot` (Zustand zu einem Zeitpunkt).
+  In welchen fachlichen Szenarien ist lückenlose Zustandshistorie ein regulatorisches Muss?
+
+**Auditing und Multi-Tenancy:**
+
+- Wo lebt Auditing in euren Projekten — in der Domain oder Infrastruktur?
+- Welche Multi-Tenancy-Strategie passt zu eurem Kontext (Discriminator / Schema / DB)?
+- Ein Mandant darf keine Daten eines anderen Mandanten sehen oder ändern.
+  Wie sichert ihr das auf Aggregate-Ebene ab?
+
+**Soft Delete:**
+
+- Habt ihr Erfahrungen mit Soft Delete — Fluch oder Segen?
 - Was passiert, wenn `@Version` auf dem Domain-Model statt der JPA-Entity liegt?
+
+> Evans, „Domain-Driven Design" (2003), S. 125: Aggregate-Invarianten als erste Verteidigungslinie
+> Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 6: Bausteine des Domain Model

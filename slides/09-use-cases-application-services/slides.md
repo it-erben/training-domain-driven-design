@@ -71,16 +71,19 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ```java
 // domain.model - no Spring, no framework
-public class CommissionCalculationService {
+public class FoerderbetragBerechnungsService {
 
-    public Commission calculate(Property property, PurchaseContract contract) {
-        var basis = contract.purchasePrice()
-            .multiply(property.commissionRate());
+    public Foerderbetrag berechnen(AntragsMappe mappe,
+                                   FoerderProgramm programm) {
+        var gesamtFlaeche = mappe.getFlurstuecke().stream()
+            .map(Flurstueck::flaeche)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        if (property.isListedBuilding()) {
-            return new Commission(basis.multiply(BigDecimal.valueOf(0.95)));
+        if (programm.hatFlaechenbonus() && gesamtFlaeche.compareTo(new BigDecimal("50")) > 0) {
+            return programm.berechneGrundbetrag(gesamtFlaeche)
+                .multiplizieren(BigDecimal.valueOf(1.05));
         }
-        return new Commission(basis);
+        return programm.berechneGrundbetrag(gesamtFlaeche);
     }
 }
 ```
@@ -96,26 +99,29 @@ public class CommissionCalculationService {
 
 ```java
 @Service
-public class CreateViewingUseCase {
+public class FlurstueckHinzufuegenService implements FlurstueckHinzufuegen {
 
-    private final BrokerageProcessRepository repository;
+    private final AntragsMappeRepository repository;
 
-    public CreateViewingUseCase(BrokerageProcessRepository repository) {
+    public FlurstueckHinzufuegenService(AntragsMappeRepository repository) {
         this.repository = repository;
     }
 
     @Transactional
-    public CreateViewingResult create(CreateViewingCommand command) {
-        var process = repository.findById(command.processId())
-            .orElseThrow(() -> new ProcessNotFoundException(command.processId()));
+    @Override
+    public FlurstueckHinzufuegenResult hinzufuegen(FlurstueckHinzufuegenCommand cmd) {
+        var mappe = repository.findById(cmd.antragsmappeId())
+            .orElseThrow(() -> new AntragsmappeNichtGefundenException(
+                cmd.antragsmappeId()));
 
-        var viewingId = process.addViewing(
-            command.prospectName(),
-            command.appointmentDate());
+        var flurstueckId = mappe.flurstueckHinzufuegen(
+            cmd.flurstueckNummer(), cmd.flaeche());
 
-        repository.save(process);
+        repository.save(mappe);
 
-        return new CreateViewingResult(viewingId, process.getId());
+        return new FlurstueckHinzufuegenResult(
+            flurstueckId, mappe.getId(),
+            cmd.flurstueckNummer(), cmd.flaeche());
     }
 }
 ```
@@ -126,16 +132,21 @@ public class CreateViewingUseCase {
 ## Command als Java Record
 
 ```java
-public record CreateViewingCommand(
-    UUID processId,
-    String prospectName,
-    LocalDateTime appointmentDate
-) {}
+public record FlurstueckHinzufuegenCommand(
+    AntragId antragsmappeId,
+    FlurstueckNummer flurstueckNummer,
+    BigDecimal flaeche
+) {
+    public FlurstueckHinzufuegenCommand {
+        Objects.requireNonNull(antragsmappeId);
+        Objects.requireNonNull(flurstueckNummer);
+    }
+}
 ```
 
-- Lebt im Workshop in `application.command`
-- Trägt die Absicht des Aufrufers ohne Framework-Abhängigkeit
-- Fachregeln bleiben im Domain-Modell; syntaktische Validierung kann im Adapter erfolgen
+- Lebt in `application.port` gemeinsam mit dem Interface
+- Value Objects im Command: syntaktische Validierung im Adapter, fachliche Regeln in der Domain
+- Compact Constructor verhindert null-Werte schon beim Aufruf
 
 ---
 <style scoped>section { font-size: 1.5em; }</style>
@@ -163,9 +174,9 @@ public record CreateViewingCommand(
 
 ```java
 @Service
-public class CreateViewingUseCase {
+public class FlurstueckHinzufuegenService implements FlurstueckHinzufuegen {
     @Transactional
-    public CreateViewingResult create(CreateViewingCommand command) { ... }
+    public FlurstueckHinzufuegenResult hinzufuegen(FlurstueckHinzufuegenCommand command) { ... }
 }
 ```
 
@@ -173,9 +184,9 @@ public class CreateViewingUseCase {
 
 ```java
 @Service
-public class ListViewingsUseCase {
+public class FlurstueckeAbfragenUseCase {
     @Transactional(readOnly = true)
-    public List<Viewing> list(UUID processId) { ... }
+    public List<Flurstueck> liste(UUID antragsmappeId) { ... }
 }
 ```
 
@@ -191,18 +202,19 @@ public class ListViewingsUseCase {
 ```java
 @Service
 @Transactional(readOnly = true)
-public class ListViewingsUseCase {
+public class FlurstueckeAbfragenUseCase {
 
-    private final BrokerageProcessRepository repository;
+    private final AntragsMappeRepository repository;
 
-    public ListViewingsUseCase(BrokerageProcessRepository repository) {
+    public FlurstueckeAbfragenUseCase(AntragsMappeRepository repository) {
         this.repository = repository;
     }
 
-    public List<Viewing> list(UUID processId) {
-        var process = repository.findById(processId)
-            .orElseThrow(() -> new ProcessNotFoundException(processId));
-        return process.getViewings();
+    public List<Flurstueck> liste(UUID antragsmappeId) {
+        var id = new AntragId(antragsmappeId);
+        var mappe = repository.findById(id)
+            .orElseThrow(() -> new AntragsmappeNichtGefundenException(id));
+        return mappe.getFlurstuecke();
     }
 }
 ```
@@ -217,18 +229,20 @@ public class ListViewingsUseCase {
 ### Schreibende Use Cases
 
 ```java
-CreateViewingResult create(CreateViewingCommand command);
+FlurstueckHinzufuegenResult hinzufuegen(FlurstueckHinzufuegenCommand command);
 
-public record CreateViewingResult(
-    UUID viewingId,
-    UUID processId
+public record FlurstueckHinzufuegenResult(
+    FlurstueckId flurstueckId,
+    AntragId antragsmappeId,
+    FlurstueckNummer flurstueckNummer,
+    BigDecimal flaeche
 ) {}
 ```
 
 ### Mutierende Use Cases ohne neue Ressource
 
 ```java
-void complete(CompleteViewingCommand command);
+void einreichen(AntragEinreichenCommand command);
 ```
 
 ### Lese-Use-Cases im Workshop
@@ -246,17 +260,19 @@ void complete(CompleteViewingCommand command);
 
 ```java
 @Service
-public class CreateViewingUseCase {
+public class FlurstueckHinzufuegenService implements FlurstueckHinzufuegen {
 
-    @Transactional  // ← entire use case = one transaction
-    public CreateViewingResult create(CreateViewingCommand command) {
-        var process = repository.findById(command.processId())
-            .orElseThrow(() -> new ProcessNotFoundException(command.processId()));
-        var id = process.addViewing(
-            command.prospectName(),
-            command.appointmentDate());
-        repository.save(process);
-        return new CreateViewingResult(id, process.getId());
+    @Transactional  // <- entire use case = one transaction
+    public FlurstueckHinzufuegenResult hinzufuegen(FlurstueckHinzufuegenCommand cmd) {
+        var mappe = repository.findById(cmd.antragsmappeId())
+            .orElseThrow(() -> new AntragsmappeNichtGefundenException(
+                cmd.antragsmappeId()));
+        var flurstueckId = mappe.flurstueckHinzufuegen(
+            cmd.flurstueckNummer(), cmd.flaeche());
+        repository.save(mappe);
+        return new FlurstueckHinzufuegenResult(
+            flurstueckId, mappe.getId(),
+            cmd.flurstueckNummer(), cmd.flaeche());
     }
 }
 ```
@@ -265,9 +281,9 @@ public class CreateViewingUseCase {
 
 ```java
 // Domain should remain framework-free!
-public class BrokerageProcess {
-    @Transactional  // ← NEVER
-    public UUID addViewing(...) { }
+public class AntragsMappe {
+    @Transactional  // <- NEVER!
+    public UUID flurstueckHinzufuegen(...) { }
 }
 ```
 
@@ -310,9 +326,9 @@ public class MyService {
 ### Domain Exceptions (fachlich)
 
 ```java
-public class ProcessNotFoundException extends RuntimeException {
-    public ProcessNotFoundException(UUID id) {
-        super("BrokerageProcess with ID " + id + " not found");
+public class AntragsmappeNichtGefundenException extends RuntimeException {
+    public AntragsmappeNichtGefundenException(AntragId id) {
+        super("AntragsMappe mit ID " + id.value() + " nicht gefunden");
     }
 }
 ```
@@ -329,14 +345,16 @@ public class ProcessNotFoundException extends RuntimeException {
 ```java
 // In the application service: let exceptions propagate!
 @Transactional
-public CreateViewingResult create(CreateViewingCommand command) {
-    var process = repository.findById(command.processId())
-        .orElseThrow(() -> new ProcessNotFoundException(command.processId()));
-    var id = process.addViewing(
-        command.prospectName(),
-        command.appointmentDate());
-    repository.save(process);
-    return new CreateViewingResult(id, process.getId());
+public FlurstueckHinzufuegenResult hinzufuegen(FlurstueckHinzufuegenCommand cmd) {
+    var mappe = repository.findById(cmd.antragsmappeId())
+        .orElseThrow(() -> new AntragsmappeNichtGefundenException(
+            cmd.antragsmappeId()));
+    var flurstueckId = mappe.flurstueckHinzufuegen(
+        cmd.flurstueckNummer(), cmd.flaeche());
+    repository.save(mappe);
+    return new FlurstueckHinzufuegenResult(
+        flurstueckId, mappe.getId(),
+        cmd.flurstueckNummer(), cmd.flaeche());
     // No try/catch - exceptions flow to the controller advice
 }
 ```
@@ -346,9 +364,9 @@ public CreateViewingResult create(CreateViewingCommand command) {
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ProcessNotFoundException.class)
-    public ProblemDetail handleProcessNotFoundException(
-            ProcessNotFoundException ex) {
+    @ExceptionHandler(AntragsmappeNichtGefundenException.class)
+    public ProblemDetail handleAntragsmappeNichtGefundenException(
+            AntragsmappeNichtGefundenException ex) {
         var problem = ProblemDetail.forStatusAndDetail(
             HttpStatus.NOT_FOUND, ex.getMessage());
         problem.setTitle("Not Found");
@@ -365,9 +383,36 @@ public class GlobalExceptionHandler {
 
 ---
 
+## Application Services sind zustandslos
+
+Ein Application Service darf **keinen eigenen Zustand** halten:
+
+```java
+// ❌ Zustand im Service — stirbt mit dem Pod, unsichtbar für andere Pods:
+@Service
+public class FlurstueckHinzufuegenService {
+    private int zaehler = 0;          // Kein persistierter Zustand!
+    private AntragsMappe letzteMappe; // Kein Cache ohne TTL!
+}
+
+// ✅ Zustandslos — jeder Request ist unabhängig:
+@Service
+public class FlurstueckHinzufuegenService implements FlurstueckHinzufuegen {
+    private final AntragsMappeRepository repository; // nur Abhängigkeit, kein Zustand
+    // ...
+}
+```
+
+> Ein zustandsloser Application Service kann beliebig oft neu gestartet,
+> horizontal skaliert und auf mehreren Pods gleichzeitig ausgeführt werden —
+> weil der Zustand der Domäne ausschließlich in der Datenbank lebt.
+> (→ Modul 16: Kubernetes-Readiness)
+
+---
+
 ## Zusammenfassung
 
-- Application Service = Use-Case-Orchestrator, keine Geschäftslogik
+- Application Service = Use-Case-Orchestrator, **zustandslos**, keine Geschäftslogik
 - Domain Service = Domänenlogik über Aggregate hinweg
 - Commands als schlanke Java Records in `application.command`
 - CQRS-lite: getrennte Lese- und Schreib-Use-Cases, noch ohne eigenes Read Model
@@ -375,6 +420,74 @@ public class GlobalExceptionHandler {
 - Technische Nebenwirkungen nur nach Commit auslösen
 - Exceptions propagieren zum `@RestControllerAdvice`
 - Der Application Service ist dünn - die Logik steckt in der Domain
+
+> Vernon, „Implementing Domain-Driven Design" (2013), S. 521: Application Layer — dünne Orchestrierungsschicht
+> Evans, „Domain-Driven Design" (2003), S. 70: Domain Layer — wo Geschäftslogik lebt
+> Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 8: Architektur-Patterns (Ports & Adapters, CQRS)
+
+---
+
+## Diskussion: CQRS in der Praxis
+
+> Ein typisches Anti-Pattern in gewachsenen Berechtigungssystemen:
+> Der Endpoint `effektiveBerechtigungenLaden` führt gleichzeitig
+> externen Abgleich, Nutzer-Import und Standort-Aktualisierung durch —
+> obwohl er ein **Lese-Endpoint** ist.
+
+```java
+// Typische Kommentare in solchen Codebasen:
+// FIXME: Krücke, um neue Nutzer anzulegen bzw. mit externem System abzugleichen
+// TODO:  ist nur eine temporäre Lösung, bis alles auf CQRS umgestellt ist
+```
+
+- Welche der drei Schreiboperationen gehört in einen Command-Handler?
+- Wie würde ein sauberer Lesepfad ohne Seiteneffekte aussehen?
+- Welche Lese-Endpoints in unseren Systemen könnten von einem Read Model profitieren?
+- Was passiert mit `@Transactional` auf einem Lese-Endpoint, der Schreiboperationen enthält?
+  *(Rollback-Verhalten, Nebeneffekte nach Fehler, Idempotenz-Probleme)*
+
+---
+
+## Diskussion: Service greift auf fremdes Repository zu
+
+> Ein weiteres typisches Anti-Pattern in gewachsenen Systemen:
+> Ein Application Service aus dem Kontext `Antragstellung` greift direkt
+> auf das `PruefungRepository` aus dem Kontext `Pruefung` zu —
+> anstatt das Aggregate über dessen eigene Schnittstelle anzusprechen.
+
+```java
+// ❌ Service überschreitet Aggregate-Grenzen
+@Service
+public class AntragstellungService {
+
+    private final PruefungRepository pruefungRepository;  // fremdes Aggregate!
+
+    public boolean istPruefungAbgeschlossen(UUID antragId) {
+        return pruefungRepository.findByAntragId(antragId)
+            .map(Pruefung::isAbgeschlossen)
+            .orElse(false);
+    }
+}
+```
+
+```java
+// ✅ Über Domain Event entkoppeln oder dediziertes Query-Interface
+// Option A: Lese-Port im Antragstellung-Kontext
+public interface PruefungsstatusPort {
+    boolean istAbgeschlossen(AntragId antragId);
+}
+
+// Option B: Domain Event, das der Pruefungs-Kontext publiziert
+// → Antragstellung reagiert, speichert lokalen Zustand
+```
+
+- Jedes Aggregate hat eine klare Verantwortungsgrenze — Repository-Zugriff ist eine davon
+- Direkte Repository-Abhängigkeiten über Aggregate-Grenzen hinweg erzeugen zykl. Kopplung
+- ArchUnit kann dies als Architekturverletzung automatisch aufdecken (→ Modul 11)
+- Lösung: Anti-Corruption Layer, dediziertes Query-Port oder Event-basierte Kommunikation
+- Welche Abhängigkeiten in euren Systemen verletzen heute die Aggregate-Grenzen auf dieselbe Weise?
+
+> Vernon, „Implementing Domain-Driven Design" (2013), S. 521: Application Services und Use-Case-Grenzen
 
 ---
 

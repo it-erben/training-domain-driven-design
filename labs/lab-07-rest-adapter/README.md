@@ -1,4 +1,4 @@
-# Lab 07: REST-Adapter - Viewings-API
+# Lab 07: REST-Adapter - Flurstück-API
 
 ## Aufgabe
 
@@ -7,36 +7,44 @@ Implementiere einen REST-Adapter, der HTTP-Requests entgegennimmt, in Commands
 
 ### Schritt 1: Request-DTO erstellen
 
-Erstelle das Request-DTO `CreateViewingRequest` als Java Record im Package
-`de.realestate.brokerage.adapter.web`:
+Erstelle das Request-DTO `FlurstueckHinzufuegenRequest` als Java Record im
+Package `de.foerderung.antragstellung.adapter.web`:
 
 ```java
-public record CreateViewingRequest(
-        @NotBlank String prospectName,
-        @NotNull @Future LocalDateTime appointmentDate
+public record FlurstueckHinzufuegenRequest(
+        @NotBlank String flurstueckNummer,
+        @NotNull @Positive BigDecimal flaeche
 ) {
-    public CreateViewingCommand toCommand(UUID processId) {
-        return new CreateViewingCommand(processId, prospectName, appointmentDate);
+    public FlurstueckHinzufuegenCommand toCommand(UUID antragsmappeId) {
+        return new FlurstueckHinzufuegenCommand(
+            new AntragId(antragsmappeId),
+            new FlurstueckNummer(flurstueckNummer),
+            flaeche);
     }
 }
 ```
 
-Hinweis: Die Validierungs-Annotationen (`@NotBlank`, `@NotNull`, `@Future`)
-gehören zur Adapter-Schicht - das Domain-Modell validiert sich selbst. `@Future`
-stellt sicher, dass nur Termine in der Zukunft akzeptiert werden.
+Hinweis: Die Validierungs-Annotationen (`@NotBlank`, `@NotNull`, `@Positive`)
+gehören zur Adapter-Schicht - das Domain-Modell validiert sich selbst. `@Positive`
+stellt sicher, dass nur positive Flächen akzeptiert werden.
 
 ### Schritt 2: Response-DTO erstellen
 
-Erstelle das Response-DTO `CreateViewingResponse` als Java Record im selben
-Package:
+Erstelle das Response-DTO `FlurstueckHinzufuegenResponse` als Java Record im
+selben Package:
 
 ```java
-public record CreateViewingResponse(
-        UUID viewingId,
-        UUID processId
+public record FlurstueckHinzufuegenResponse(
+        UUID flurstueckId,
+        UUID antragsmappeId,
+        String flurstueckNummer,
+        BigDecimal flaeche
 ) {
-    public static CreateViewingResponse from(CreateViewingResult result) {
-        return new CreateViewingResponse(result.viewingId(), result.processId());
+    public static FlurstueckHinzufuegenResponse from(
+            FlurstueckHinzufuegenResult result) {
+        return new FlurstueckHinzufuegenResponse(
+            result.flurstueckId().value(), result.antragsmappeId().value(),
+            result.flurstueckNummer().wert(), result.flaeche());
     }
 }
 ```
@@ -47,52 +55,59 @@ Objects.
 
 ### Schritt 3: Controller implementieren
 
-Erstelle den `ViewingController` im Package
-`de.realestate.brokerage.adapter.web`:
+Erstelle den `FlurstueckController` im Package
+`de.foerderung.antragstellung.adapter.web`:
 
 ```java
 
 @RestController
-@RequestMapping("/api/brokerage/processes/{processId}/viewings")
-public class ViewingController {
+@RequestMapping("/api/antragstellung/antragsmappen/{antragsmappeId}/flurstuecke")
+public class FlurstueckController {
 
-    private final CreateViewingUseCase createViewingUseCase;
+    private final FlurstueckHinzufuegen flurstueckHinzufuegen; // Port Interface, nicht Service!
 
     // Constructor Injection
 
     @PostMapping
-    public ResponseEntity<CreateViewingResponse> create(
-            @PathVariable UUID processId,
-            @Valid @RequestBody CreateViewingRequest request) {
-        // 1. request.toCommand(processId)
+    public ResponseEntity<FlurstueckHinzufuegenResponse> hinzufuegen(
+            @PathVariable UUID antragsmappeId,
+            @Valid @RequestBody FlurstueckHinzufuegenRequest request) {
+        // 1. request.toCommand(antragsmappeId)
         // 2. Call use case
-        // 3. CreateViewingResponse.from(result)
+        // 3. FlurstueckHinzufuegenResponse.from(result)
         // 4. Return 201 Created with Location header
     }
 }
 ```
 
 Wichtig: Der Controller enthält keine Geschäftslogik. Er ist ein reiner
-Adapter, der zwischen HTTP und der Application-Schicht übersetzt. Das Mapping
-passiert über `toCommand()` und `from()` auf den DTOs.
+Adapter, der zwischen HTTP und der Application-Schicht übersetzt. Der Controller
+injiziert das **Port Interface** (`FlurstueckHinzufuegen`), nicht die konkrete
+Service-Klasse. Das Mapping passiert über `toCommand()` und `from()` auf den
+DTOs.
 
 ### Schritt 4: Exception-Handler implementieren
 
 Erstelle den `GlobalExceptionHandler` im Package
-`de.realestate.brokerage.adapter.web`:
+`de.foerderung.antragstellung.adapter.web`:
 
 ```java
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ProcessNotFoundException.class)
-    public ProblemDetail handleNotFound(ProcessNotFoundException ex) {
-        // Return ProblemDetail with status 404, error message and type URI
+    @ExceptionHandler(AntragsmappeNichtGefundenException.class)
+    public ProblemDetail handleNotFound(
+            AntragsmappeNichtGefundenException ex) {
+        var problem = ProblemDetail.forStatusAndDetail(
+            HttpStatus.NOT_FOUND, ex.getMessage());
+        problem.setTitle("Not Found");
+        return problem;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
+    public ProblemDetail handleValidation(
+            MethodArgumentNotValidException ex) {
         // Return ProblemDetail with status 400 and validation errors
     }
 }
@@ -100,7 +115,7 @@ public class GlobalExceptionHandler {
 
 Hinweis: `ProblemDetail` wird seit Spring Boot 4 nativ unterstützt und
 implementiert RFC 9457. Setze für jeden Fehlertyp eine eigene `type`-URI, z.B.
-`https://api.immo-crm.de/errors/process-not-found`.
+`https://api.foerderung.example/errors/antragsmappe-nicht-gefunden`.
 
 Aktiviere Problem Details in der `application.yml`:
 
@@ -116,38 +131,38 @@ spring:
 Starte die Anwendung und teste die Endpunkte (siehe Verifikation).
 
 Tipp: Die Lösung initialisiert beim Start Testdaten. Verwende für die
-Verifikation z.B. diese `processId`:
+Verifikation z.B. diese `antragsmappeId`:
 
-- `11111111-1111-1111-1111-111111111111` enthält bereits zwei Besichtigungen
+- `11111111-1111-1111-1111-111111111111` enthält bereits zwei Flurstücke
 - `22222222-2222-2222-2222-222222222222` ist leer und eignet sich für `POST`
 
 Die Daten werden auch beim Start im Log ausgegeben. Die H2-Console steht
 weiterhin unter `http://localhost:8080/h2-console` zur Verfügung
-(JDBC-URL: `jdbc:h2:mem:realestatecrm`, User: `sa`, kein Passwort).
+(JDBC-URL: `jdbc:h2:mem:foerderantrag`, User: `sa`, kein Passwort).
 
-### Bonus: GET-Endpunkt und Besichtigung abschließen
+### Bonus: GET-Endpunkt und Flurstück prüfen
 
 Implementiere zusätzliche Endpunkte:
 
-GET - Alle Besichtigungen eines Vermittlungsprozesses auflisten:
+GET - Alle Flurstücke einer AntragsMappe auflisten:
 
 ```java
 
 @GetMapping
-public List<ViewingResponse> list(@PathVariable UUID processId) {
-    // Load BrokerageProcess and return viewings as response DTOs
+public List<FlurstueckResponse> list(@PathVariable UUID antragsmappeId) {
+    // Load AntragsMappe and return Flurstuecke as response DTOs
 }
 ```
 
-PATCH - Eine Besichtigung als abgeschlossen markieren:
+PATCH - Ein Flurstück als geprüft markieren:
 
 ```java
 
-@PatchMapping("/{viewingId}/complete")
-public ResponseEntity<Void> complete(
-        @PathVariable UUID processId,
-        @PathVariable UUID viewingId) {
-    // Delegate to CompleteViewingUseCase
+@PatchMapping("/{flurstueckId}/pruefen")
+public ResponseEntity<Void> pruefen(
+        @PathVariable UUID antragsmappeId,
+        @PathVariable UUID flurstueckId) {
+    // Delegate to FlurstueckPruefenService
     // Return 204 No Content
 }
 ```
@@ -156,29 +171,29 @@ public ResponseEntity<Void> complete(
 
 Starte die Anwendung und führe die folgenden curl-Befehle aus:
 
-### Besichtigung anlegen (erwartet: 201 Created)
+### Flurstück hinzufügen (erwartet: 201 Created)
 
 ```bash
-curl -X POST http://localhost:8080/api/brokerage/processes/{processId}/viewings \
+curl -X POST http://localhost:8080/api/antragstellung/antragsmappen/{antragsmappeId}/flurstuecke \
   -H "Content-Type: application/json" \
   -d '{
-    "prospectName": "Max Mustermann",
-    "appointmentDate": "2026-04-01T14:00:00"
+    "flurstueckNummer": "042/0815",
+    "flaeche": 12.75
   }' \
   -w "\n%{http_code}\n"
 ```
 
-Erwartete Antwort: HTTP 201, JSON mit `viewingId` und `processId`, sowie ein
-`Location`-Header.
+Erwartete Antwort: HTTP 201, JSON mit `flurstueckId` und `antragsmappeId`,
+sowie ein `Location`-Header.
 
-### Nicht existierenden Prozess verwenden (erwartet: 404 ProblemDetail)
+### Nicht existierende AntragsMappe verwenden (erwartet: 404 ProblemDetail)
 
 ```bash
-curl -X POST http://localhost:8080/api/brokerage/processes/00000000-0000-0000-0000-000000000000/viewings \
+curl -X POST http://localhost:8080/api/antragstellung/antragsmappen/00000000-0000-0000-0000-000000000000/flurstuecke \
   -H "Content-Type: application/json" \
   -d '{
-    "prospectName": "Max Mustermann",
-    "appointmentDate": "2026-04-01T14:00:00"
+    "flurstueckNummer": "042/0815",
+    "flaeche": 12.75
   }' \
   -w "\n%{http_code}\n"
 ```
@@ -187,21 +202,21 @@ Erwartete Antwort: HTTP 404, ProblemDetail-JSON:
 
 ```json
 {
-  "type": "https://api.immo-crm.de/errors/process-not-found",
-  "title": "Not Found",
+  "type": "https://api.foerderung.example/errors/antragsmappe-nicht-gefunden",
+  "title": "Antragsmappe nicht gefunden",
   "status": 404,
-  "detail": "BrokerageProcess with ID 00000000-0000-0000-0000-000000000000 not found"
+  "detail": "AntragsMappe mit ID 00000000-0000-0000-0000-000000000000 nicht gefunden"
 }
 ```
 
 ### Validierungsfehler (erwartet: 400 Bad Request)
 
 ```bash
-curl -X POST http://localhost:8080/api/brokerage/processes/{processId}/viewings \
+curl -X POST http://localhost:8080/api/antragstellung/antragsmappen/{antragsmappeId}/flurstuecke \
   -H "Content-Type: application/json" \
   -d '{
-    "prospectName": "",
-    "appointmentDate": null
+    "flurstueckNummer": "",
+    "flaeche": null
   }' \
   -w "\n%{http_code}\n"
 ```

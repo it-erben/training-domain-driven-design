@@ -5,7 +5,7 @@ Anwendung.
 
 ## Teil 1: Optimistic Locking mit @Version
 
-Füge ein Versionsfeld zur JPA-Entity `JpaBrokerageProcess` hinzu:
+Füge ein Versionsfeld zur JPA-Entity `JpaAntragsMappe` hinzu:
 
 ```java
 
@@ -15,7 +15,7 @@ private Long version;
 
 Schreibe einen Test, der eine `OptimisticLockException` provoziert:
 
-1. Lade denselben `BrokerageProcess` zweimal
+1. Lade dieselbe `AntragsMappe` zweimal
 2. Ändere und speichere die erste Instanz
 3. Ändere und speichere die zweite Instanz - eine `OptimisticLockException` muss
    geworfen werden
@@ -50,11 +50,11 @@ public class DomainException extends RuntimeException {
 
 @SpringBootApplication
 @EnableJpaAuditing
-public class RealEstateCrmApplication { ...
+public class FoerderantragApplication { ...
 }
 ```
 
-2. Füge Audit-Felder zur JPA-Entity `JpaBrokerageProcess` hinzu:
+2. Füge Audit-Felder zur JPA-Entity `JpaAntragsMappe` hinzu:
 
 ```java
 

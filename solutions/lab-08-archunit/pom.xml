@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.realestate</groupId>
-    <artifactId>immobilien-crm-solution-lab-08</artifactId>
+    <groupId>de.foerderung</groupId>
+    <artifactId>foerderantrag-solution-lab-08</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Immobilien CRM - Solution Lab 08: ArchUnit</name>
+    <name>Foerderantragsverwaltung - Solution Lab 08: ArchUnit</name>
     <description>Solution for Lab 08: ArchUnit - Architekturregeln als Tests</description>
 
     <properties>

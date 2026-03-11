@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.realestate</groupId>
-    <artifactId>immobilien-crm-solution-lab-05</artifactId>
+    <groupId>de.foerderung</groupId>
+    <artifactId>foerderantrag-solution-lab-05</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Immobilien CRM - Solution Lab 05: Clean Architecture Refactoring</name>
+    <name>Foerderantragsverwaltung - Solution Lab 05: Clean Architecture Refactoring</name>
     <description>Solution for Lab 05: Clean Architecture Refactoring</description>
 
     <properties>

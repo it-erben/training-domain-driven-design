@@ -133,6 +133,17 @@ Virtual Threads sind ideal für:
 - CPU-intensive Aufgaben - Virtual Threads bringen hier keinen Vorteil
 - ThreadLocal-Abhängigkeiten - manche Libraries nutzen ThreadLocal exzessiv
 
+### Achtung: ThreadLocal-Pinning bei JPA/Hibernate
+
+```
+synchronized-Block in Hibernate (< 6.5) → Carrier Thread wird "gepinnt"
+→ Virtual Thread verliert seinen Vorteil
+```
+
+- Hibernate 6.5+ ist explizit auf Virtual-Thread-Kompatibilität optimiert
+- Spring Boot 4 mit Hibernate 7 → Virtual Threads vollständig unterstützt
+- **Tipp:** `jdk.tracePinnedThreads=full` für Diagnose im Entwickler-Log
+
 ---
 
 ## RestClient - Der moderne HTTP-Client
@@ -250,11 +261,11 @@ Spring Boot 4 unterstützt RFC 9457 (Problem Details for HTTP APIs) nativ.
 
 ```json
 {
-  "type": "https://api.realestate.de/errors/property-not-found",
-  "title": "Property not found",
+  "type": "https://api.foerderung.example/errors/antragsmappe-nicht-gefunden",
+  "title": "AntragsMappe nicht gefunden",
   "status": 404,
-  "detail": "No property with ID 42 exists",
-  "instance": "/api/properties/42"
+  "detail": "Keine AntragsMappe mit ID 550e8400-e29b-41d4-a716-446655440000",
+  "instance": "/api/v1/antragstellung/flurstuecke"
 }
 ```
 
@@ -262,13 +273,17 @@ Spring Boot 4 unterstützt RFC 9457 (Problem Details for HTTP APIs) nativ.
 
 ### Aktivierung von ProblemDetails
 
-Für die Aktivierung ist nur eine Einstellung erforderlich:
+In Spring Boot 4 ist Problem Details **standardmäßig aktiviert**.
+Für Spring Boot 3.x noch explizit notwendig:
 
 ```yaml
+# Spring Boot 3.x — explizit aktivieren
 spring:
   mvc:
     problemdetails:
       enabled: true
+
+# Spring Boot 4.0 — bereits Standard, keine Konfiguration nötig
 ```
 
 ---
@@ -279,13 +294,13 @@ spring:
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(PropertyNotFoundException.class)
-    public ProblemDetail handleNotFound(PropertyNotFoundException ex) {
+    @ExceptionHandler(AntragsmappeNichtGefundenException.class)
+    public ProblemDetail handleNotFound(AntragsmappeNichtGefundenException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND, ex.getMessage());
-        problem.setTitle("Property not found");
-        problem.setType(URI.create("https://api.realestate.de/errors/not-found"));
-        problem.setProperty("propertyId", ex.getPropertyId());
+        problem.setTitle("AntragsMappe nicht gefunden");
+        problem.setType(URI.create(
+            "https://api.foerderung.example/errors/antragsmappe-nicht-gefunden"));
         return problem;
     }
 }
@@ -343,6 +358,25 @@ Die Funktionalität ist identisch - nur der Import ändert sich.
 
 > Im weiteren Workshop werden wir diese Struktur hinterfragen
 > und durch Clean Architecture ersetzen.
+
+---
+
+## Vorschau: Spring Boot in Kubernetes
+
+Eine Spring-Boot-Anwendung in Kubernetes läuft nicht als einzelne Instanz —
+sie läuft als **Menge von Pods**, die gleichzeitig starten, sterben und neustarten.
+
+```
+Was bedeutet das für den Code?
+
+  static boolean jobRunning = false;  // Stimmt für diesen Pod — nicht für alle
+  HashMap<String, Object> cache;      // Leer nach Neustart — unsichtbar für Pod B
+  synchronized void process() { }    // Schützt einen Thread in einer JVM
+```
+
+> **Leitfrage** (kehrt in Modul 16 zurück):
+> *„Was passiert mit diesem Zustand, wenn der Pod jetzt abstürzt?"*
+> Wenn die Antwort „dann ist er weg" nicht akzeptabel ist — gehört er in die Datenbank.
 
 ---
 

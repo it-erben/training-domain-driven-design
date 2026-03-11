@@ -4,34 +4,35 @@
 
 Importiere das Projekt aus `initial-project/` in deine IDE.
 
-## Teil 2: Immobilien-CRUD implementieren
+## Teil 2: Betriebsinhaber-CRUD implementieren
 
-Implementiere eine CRUD-API für Immobilien im Package
-`de.realestate.property`. Die Aufgabe ist bewusst ohne Schritt-für-Schritt-
-Anleitung gehalten, da ihr Spring Boot teilweise schon kennt. 
+Implementiere eine CRUD-API für Betriebsinhaber im Package
+`de.foerderung.betriebsinhaber`. Die Aufgabe ist bewusst ohne Schritt-für-Schritt-
+Anleitung gehalten, da ihr Spring Boot teilweise schon kennt.
 Scheut euch aber nicht,
 Fragen zu stellen, falls etwas nicht funktioniert oder es für euch neu ist.
 
 ### Was zu bauen ist
 
-Entity `Property` (`@Entity`, `@Table(name = "properties")`):
+Entity `Betriebsinhaber` (`@Entity`, `@Table(name = "betriebsinhaber")`):
 
-| Feld            | Typ          | Constraints                         |
-|-----------------|--------------|-------------------------------------|
-| `id`            | `Long`       | `@Id`, `@GeneratedValue(IDENTITY)`  |
-| `title`         | `String`     | `@NotBlank`                         |
-| `street`        | `String`     | `@NotBlank`                         |
-| `postalCode`    | `String`     | `@NotBlank`                         |
-| `city`          | `String`     | `@NotBlank`                         |
-| `livingArea`    | `BigDecimal` | optional                            |
-| `purchasePrice` | `BigDecimal` | optional                            |
+| Feld              | Typ          | Constraints                         |
+|-------------------|--------------|-------------------------------------|
+| `id`              | `Long`       | `@Id`, `@GeneratedValue(IDENTITY)`  |
+| `name`            | `String`     | `@NotBlank`                         |
+| `betriebsnummer`  | `String`     | `@NotBlank`                         |
+| `strasse`         | `String`     | `@NotBlank`                         |
+| `plz`             | `String`     | `@NotBlank`                         |
+| `ort`             | `String`     | `@NotBlank`                         |
+| `betriebsflaeche` | `BigDecimal` | optional (in Hektar)                |
+| `foerdersumme`    | `BigDecimal` | optional                            |
 
-Repository: `PropertyRepository extends JpaRepository<Property, Long>`
+Repository: `BetriebsinhaberRepository extends JpaRepository<Betriebsinhaber, Long>`
 
-Service: `PropertyService` mit `@Service`, Constructor Injection, CRUD-
+Service: `BetriebsinhaberService` mit `@Service`, Constructor Injection, CRUD-
 Methoden (`findAll`, `findById`, `save`, `update`, `delete`)
 
-Controller: `PropertyController` unter `@RequestMapping("/api/properties")`
+Controller: `BetriebsinhaberController` unter `@RequestMapping("/api/betriebsinhaber")`
 
 Die Pfade unten sind relativ zu diesem Basis-Pfad gemeint. In Spring
 MVC sollte das typischerweise so aussehen: `@GetMapping`, `@PostMapping`,
@@ -57,119 +58,122 @@ Hinweise:
 Erweitere `GET /` um Pagination mit `Pageable`:
 
 ```bash
-curl "http://localhost:8080/api/properties?page=0&size=5&sort=title,asc"
+curl "http://localhost:8080/api/betriebsinhaber?page=0&size=5&sort=name,asc"
 ```
 
 ### Teil 2b: Fachliche Geschäftsregeln implementieren (Zusatzaufgabe)
 
-Deine Immobilienverwaltung ist jetzt rechtlich reguliert. Erweitere deine
-`Property`-Entity um ein Status-Feld (`DRAFT`, `ACTIVE`, `RETIRED`) und
-implementiere folgende Regeln in deinen `PropertyService`:
+Die Betriebsinhaber-Verwaltung ist jetzt rechtlich reguliert. Erweitere deine
+`Betriebsinhaber`-Entity um ein Status-Feld (`ENTWURF`, `AKTIV`, `STILLGELEGT`) und
+implementiere folgende Regeln in deinen `BetriebsinhaberService`:
 
-1. Aktivierung: Füge eine Methode `publish(id)` hinzu. Eine Immobilie darf
-   nur veröffentlicht werden (`status = ACTIVE`), wenn alle Adressdaten
-   vorhanden sind und der Titel nicht leer ist.
-2. Preis-Schutz: Wenn eine Immobilie bereits `ACTIVE` ist, darf der
-   `purchasePrice` bei einem Update nicht um mehr als 20% gesenkt werden, ohne
-   dass der Status automatisch zurück auf `DRAFT` gesetzt wird.
-3. Lösch-Schutz: Eine Immobilie im Status `ACTIVE` darf nicht gelöscht
-   werden. Sie muss zuerst manuell auf `RETIRED` gesetzt werden.
+1. Freigabe: Füge eine Methode `freigeben(id)` hinzu. Ein Betriebsinhaber darf
+   nur freigegeben werden (`status = AKTIV`), wenn alle Adressdaten
+   vorhanden sind und der Name nicht leer ist.
+2. Flächen-Schutz: Wenn ein Betriebsinhaber bereits `AKTIV` ist, darf die
+   `betriebsflaeche` bei einem Update nicht um mehr als 20% reduziert werden, ohne
+   dass der Status automatisch zurück auf `ENTWURF` gesetzt wird.
+3. Lösch-Schutz: Ein Betriebsinhaber im Status `AKTIV` darf nicht gelöscht
+   werden. Er muss zuerst manuell auf `STILLGELEGT` gesetzt werden.
 
 Ergänze dafür diese fachlichen Aktionen im Controller:
 
-| HTTP   | Pfad             | Erfolg | Fehler        |
-|--------|------------------|--------|---------------|
-| `POST` | `/{id}/publish`  | 200 OK | 404 / 422     |
-| `POST` | `/{id}/retire`   | 200 OK | 404 Not Found |
+| HTTP   | Pfad              | Erfolg | Fehler        |
+|--------|--------------------|--------|---------------|
+| `POST` | `/{id}/freigeben`  | 200 OK | 404 / 422     |
+| `POST` | `/{id}/stilllegen` | 200 OK | 404 Not Found |
 
 Hinweis zur Modellierung:
 
 - Die API aus Teil 2 verhindert durch Bean Validation bereits, dass
-  unvollständige Immobilien regulär angelegt werden.
-- Die `publish`-Regel ist trotzdem sinnvoll: Sie schützt gegen inkonsistente
+  unvollständige Betriebsinhaber regulär angelegt werden.
+- Die `freigeben`-Regel ist trotzdem sinnvoll: Sie schützt gegen inkonsistente
   Bestandsdaten, Importe, technische Hintertüren oder spätere Änderungen.
 
 #### Verifikation
 
 ```bash
-# Erzeuge eine Immobilie
-curl -X POST http://localhost:8080/api/properties \
+# Erzeuge einen Betriebsinhaber
+curl -X POST http://localhost:8080/api/betriebsinhaber \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Einfamilienhaus am Stadtpark",
-    "street": "Parkstraße 42",
-    "postalCode": "50667",
-    "city": "Köln",
-    "livingArea": 145.5,
-    "purchasePrice": 485000
+    "name": "Landwirtschaftsbetrieb Müller",
+    "betriebsnummer": "DE-NRW-2026-0042",
+    "strasse": "Am Feldrain 7",
+    "plz": "50667",
+    "ort": "Köln",
+    "betriebsflaeche": 145.5,
+    "foerdersumme": 48500
   }'
 # → HTTP 201, JSON mit generierter ID
 
 # Alle abfragen
-curl http://localhost:8080/api/properties
+curl http://localhost:8080/api/betriebsinhaber
 # → HTTP 200, JSON-Array
 
 # Einzelne abfragen
-curl http://localhost:8080/api/properties/1
+curl http://localhost:8080/api/betriebsinhaber/1
 # → HTTP 200
 
 # Aktualisieren
-curl -X PUT http://localhost:8080/api/properties/1 \
+curl -X PUT http://localhost:8080/api/betriebsinhaber/1 \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Einfamilienhaus am Stadtpark (renoviert)",
-    "street": "Parkstraße 42",
-    "postalCode": "50667",
-    "city": "Köln",
-    "livingArea": 155.0,
-    "purchasePrice": 525000
+    "name": "Landwirtschaftsbetrieb Müller (erweitert)",
+    "betriebsnummer": "DE-NRW-2026-0042",
+    "strasse": "Am Feldrain 7",
+    "plz": "50667",
+    "ort": "Köln",
+    "betriebsflaeche": 160.0,
+    "foerdersumme": 52000
   }'
 # → HTTP 200
 
 # Validation testen
-curl -X POST http://localhost:8080/api/properties \
+curl -X POST http://localhost:8080/api/betriebsinhaber \
   -H "Content-Type: application/json" \
-  -d '{"title": "", "street": "", "postalCode": "", "city": ""}'
+  -d '{"name": "", "betriebsnummer": "", "strasse": "", "plz": "", "ort": ""}'
 # → HTTP 400, Validierungsfehler
 
-# Veröffentlichen
-curl -X POST http://localhost:8080/api/properties/1/publish
-# → HTTP 200, Status = ACTIVE
+# Freigeben
+curl -X POST http://localhost:8080/api/betriebsinhaber/1/freigeben
+# → HTTP 200, Status = AKTIV
 
-# Preis stark senken
-curl -X PUT http://localhost:8080/api/properties/1 \
+# Fläche stark reduzieren
+curl -X PUT http://localhost:8080/api/betriebsinhaber/1 \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Einfamilienhaus am Stadtpark (Preis reduziert)",
-    "street": "Parkstraße 42",
-    "postalCode": "50667",
-    "city": "Köln",
-    "livingArea": 155.0,
-    "purchasePrice": 350000
+    "name": "Landwirtschaftsbetrieb Müller (reduziert)",
+    "betriebsnummer": "DE-NRW-2026-0042",
+    "strasse": "Am Feldrain 7",
+    "plz": "50667",
+    "ort": "Köln",
+    "betriebsflaeche": 80.0,
+    "foerdersumme": 52000
   }'
-# → HTTP 200, Status springt zurück auf DRAFT
+# → HTTP 200, Status springt zurück auf ENTWURF
 
-# Zurück in ACTIVE setzen
-curl -X POST http://localhost:8080/api/properties/1/publish
-# → HTTP 200, Status = ACTIVE
+# Zurück in AKTIV setzen
+curl -X POST http://localhost:8080/api/betriebsinhaber/1/freigeben
+# → HTTP 200, Status = AKTIV
 
-# Löschen einer aktiven Immobilie blockieren
-curl -X DELETE http://localhost:8080/api/properties/1
+# Löschen eines aktiven Betriebsinhabers blockieren
+curl -X DELETE http://localhost:8080/api/betriebsinhaber/1
 # → HTTP 422
 
-# Immobilie zuerst in RETIRED überführen
-curl -X POST http://localhost:8080/api/properties/1/retire
-# → HTTP 200, Status = RETIRED
+# Betriebsinhaber zuerst stilllegen
+curl -X POST http://localhost:8080/api/betriebsinhaber/1/stilllegen
+# → HTTP 200, Status = STILLGELEGT
 
 # Jetzt löschen
-curl -X DELETE http://localhost:8080/api/properties/1 -w "\n%{http_code}\n"
+curl -X DELETE http://localhost:8080/api/betriebsinhaber/1 -w "\n%{http_code}\n"
 # → HTTP 204
 
-# Publish-Regel gegen inkonsistente Bestandsdaten demonstrieren:
-# 1. Eine zweite gültige Immobilie anlegen (z. B. ID 2)
-# 2. In der H2-Console street oder title dieser Immobilie direkt auf '' setzen
-# 3. Dann publish erneut aufrufen
-curl -X POST http://localhost:8080/api/properties/2/publish
+# Freigabe-Regel gegen inkonsistente Bestandsdaten demonstrieren:
+# 1. Einen zweiten gültigen Betriebsinhaber anlegen (z. B. ID 2)
+# 2. In der H2-Console strasse oder name direkt auf '' setzen
+# 3. Dann freigeben erneut aufrufen
+curl -X POST http://localhost:8080/api/betriebsinhaber/2/freigeben
 # → Erwartet: HTTP 422
 ```
 
@@ -178,22 +182,22 @@ curl -X POST http://localhost:8080/api/properties/2/publish
 Erweitere deine CRUD-API um Features, die in Spring Boot 4 / Hibernate 7 neu
 sind.
 
-### 3a: Address als Embeddable Record
+### 3a: Betriebsadresse als Embeddable Record
 
 Hibernate 7 unterstützt Java Records als `@Embeddable`. Extrahiere die
-Adressfelder (`street`, `postalCode`, `city`) in einen eigenen Record:
+Adressfelder (`strasse`, `plz`, `ort`) in einen eigenen Record:
 
 ```java
 @Embeddable
-public record Address(
-    @NotBlank String street,
-    @NotBlank String postalCode,
-    @NotBlank String city
+public record Betriebsadresse(
+    @NotBlank String strasse,
+    @NotBlank String plz,
+    @NotBlank String ort
 ) {}
 ```
 
-Ersetze in der `Property`-Entity die drei Einzelfelder durch ein eingebettetes
-`Address`-Feld (`@NotNull @Valid @Embedded`). Passe Service und Controller
+Ersetze in der `Betriebsinhaber`-Entity die drei Einzelfelder durch ein eingebettetes
+`Betriebsadresse`-Feld (`@NotNull @Valid @Embedded`). Passe Service und Controller
 entsprechend an.
 
 > Hinweis: Die JSON-Struktur ändert sich dadurch - die Adresse wird ein
@@ -201,41 +205,42 @@ entsprechend an.
 >
 > ```json
 > {
->   "title": "Einfamilienhaus am Stadtpark",
->   "address": {
->     "street": "Parkstraße 42",
->     "postalCode": "50667",
->     "city": "Köln"
+>   "name": "Landwirtschaftsbetrieb Müller",
+>   "betriebsnummer": "DE-NRW-2026-0042",
+>   "adresse": {
+>     "strasse": "Am Feldrain 7",
+>     "plz": "50667",
+>     "ort": "Köln"
 >   },
->   "livingArea": 145.5,
->   "purchasePrice": 485000
+>   "betriebsflaeche": 145.5,
+>   "foerdersumme": 48500
 > }
 > ```
 
 ### 3b: Soft Delete mit @SoftDelete
 
 Hibernate 7 bietet `@SoftDelete` für logisches Löschen ohne eigene
-Implementierung. Füge die Annotation zur `Property`-Entity hinzu:
+Implementierung. Füge die Annotation zur `Betriebsinhaber`-Entity hinzu:
 
 ```java
 import org.hibernate.annotations.SoftDelete;
 
 @Entity
-@Table(name = "properties")
+@Table(name = "betriebsinhaber")
 @SoftDelete
-public class Property { ... }
+public class Betriebsinhaber { ... }
 ```
 
 Verifiziere:
 
-1. Erstelle eine Immobilie und lösche sie per `DELETE /api/properties/{id}`
+1. Erstelle einen Betriebsinhaber und lösche ihn per `DELETE /api/betriebsinhaber/{id}`
 2. Prüfe in der H2-Console (`http://localhost:8080/h2-console`):
    der Datensatz existiert noch, hat aber eine `deleted`-Spalte mit Wert `true`
-3. `GET /api/properties` gibt die gelöschte Immobilie nicht mehr zurück
+3. `GET /api/betriebsinhaber` gibt den gelöschten Eintrag nicht mehr zurück
 
 H2-Login:
 
-- JDBC URL: `jdbc:h2:mem:realestate`
+- JDBC URL: `jdbc:h2:mem:foerderung`
 - User Name: `sa`
 - Password: leer
 
@@ -252,8 +257,8 @@ Spring Boot 4 unterstützt RFC 9457 (Problem Details) nativ.
          enabled: true
    ```
 
-2. Erstelle eine `PropertyNotFoundException extends RuntimeException` mit
-   einem `propertyId`-Feld.
+2. Erstelle eine `BetriebsinhaberNotFoundException extends RuntimeException` mit
+   einem `betriebsinhaberId`-Feld.
 
 3. Erstelle einen `@RestControllerAdvice` mit `@ExceptionHandler`, der ein
    `ProblemDetail`-Objekt zurückgibt (siehe Modul-02-Slides).
@@ -261,16 +266,16 @@ Spring Boot 4 unterstützt RFC 9457 (Problem Details) nativ.
 4. Passe den Controller an: Statt `ResponseEntity.notFound().build()` wird
    jetzt die Exception geworfen (z.B. per `.orElseThrow()`).
 
-Erwartete Antwort bei `GET /api/properties/999`:
+Erwartete Antwort bei `GET /api/betriebsinhaber/999`:
 
 ```json
 {
   "type": "about:blank",
-  "title": "Property not found",
+  "title": "Betriebsinhaber nicht gefunden",
   "status": 404,
-  "detail": "No property with ID 999 exists",
-  "instance": "/api/properties/999",
-  "propertyId": 999
+  "detail": "Kein Betriebsinhaber mit ID 999 vorhanden",
+  "instance": "/api/betriebsinhaber/999",
+  "betriebsinhaberId": 999
 }
 ```
 

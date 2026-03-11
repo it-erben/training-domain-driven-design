@@ -4,7 +4,7 @@ Workshop S2090 - GFU Cyrus AG | 5 Tage
 
 Praxisorientierter Workshop für erfahrene Java-Entwickler und
 Software-Architekten. Anhand einer durchgängigen Übungsdomäne -
-einem Immobilien-CRM für Makler - werden Domain-Driven Design und
+der Förderantragsverwaltung (Landwirtschaft/ELER) - werden Domain-Driven Design und
 Clean Architecture Schritt für Schritt mit Spring Boot 4 umgesetzt.
 
 ---
@@ -114,18 +114,18 @@ demselben Namen mit `.png`-Endung abgelegt (z. B.
 
 ---
 
-## Übungsdomäne: Immobilien-CRM
+## Übungsdomäne: Förderantragsverwaltung (Landwirtschaft/ELER)
 
-Die durchgängige Übungsdomäne umfasst sechs Bounded Contexts:
+Die durchgängige Übungsdomäne (Bearbeitung eines ELER-Flächenantrags) umfasst folgende Bounded Contexts:
 
 | Bounded Context | Beschreibung |
 |-----------------|-------------|
-| Objektverwaltung | Immobilien erfassen, bewerten, Stammdaten pflegen |
-| Kontaktmanagement | Eigentümer, Interessenten und Kontaktdaten verwalten |
-| Akquise / Auftrag | Maklerverträge anbahnen und abschließen |
-| Vermarktung | Exposés erstellen, Inserate auf Portalen schalten |
-| Vermittlungsprozess | Besichtigungen, Angebote, Notartermine - die Deal Pipeline |
-| Aktivitäten / Kommunikation | Termine, Aufgaben, E-Mails und Telefonate protokollieren |
+| Antragstellung | Anträge und Mappen erfassen, Flurstücke digitalisieren |
+| Fachliche Prüfung | Kontrollen durchführen, Bonität und Fristen prüfen |
+| Auszahlung / ZA | Auszahlungsanträge bearbeiten, Zahlungsbeträge berechnen |
+| Auswertung / Monitoring | Analytics und Dashboarding von Antragsdaten |
+| Bescheidversand | Erstellung und Versand von PDF-Bescheiden |
+| Datenaustausch / Externe | Synchronisation von Referenzflächen und externen Systemen |
 
 ---
 

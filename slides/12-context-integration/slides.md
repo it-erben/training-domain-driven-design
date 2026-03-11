@@ -16,6 +16,8 @@ Geschätzte Dauer: ca. 60 Minuten
 
 - Context-Mapping-Patterns (aus Modul 05) technisch umsetzen
 - Anti-Corruption Layer zwischen Bounded Contexts implementieren
+- Den Unterschied zwischen At-Most-Once und At-Least-Once Delivery verstehen
+- Transactional Outbox Pattern als Lösung für zuverlässige Event-Zustellung kennen
 - Idempotente Event-Verarbeitung sicherstellen
 - Den Weg von In-Process Events zu Kafka nachvollziehen
 - Wissen, wo ACL-Code in der Paketstruktur lebt
@@ -27,13 +29,46 @@ Geschätzte Dauer: ca. 60 Minuten
 - Bounded Contexts sind bewusst voneinander getrennt
 - Trotzdem müssen Geschäftsprozesse kontextübergreifend ablaufen
 
-### Beispiel im Immobilien-CRM
+### Beispiel in der Förderantragsverwaltung
 
-![Akquise Vermittlung Event](images/akquise-vermittlung-event.drawio.svg)
+- `Antragstellung` publiziert `AntragsmappeEingereicht`
+- `Fachliche Prüfung` reagiert darauf und startet einen `Pruefvorgang`
 
 - Lose Kopplung durch Events statt direkte Methodenaufrufe
 - Jeder BC behält seine eigene Ubiquitous Language
 - Die Übersetzung findet im Anti-Corruption Layer statt
+
+---
+<style scoped>section { font-size: 1.55em; }</style>
+
+## Praxisbeispiel: 330 MDBs = 330 unvollständige ACLs
+
+### Das Problem in gewachsenen Systemen
+
+In manchen Systemen läuft die gesamte BC-Kommunikation über **JMS Topics**:
+
+```
+Antragstellung  ──[topic/AenderungAnRegisterable]──►  217 MDBs im Legacy-System
+                ──[topic/ZaPositivEntschieden]──────►  Auszahlung-MDBs
+                ──[topic/ZaZahlungVermerken]────────►  Bescheid-MDBs
+```
+
+**Was wir haben:** 330 `@MessageDriven`-Beans, die auf JMS-Topics hören.
+
+**Was DDD draus macht:** 330 potenzielle Anti-Corruption Layers — nur leider ohne den entscheidenden Teil: den **Translator**.
+
+```java
+// Was heute in jeder MDB passiert — direkt, ohne Übersetzung:
+@Override
+public void onMessage(Message message) {
+    AenderungAnElerAntragsMappe aend =
+        (AenderungAnElerAntragsMappe) ((ObjectMessage) message).getObject();
+    // ↑ Fremdes Domänenobjekt direkt verwendet — das ist Conformist, kein ACL!
+    optimusPrime.synchronisiere(aend.getRegistrationNumber());
+}
+```
+
+> Ziel dieses Moduls: Verstehen, was fehlt — und wie man es richtig macht.
 
 ---
 <style scoped>section { font-size: 1.7em; }</style>
@@ -62,23 +97,21 @@ Geschätzte Dauer: ca. 60 Minuten
 ### Schritt 1: Event im publizierenden BC definieren
 
 ```java
-// Public API of the Acquisition module (NOT in internal/)
-package de.realestate.acquisition;
+// Public API of the Antragstellung module (NOT in internal/)
+package de.foerderung.antragstellung;
 
-public record ContractSignedEvent(
-    UUID contractId,
-    UUID propertyId,
-    UUID ownerId,
-    Instant occurredAt
+public record AntragsmappeEingereicht(
+    UUID antragsmappeId,
+    String registrierungsNummer,
+    Instant eingereichtAm
 ) {
-    public ContractSignedEvent(
-            UUID contractId, UUID propertyId, UUID ownerId) {
-        this(contractId, propertyId, ownerId, Instant.now());
+    public AntragsmappeEingereicht(UUID antragsmappeId, String registrierungsNummer) {
+        this(antragsmappeId, registrierungsNummer, Instant.now());
     }
 }
 ```
 
-- Event verwendet primitive Typen (UUID) - keine Value Objects des BCs
+- Event verwendet primitive Typen (UUID, String) - keine Value Objects des BCs
 - Liegt im Root-Package des Moduls = öffentliche API
 - Andere Module dürfen dieses Record importieren
 
@@ -90,22 +123,23 @@ public record ContractSignedEvent(
 ### Schritt 2: Application Service dispatched nach dem Speichern
 
 ```java
-package de.realestate.acquisition.internal;
+package de.foerderung.antragstellung.internal;
 
 @Service
 @RequiredArgsConstructor
-public class CloseContractService {
+public class AntragEinreichenService implements AntragEinreichen {
 
-    private final BrokerageContractRepository repository;
+    private final AntragsMappeRepository repository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public void close(BrokerageContractId id) {
-        var contract = repository.findById(id).orElseThrow();
-        contract.close();
-        repository.save(contract);
-        contract.domainEvents().forEach(eventPublisher::publishEvent);
-        contract.clearDomainEvents();
+    @Override
+    public void execute(AntragEinreichenCommand cmd) {
+        var mappe = repository.findById(cmd.antragsmappeId()).orElseThrow();
+        mappe.einreichen();
+        repository.save(mappe);
+        mappe.domainEvents().forEach(eventPublisher::publishEvent);
+        mappe.clearDomainEvents();
     }
 }
 ```
@@ -117,9 +151,9 @@ public class CloseContractService {
 
 ### Das Problem
 
-- Das Event `ContractSignedEvent` spricht die Akquise-Sprache
-- Der Vermittlung BC kennt keine "Maklerverträge" - er hat eigene Begriffe
-- Ohne ACL: Akquise-Konzepte "infizieren" das Vermittlung-Domänenmodell
+- Das Event `AntragsmappeEingereicht` spricht die Antragstellungs-Sprache
+- Der Prüfungs-BC kennt keine "AntragsMappe" - er arbeitet mit `Pruefvorgang`
+- Ohne ACL: Antragstellungs-Konzepte "infizieren" das Prüfungs-Domänenmodell
 
 ![h:250](images/acl-konzept.drawio.svg)
 
@@ -131,18 +165,18 @@ public class CloseContractService {
 ### Paketstruktur des konsumierenden BC
 
 ```
-de.realestate.brokerage
-├── BrokerageApi.java                ← öffentliche API
+de.foerderung.pruefung
+├── PruefungApi.java                 ← öffentliche API
 ├── internal
 │   ├── domain
 │   │   └── model
-│   │       └── BrokerageProcess.java
+│   │       └── Pruefvorgang.java
 │   ├── application
-│   │   └── StartBrokerageService.java
+│   │   └── PruefungStartenService.java
 │   └── adapter
 │       └── acl                      ← Anti-Corruption Layer
-│           ├── AcquisitionEventTranslator.java
-│           └── AcquisitionEventListener.java
+│           ├── AntragstellungEventTranslator.java
+│           └── AntragstellungEventListener.java
 ```
 
 - Der ACL ist ein Adapter des konsumierenden BC
@@ -155,17 +189,17 @@ de.realestate.brokerage
 ## ACL-Implementierung: Translator
 
 ```java
-package de.realestate.brokerage.internal.adapter.acl;
+package de.foerderung.pruefung.internal.adapter.acl;
 
 @Component
-public class AcquisitionEventTranslator {
+public class AntragstellungEventTranslator {
 
-    public StartBrokerageCommand translate(
-            ContractSignedEvent event) {
-        return new StartBrokerageCommand(
-            new PropertyReference(event.propertyId()),
-            new ContractReference(event.contractId()),
-            LocalDate.now()
+    public PruefungStartenCommand translate(
+            AntragsmappeEingereicht event) {
+        return new PruefungStartenCommand(
+            new AntragsReferenz(event.antragsmappeId()),
+            new RegistrierungsNummer(event.registrierungsNummer()),
+            event.eingereichtAm()
         );
     }
 }
@@ -173,7 +207,7 @@ public class AcquisitionEventTranslator {
 
 - Fremde IDs werden in eigene Value Objects gewrappt
 - Fremde Begriffe werden in eigene Domänensprache übersetzt
-- `ContractSignedEvent` (Akquise) → `StartBrokerageCommand` (Vermittlung)
+- `AntragsmappeEingereicht` (Antragstellung) → `PruefungStartenCommand` (Prüfung)
 - Der Translator ist ein reiner Mapper - keine Geschäftslogik
 
 ---
@@ -182,17 +216,17 @@ public class AcquisitionEventTranslator {
 ## ACL-Implementierung: Event Listener
 
 ```java
-package de.realestate.brokerage.internal.adapter.acl;
+package de.foerderung.pruefung.internal.adapter.acl;
 
 @Component
 @RequiredArgsConstructor
-public class AcquisitionEventListener {
+public class AntragstellungEventListener {
 
-    private final AcquisitionEventTranslator translator;
-    private final StartBrokerageService service;
+    private final AntragstellungEventTranslator translator;
+    private final PruefungStartenService service;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void on(ContractSignedEvent event) {
+    public void on(AntragsmappeEingereicht event) {
         var command = translator.translate(event);
         service.start(command);
     }
@@ -200,9 +234,196 @@ public class AcquisitionEventListener {
 ```
 
 - Listener delegiert sofort an den Translator - Application Service kennt nur eigene Commands
-- Keine Abhängigkeit des Vermittlung-Domänenmodells auf Akquise-Klassen
+- Keine Abhängigkeit des Prüfungs-Domänenmodells auf Antragstellungs-Klassen
 - `AFTER_COMMIT`: Listener läuft nach der Publisher-Transaktion - ohne Retry.
   Bei Fehler geht das Event verloren (At-Most-Once)
+
+---
+<style scoped>section { font-size: 1.55em; }</style>
+
+## Transactional Outbox Pattern: Zuverlässige Event-Zustellung
+
+### Das Problem mit `@TransactionalEventListener(phase = AFTER_COMMIT)`
+
+```
+Transaktion committed  ✅
+   → Event wird an Listener gesendet
+      → Listener-JVM crasht / DB down     ❌  Event verloren!
+```
+
+At-Most-Once reicht nicht aus, wenn Events Geschäftsprozesse auslösen.
+
+### Die Lösung: Outbox-Tabelle in derselben Transaktion
+
+```java
+@Transactional
+public void execute(AntragEinreichenCommand cmd) {
+    var mappe = repository.findById(cmd.antragsmappeId()).orElseThrow();
+    mappe.einreichen();
+    repository.save(mappe);
+    // Event wird in outbox_events-Tabelle gespeichert — gleiche Transaktion!
+    outboxRepository.save(new OutboxEvent("AntragsmappeEingereicht",
+        mappe.getId().toString(), serialize(mappe.domainEvents())));
+}
+```
+
+Ein separater **Outbox-Poller** liest unverarbeitete Events und publiziert sie:
+
+```java
+@Scheduled(fixedDelay = 500)
+@Transactional
+public void poll() {
+    // Wichtig: Limit! findUnpublished() ohne Limit → OOM bei Rückstau
+    outboxRepository.findTopUnpublished(100).forEach(event -> {
+        eventPublisher.publishEvent(deserialize(event));
+        outboxRepository.markPublished(event.getId());
+    });
+    // 0 verarbeitete Events = fertig; nächster Durchlauf in 500 ms
+}
+```
+
+> **OOM-Falle:** `findAllUnpublished()` ohne Limit lädt bei einem Backlog
+> von 50.000 Events alles in den Heap — Pod-Kill garantiert.
+> Immer in Batches verarbeiten (`findTop100...`, `LIMIT 100`).
+
+> Garantie: Event wird genau dann publiziert, wenn der Domänen-Zustand
+> persistiert wurde. Crash vor dem Poller → Event bleibt in der Outbox → Retry.
+
+---
+<style scoped>section { font-size: 1.6em; }</style>
+
+## Outbox: Spring Modulith EventPublicationRegistry
+
+Spring Modulith bietet eine fertige Outbox-Implementierung:
+
+```java
+// Keine manuelle outbox_events-Tabelle nötig!
+// Spring Modulith schreibt Events automatisch in JDBC-backed Registry
+
+@Transactional
+public void execute(AntragEinreichenCommand cmd) {
+    var mappe = repository.findById(cmd.antragsmappeId()).orElseThrow();
+    mappe.einreichen();
+    repository.save(mappe);
+    mappe.domainEvents().forEach(eventPublisher::publishEvent);
+    // ↑ Spring Modulith speichert Events in event_publication-Tabelle
+    //   und markiert sie nach erfolgreichem Listener als COMPLETED
+}
+```
+
+```java
+// Unvollendete Events (z.B. nach Absturz) werden automatisch redelivered:
+@TransactionalEventListener
+public void on(AntragsmappeEingereicht event) {
+    // Bei Fehler: Event bleibt als INCOMPLETE → Spring Modulith redelivert
+    pruefungService.start(translator.translate(event));
+}
+```
+
+| Eigenschaft | Ohne Outbox | Mit Spring Modulith Outbox |
+|-------------|-------------|---------------------------|
+| Delivery | At-Most-Once | At-Least-Once |
+| Crash-Sicherheit | Events verloren | Events bleiben erhalten |
+| Infrastruktur | Keine | JDBC-Tabelle (kein Kafka nötig) |
+| Idempotenz | Optional | Pflicht |
+
+> Santana, „Domain-Driven Design with Java" (2026), Kap. 10:
+> Reliable Event Publishing mit Outbox Pattern
+
+---
+<style scoped>section { font-size: 1.4em; }</style>
+
+## Praxisbeispiel: MDB → ACL — die Transformation
+
+### Was wir haben (Legacy EJB — Conformist, kein ACL)
+
+```java
+// ElerMonitorResultItemSynchronizerMDB.java — Ist-Zustand
+@MessageDriven(activationConfig = {
+    @ActivationConfigProperty(propertyName = "destination",
+        propertyValue = "topic/AenderungAnRegisterable"),
+    @ActivationConfigProperty(propertyName = "messageSelector",
+        propertyValue = "messageObjectClass= 'de.legacy.antrag.basis.allg.business" +
+                        ".AenderungAnElerAntragsMappe'") })
+public class ElerMonitorResultItemSynchronizerMDB implements MessageListener {
+    @Override
+    public void onMessage(Message message) {
+        // ❌ Direkte Verwendung des fremden Domänenobjekts — kein Translator!
+        AenderungAnElerAntragsMappe aend =
+            (AenderungAnElerAntragsMappe) ((ObjectMessage) message).getObject();
+        if (aend.getAenderungsArt() == UPDATED)
+            optimusPrime.synchronisiere(aend.getRegistrationNumber());
+    }
+}
+```
+
+**Diagnose:** `messageSelector` = Event-Routing ✅ | Translator = fehlt ❌ | Eigenes Modell im Auswertungs-BC = fehlt ❌
+
+---
+<style scoped>section { font-size: 1.4em; }</style>
+
+## MDB → ACL — so sollte es aussehen
+
+### Schritt 1: Integrations-Event als öffentliche API des publizierenden BC
+
+```java
+// Paket: de.foerderung.antragstellung  (öffentliche API, NICHT internal/)
+public record AntragsmappeGeaendert(
+    String registrierungsNummer,  // primitive ID, kein AntragsMappe-Objekt!
+    AenderungsArt aenderungsArt,
+    Instant geaendertAm
+) {}
+
+public enum AenderungsArt { AKTUALISIERT, REAKTIVIERT, ENTFERNT, ARCHIVIERT }
+```
+
+### Schritt 2: Translator im Auswertungs-BC (der fehlende ACL-Teil)
+
+```java
+// Paket: de.foerderung.auswertung.internal.adapter.acl
+@Component
+class AntragsmappeEventTranslator {
+    MonitoringSynchronisierenCommand translate(AntragsmappeGeaendert event) {
+        return new MonitoringSynchronisierenCommand(
+            new AntragsReferenz(event.registrierungsNummer()), // eigenes VO!
+            MonitoringsStatus.from(event.aenderungsArt())     // eigene Enum!
+        );
+    }
+}
+
+// Paket: de.foerderung.auswertung.internal.adapter.acl
+@Component @RequiredArgsConstructor
+class AntragsmappeEventListener {
+    private final AntragsmappeEventTranslator translator;
+    private final MonitoringService monitoringService;
+
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    void on(AntragsmappeGeaendert event) {             // ← fremder Typ (public API)
+        monitoringService.synchronisiere(              // ← eigener Service
+            translator.translate(event));              // ← ACL-Übersetzung
+    }
+}
+```
+
+---
+<style scoped>section { font-size: 1.55em; }</style>
+
+## JMS-Konzepte → DDD-Konzepte
+
+| JMS / EJB (Legacy-System) | Spring / DDD (modernes System) |
+|---------------------------|--------------------------------|
+| `@MessageDriven` | `@TransactionalEventListener` |
+| `topic/AenderungAnRegisterable` | `ApplicationEventPublisher.publishEvent()` |
+| `messageSelector` auf `messageObjectClass` | Java-Typ-basiertes Event-Routing (automatisch) |
+| `MessageListener.onMessage()` | Event-Handler-Methode |
+| `subscriptionDurability = Durable` | `@TransactionalEventListener(phase=AFTER_COMMIT)` |
+| `ObjectMessage` + Cast | Typsicheres Java Record |
+| JMS Topic (Pub/Sub, 1:n) | Spring Event mit mehreren `@EventListener` |
+| JMS Queue (Point-to-Point) | Command per direktem Service-Aufruf |
+| `maxSession = 1` | Thread-Pool-Konfiguration via `@Async` |
+
+> Der `messageSelector` auf `messageObjectClass` ist **kein** ACL — er ist Event-Routing.
+> Der ACL ist der Translator, der aus dem fremden Typ einen eigenen Command macht.
 
 ---
 <style scoped>section { font-size: 1.3em; }</style>
@@ -212,27 +433,27 @@ public class AcquisitionEventListener {
 ### Das Problem bei At-Least-Once Delivery
 
 - Events können mehrfach zugestellt werden (Crash, Retry, Redelivery)
-- Ohne Idempotenz: Vermittlungsvorgang wird doppelt angelegt
+- Ohne Idempotenz: Pruefvorgang wird doppelt angelegt
 
 ### Lösung: Idempotenz-Check im Service
 
 ```java
 @Service
-public class StartBrokerageService {
+public class PruefungStartenService {
 
-    private final BrokerageProcessRepository repository;
+    private final PruefvorgangRepository repository;
 
     @Transactional
-    public void start(StartBrokerageCommand cmd) {
-        // Idempotency: already exists?
-        if (repository.existsByContractReference(cmd.contractReference())) {
-            log.info("Brokerage for contract {} already exists",
-                cmd.contractReference());
+    public void start(PruefungStartenCommand cmd) {
+        // Idempotenz: bereits vorhanden?
+        if (repository.existsByAntragsReferenz(cmd.antragsReferenz())) {
+            log.info("Pruefvorgang fuer Antrag {} bereits vorhanden",
+                cmd.antragsReferenz());
             return;
         }
-        var process = BrokerageProcess.create(
-            ProcessId.generate(), cmd.propertyReference(), cmd.contractReference());
-        repository.save(process);
+        var pruefvorgang = Pruefvorgang.starten(
+            PruefvorgangId.generate(), cmd.antragsReferenz(), cmd.eingereichtAm());
+        repository.save(pruefvorgang);
     }
 }
 ```
@@ -252,7 +473,7 @@ public class StartBrokerageService {
 
 ```java
 // In-Process: Spring ApplicationEventPublisher
-eventPublisher.publishEvent(new ContractSignedEvent(...));
+eventPublisher.publishEvent(new AntragsmappeEingereicht(...));
 ```
 
 ### Als Microservices: Producer (später)
@@ -263,9 +484,9 @@ public class KafkaEventPublisher {
     private final KafkaTemplate<String, Object> kafka;
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void on(ContractSignedEvent event) {
-        kafka.send("acquisition.contract.signed",
-            event.contractId().toString(), event);
+    public void on(AntragsmappeEingereicht event) {
+        kafka.send("antragstellung.antragsmappe.eingereicht",
+            event.antragsmappeId().toString(), event);
     }
 }
 ```
@@ -275,11 +496,11 @@ public class KafkaEventPublisher {
 ## Ausblick: Kafka Consumer
 
 ```java
-@KafkaListener(topics = "acquisition.contract.signed",
-    groupId = "brokerage")
+@KafkaListener(topics = "antragstellung.antragsmappe.eingereicht",
+    groupId = "pruefung")
 public void consume(@Payload String payload) {
     var event = objectMapper.readValue(
-        payload, ContractSignedEvent.class);
+        payload, AntragsmappeEingereicht.class);
     var command = translator.translate(event);
     service.start(command);
 }
@@ -293,18 +514,18 @@ public void consume(@Payload String payload) {
 
 ## Ausblick: Kafka - Was ändert sich?
 
-| Aspekt | In-Process (Modulith) | Kafka (Microservices) |
-|--------|----------------------|----------------------|
-| Transport | Methodenaufruf | Netzwerk (Topic) |
-| Garantie | At-Most-Once (AFTER_COMMIT) | At-Least-Once |
-| Serialisierung | Java Objekt | JSON / Avro |
-| Idempotenz | Empfohlen | Pflicht |
-| ACL-Code | Identisch | Identisch |
-| Reihenfolge | Garantiert (synchroner Listener) | Nur pro Partition |
+| Aspekt | In-Process ohne Outbox | In-Process + Outbox | Kafka |
+|--------|----------------------|----------------------|-------|
+| Transport | Methodenaufruf | Methodenaufruf | Netzwerk (Topic) |
+| Garantie | At-Most-Once | At-Least-Once | At-Least-Once |
+| Serialisierung | Java Objekt | Java Objekt | JSON / Avro |
+| Idempotenz | Empfohlen | **Pflicht** | **Pflicht** |
+| ACL-Code | Identisch | Identisch | Identisch |
+| Reihenfolge | Garantiert | Garantiert | Nur pro Partition |
 
-- Gleiche ACL-Logik - nur der Transport ändert sich
-- `@Externalized` (Spring Modulith) bereitet den Übergang vor
-- Kafka garantiert At-Least-Once → Idempotenz immer beachten
+- Gleiche ACL-Logik — nur der Transport ändert sich
+- `@Externalized` (Spring Modulith) bereitet den Übergang zu Kafka vor
+- Kafka und Outbox garantieren At-Least-Once → Idempotenz ist Pflicht
 
 ---
 
@@ -313,6 +534,9 @@ public void consume(@Payload String payload) {
 - Context Integration verbindet Bounded Contexts über Events
 - Der Anti-Corruption Layer übersetzt fremde Konzepte in die eigene Sprache
 - ACL lebt in der Adapter-Schicht des konsumierenden BC
+- `@TransactionalEventListener(AFTER_COMMIT)` = At-Most-Once: Events können verloren gehen
+- **Transactional Outbox Pattern** löst das Problem: Event in gleicher Transaktion wie Domänen-Zustand persistieren
+- Spring Modulith EventPublicationRegistry = fertige Outbox-Implementierung ohne Kafka
 - Idempotenz ist Pflicht bei At-Least-Once Delivery
 - Von In-Process → Kafka: ACL-Code bleibt gleich, nur Transport ändert sich
 - Öffentliche Event-API: primitive Typen, im Root-Package des Moduls
@@ -330,25 +554,82 @@ Event-Entscheidungsbaum:
 
 ### Aufgabe
 
-Implementiert Cross-BC-Integration im Immobilien-CRM:
+Implementiert Cross-BC-Integration in der Förderantragsverwaltung:
 
-1. Domain Event `ContractSignedEvent` im Akquise-Modul erstellen
+1. Domain Event `AntragsmappeEingereicht` im Antragstellung-Modul erstellen
 2. Event über `ApplicationEventPublisher` publizieren (Event Collection Pattern)
-3. ACL-Translator im Vermittlung-Modul implementieren
+3. ACL-Translator im Prüfung-Modul implementieren
 4. `@TransactionalEventListener` registrieren
 5. Idempotenz-Check im Application Service einbauen
-6. Vermittlungsvorgang automatisch anlegen lassen
+6. `Pruefvorgang` automatisch anlegen lassen
 
 > Dauer: ca. 45 Minuten
 
 ---
 
-## Diskussion
+## Ausblick: Evolutionspfad
 
-> Wie würdet ihr die Integration zwischen euren Bounded Contexts gestalten?
+### Vier Stufen der Integration
 
-- Welche Events würdet ihr als synchron vs. asynchron modellieren?
-- Wo seht ihr die Grenze zwischen In-Process Events und Kafka?
-- Habt ihr Erfahrungen mit dem Outbox Pattern?
-- Wie geht ihr mit Eventual Consistency zwischen BCs um?
-- Wo braucht ihr einen ACL und wo reicht ein Conformist?
+```
+Stufe 1 — Legacy (JMS/EJB)
+  @MessageDriven + ObjectMessage + JMS Topic
+  Problem: kein Translator, kein eigenes Modell, kein Idempotenz-Check
+
+Stufe 2 — In-Process Events (Spring)
+  ApplicationEventPublisher + @TransactionalEventListener
+  Gut für: gleiche JVM, Transaktionssicherheit
+  Nächster Schritt: ACL-Translator ergänzen
+
+Stufe 3 — Webhooks (HTTP-basiert)
+  WebhookEventScheduler + HTTP POST an externe Systeme
+  Gut für: externe Benachrichtigung
+  Problem: polling-basiert, kein Ordering, kein At-Least-Once
+
+Stufe 4 — Ziel (Kafka)
+  @KafkaListener + JSON Schema + Consumer Groups
+  Gut für: verteilte Services, Replay, At-Least-Once + Idempotenz
+```
+
+---
+
+## Diskussion: Gewachsene Systeme
+
+> Bezogen auf Architekturen mit JMS/EJB-Legacy:
+
+- Welche der vorhandenen MDBs hat den höchsten Geschäftswert und wäre der erste Kafka-Kandidat?
+  *Kandidat: eine MDB, deren Ausfall das Auswertungs-Dashboard direkt betrifft*
+- Wo fehlt ein Idempotenz-Check am dringendsten?
+  *Kandidat: eine MDB, die bei Doppelausführung eine Auszahlung doppelt anlegen würde*
+- Wo haben wir ungewollt Conformist statt ACL?
+  *Überall, wo ein fremdes Domänenobjekt direkt aus `onMessage()` gecastet wird*
+- Was passiert, wenn wir `AenderungAnElerAntragsMappe` umbenennen?
+  *Alle abhängigen MDBs kompilieren nicht mehr — weil keine Published Language existiert*
+- Wo ist `@Scheduled` ein schlechter Ersatz für einen echten Event-Listener?
+  *Polling-basierte Versand-Services — Race Condition bei Mehrfach-Instanzen*
+
+### Generelles ACL-Muster für externe Codes
+
+> Ein häufiges Muster in integrierten Systemen: externe Systeme vergeben neue Codes
+> (Berechtigungscodes, Statuswerte, Kategorien). Ohne ACL wandern diese Codes
+> direkt ins Domain-Modell — eine Änderung im externen System bricht die Domain.
+
+```java
+// Mit ACL: externe Codes werden übersetzt, nicht direkt verwendet
+class ExternesSystemTranslator {
+    DomainBerechtigung translate(String externerCode) {
+        return switch (externerCode) {
+            case "22", "24", "25" -> DomainBerechtigung.BEVOLLMAECHTIGT;
+            default -> throw new UnbekannterBerechtigungsCodeException(externerCode);
+        };
+    }
+}
+```
+
+- Wo gibt es in euren Systemen externe Codes direkt im Domain-Modell?
+- Wie verhindert dieser ACL, dass neue externe Codes das Domain-Modell destabilisieren?
+- Was passiert ohne den `default`-Zweig, wenn das externe System einen neuen Code einführt?
+
+> Evans, „Domain-Driven Design" (2003), S. 364: Anti-Corruption Layer — das Modell vor externen Systemen schützen
+> Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 4: Bounded Contexts integrieren
+> Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 9: Kommunikations-Patterns (Model Translation, Outbox)

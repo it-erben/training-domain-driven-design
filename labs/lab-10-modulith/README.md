@@ -1,8 +1,9 @@
 # Lab 10: Spring Modulith - Modularen Monolithen strukturieren
 
-Euer Immobilien-CRM hat bereits zwei Bounded Contexts (Acquisition und Brokerage),
-die über `ContractSigned`-Events kommunizieren. Bisher nutzt ihr
-Springs `ApplicationEventPublisher` mit `@EventListener` direkt.
+Die Förderantragsverwaltung hat bereits zwei Bounded Contexts (Antragstellung
+und Fachliche Prüfung), die über `AntragsmappeEingereicht`-Events kommunizieren.
+Bisher nutzt ihr Springs `ApplicationEventPublisher` mit
+`@TransactionalEventListener` direkt.
 
 In diesem Lab strukturiert ihr den Monolithen mit Spring Modulith, damit:
 
@@ -59,13 +60,14 @@ Erweitere die `pom.xml` um Spring Modulith:
 
 ### Schritt 2: Modul-Verifikationstest schreiben und scheitern lassen
 
-Erstelle die Testklasse `ModulithStructureTest` im Package `de.realestate` unter `src/test/java`:
+Erstelle die Testklasse `ModulithStructureTest` im Package `de.foerderung`
+unter `src/test/java`:
 
 ```java
 class ModulithStructureTest {
 
     ApplicationModules modules =
-        ApplicationModules.of(RealEstateCrmApplication.class);
+        ApplicationModules.of(FoerderantragApplication.class);
 
     @Test
     void verifyModuleStructure() {
@@ -80,30 +82,30 @@ class ModulithStructureTest {
 }
 ```
 
-Führe den Test aus. Er wird fehlschlagen, weil der `ContractSignedListener` im
-Brokerage-Modul auf das *interne* Package `de.realestate.acquisition.domain.event`
-zugreift. Spring Modulith betrachtet alle Subpackages als modulintern.
+Führe den Test aus. Er wird fehlschlagen, weil der
+`AntragstellungEventListener` im Prüfungs-Modul auf das *interne* Package
+`de.foerderung.antragstellung.internal.domain` zugreift. Spring Modulith
+betrachtet alle Subpackages als modulintern.
 
 ### Schritt 3: Event in die öffentliche Modul-API verschieben
 
-Verschiebe `ContractSigned` von `de.realestate.acquisition.domain.event`
-nach `de.realestate.acquisition` (dem Modul-Root-Package):
+Verschiebe `AntragsmappeEingereicht` von
+`de.foerderung.antragstellung.internal.domain.event`
+nach `de.foerderung.antragstellung` (dem Modul-Root-Package):
 
 ```java
-package de.realestate.acquisition;
+package de.foerderung.antragstellung;
 
-public record ContractSigned(
-    UUID contractId,
-    UUID propertyId,
-    LocalDateTime closedAt
+public record AntragsmappeEingereicht(
+    UUID antragsmappeId,
+    String registrierungsNummer,
+    Instant eingereichtAm
 ) {}
 ```
 
 Passe alle Imports an:
-- `CloseContractUseCase`
-- `ContractSignedListener`
-
-Lösche die alte Datei `de.realestate.acquisition.domain.event.ContractSigned`.
+- `AntragEinreichenService`
+- `AntragstellungEventListener`
 
 Führe den Verifikationstest erneut aus - er sollte jetzt grün sein.
 
@@ -111,29 +113,20 @@ Führe den Verifikationstest erneut aus - er sollte jetzt grün sein.
 
 Erstelle `package-info.java` für jedes Modul:
 
-`de/realestate/acquisition/package-info.java`:
+`de/foerderung/antragstellung/package-info.java`:
 
 ```java
 @ApplicationModule
-package de.realestate.acquisition;
+package de.foerderung.antragstellung;
 
 import org.springframework.modulith.ApplicationModule;
 ```
 
-`de/realestate/brokerage/package-info.java`:
+`de/foerderung/pruefung/package-info.java`:
 
 ```java
-@ApplicationModule(allowedDependencies = {"acquisition"})
-package de.realestate.brokerage;
-
-import org.springframework.modulith.ApplicationModule;
-```
-
-`de/realestate/property/package-info.java`:
-
-```java
-@ApplicationModule
-package de.realestate.property;
+@ApplicationModule(allowedDependencies = {"antragstellung"})
+package de.foerderung.pruefung;
 
 import org.springframework.modulith.ApplicationModule;
 ```
@@ -158,36 +151,36 @@ fehlgeschlagene Event-Verarbeitungen werden beim Neustart automatisch wiederholt
 
 ### Schritt 6: @ApplicationModuleTest mit Scenario-API
 
-Erstelle einen Modulith-Integrationstest für das Brokerage-Modul:
+Erstelle einen Modulith-Integrationstest für das Prüfungs-Modul:
 
 ```java
 @ApplicationModuleTest
-class BrokerageModuleTest {
+class PruefungModuleTest {
 
     @Autowired
-    private BrokerageProcessRepository repository;
+    private PruefvorgangRepository repository;
 
     @Test
-    void shouldCreateBrokerageProcessOnContractSigned(Scenario scenario) {
-        UUID contractId = UUID.randomUUID();
-        UUID propertyId = UUID.randomUUID();
+    void shouldCreatePruefvorgangOnAntragEingereicht(Scenario scenario) {
+        UUID mappeId = UUID.randomUUID();
+        String regNr = "DE-ELER-2026-001";
 
-        scenario.publish(new ContractSigned(
-                    contractId, propertyId, LocalDateTime.now()))
+        scenario.publish(new AntragsmappeEingereicht(
+                    mappeId, regNr, Instant.now()))
                 .andWaitForStateChange(
-                    () -> repository.findAll().stream()
-                        .filter(p -> p.getPropertyId().equals(propertyId))
-                        .findFirst()
+                    () -> repository.findByAntragsReferenz(
+                        new AntragsReferenz(mappeId))
                         .orElse(null),
                     Objects::nonNull)
-                .andVerify(process ->
-                    assertThat(process.getPropertyId()).isEqualTo(propertyId));
+                .andVerify(pruefvorgang ->
+                    assertThat(pruefvorgang.getRegistrierungsNummer().value())
+                        .isEqualTo(regNr));
     }
 }
 ```
 
 Dieser Test:
-- Startet nur das Brokerage-Modul (nicht die ganze Anwendung)
+- Startet nur das Prüfungs-Modul (nicht die ganze Anwendung)
 - Publiziert ein Event und wartet auf den erwarteten Zustandswechsel
 - Kein `Thread.sleep()` nötig
 
@@ -196,17 +189,13 @@ Dieser Test:
 Führe den `documentModuleStructure()`-Test aus und prüfe die generierten
 PlantUML-Diagramme in `target/spring-modulith-docs/`.
 
-### Bonus: @TransactionalEventListener
+### Bonus: @ApplicationModuleListener
 
-Ersetze `@EventListener` im `ContractSignedListener` durch
-`@TransactionalEventListener(phase = AFTER_COMMIT)`, damit das Event erst nach
-erfolgreichem Commit verarbeitet wird. Die Event Publication Registry stellt
-dann sicher, dass fehlgeschlagene Verarbeitungen beim Neustart wiederholt werden.
-
-Hinweis: Beim Umstieg auf `@TransactionalEventListener` muss der
-`ContextIntegrationTest` als Verifikation dienen (`@SpringBootTest` mit
-vollem Transaktionskontext), da `Scenario.publish()` kein Transaktions-Commit
-simuliert.
+Ersetze `@TransactionalEventListener(phase = AFTER_COMMIT)` im
+`AntragstellungEventListener` durch `@ApplicationModuleListener` (Spring
+Modulith 1.2+). Das ist der empfohlene Standard für Inter-Modul-Events.
+Die Event Publication Registry stellt dann sicher, dass fehlgeschlagene
+Verarbeitungen beim Neustart wiederholt werden.
 
 ## Tipps
 
@@ -221,3 +210,59 @@ simuliert.
   *innerhalb* eines Moduls, Spring Modulith prüft die Grenzen *zwischen* Modulen.
 - Die Event Publication Registry nutzt die bestehende Datenquelle (H2) und erstellt
   automatisch die benötigte Tabelle.
+
+---
+
+## Modulstruktur der Förderantragsverwaltung
+
+### Wie die Architektur in Modulith-Konventionen aussieht
+
+```
+de.foerderung/
+├── antragstellung/
+│   ├── AntragsmappeEingereicht.java     ← öffentliche API (Event Record)
+│   ├── AntragsmappeGeaendert.java       ← öffentliche API (Event Record)
+│   └── internal/
+│       ├── domain/
+│       │   ├── AntragsMappe.java        ← Aggregate Root
+│       │   ├── Flurstück.java           ← Entity
+│       │   └── AenderungsArt.java       ← Value Object
+│       ├── application/
+│       │   └── AntragEinreichenService.java
+│       └── adapter/
+│           ├── web/AntragsMappeController.java
+│           └── persistence/JpaAntragsMappeRepository.java
+├── pruefung/
+│   ├── PruefungAbgeschlossen.java       ← öffentliche API
+│   └── internal/
+│       ├── domain/
+│       │   └── Pruefvorgang.java
+│       ├── application/
+│       │   └── PruefungStartenService.java
+│       └── adapter/
+│           └── acl/
+│               ├── AntragstellungEventTranslator.java  ← ACL Translator
+│               └── AntragstellungEventListener.java    ← ACL Listener
+├── auszahlung/
+│   └── internal/
+│       └── adapter/
+│           └── acl/
+│               └── PruefungAbgeschlossenListener.java
+└── auswertung/
+    └── internal/
+        └── adapter/
+            └── acl/
+                └── AntragsmappeEventListener.java
+```
+
+### Was Spring Modulith prüft — und was verletzt wäre
+
+```java
+@Test
+void modulithStructureIsValid() {
+    ApplicationModules.of(FoerderantragApplication.class).verify();
+}
+// Dieser Test würde bei direktem Import von
+// 'antragstellung.internal.domain.AntragsMappe' aus dem 'auswertung'-Modul
+// FEHLSCHLAGEN — genau das, was bei direktem ObjectMessage-Cast passiert.
+```

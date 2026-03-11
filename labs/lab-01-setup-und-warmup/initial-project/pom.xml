@@ -11,11 +11,11 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.realestate</groupId>
-    <artifactId>immobilien-crm</artifactId>
+    <groupId>de.foerderung</groupId>
+    <artifactId>foerderantragsverwaltung</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Immobilien CRM</name>
-    <description>Immobilien CRM - Workshop DDD und Clean Architecture</description>
+    <name>Foerderantragsverwaltung</name>
+    <description>Foerderantragsverwaltung - Workshop DDD und Clean Architecture mit Spring Boot 4</description>
 
     <properties>
         <java.version>21</java.version>

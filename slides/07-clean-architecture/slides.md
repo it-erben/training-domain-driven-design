@@ -154,11 +154,11 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ```java
 @Entity                             // ← Framework im Kern
-public class BrokerageProcess {
+public class AntragsMappe {
     @Id @GeneratedValue
     private Long id;
     @OneToMany(cascade = ALL)
-    private List<Viewing> viewings;
+    private List<Flurstueck> flurstuecke;
 }
 ```
 
@@ -168,11 +168,12 @@ public class BrokerageProcess {
 
 ```java
 // domain/model - no Spring, no JPA
-public class BrokerageProcess {
-    private final UUID id;
-    private final List<Viewing> viewings;
+public class AntragsMappe {
+    private final AntragId id;
+    private final List<Flurstueck> flurstuecke;
 
-    public UUID addViewing(String name, LocalDateTime appointmentDate) {
+    public FlurstueckId flurstueckHinzufuegen(
+            FlurstueckNummer nummer, BigDecimal flaeche) {
         // Business logic here, not in the service
     }
 }
@@ -208,13 +209,13 @@ public class BrokerageProcess {
 
 ```java
 @Test
-void should_schedule_viewing() {
+void flurstueck_hinzufuegen_funktioniert() {
     // No Spring context needed!
-    var repo = new InMemoryBrokerageProcessRepository();
-    repo.save(BrokerageProcess.create(...));
-    var useCase = new ScheduleViewingUseCase(repo);
-    var result = useCase.schedule(command);
-    assertThat(result.viewingId()).isNotNull();
+    var repo = new InMemoryAntragsMappeRepository();
+    repo.save(AntragsMappe.erstellen(...));
+    var useCase = new FlurstueckHinzufuegenService(repo, mock(ApplicationEventPublisher.class));
+    var result = useCase.hinzufuegen(command);
+    assertThat(result.flurstueckId()).isNotNull();
 }
 ```
 
@@ -273,7 +274,7 @@ void should_schedule_viewing() {
 
 Clean Architecture ist **nicht für jedes Projekt** geeignet.
 Es kann einem zu **Over-Engineering** verleiten bei Anwendungsfällen,
-die eigentlich simpel mir CRUD zu lösen wären.
+die eigentlich simpel mit CRUD zu lösen wären.
 
 Clean Architecture ist kein Dogma!
 
@@ -287,3 +288,64 @@ ist und von mehreren Teams oder Modulen verwendet wird.
 ## Wann eher nicht?
 
 Bei reinen CRUD-Anwendungen, generisch-technischen Domänen oder Prototypen.
+
+---
+
+## Clean Architecture in der Praxis
+
+> Aus einer **internen Architekturdokumentation**:
+>
+> *„Vermeide Entitäten-Frameworks! Implementiere je Modul ein leichtes
+> POJO-basiertes Domänenmodell ohne übermächtiges Oberklassen-Framework
+> und allzu vielen Abhängigkeiten."*
+
+Das ist die Clean Architecture Dependency Rule in eigenen Worten:
+→ Domain-Klassen ohne `@Entity`, ohne Spring, ohne Framework.
+
+> *„Module kommunizieren asynchron und bieten
+> **KEINE modulübergreifende Transaktion**."*
+
+Das ist die Motivation für Event-basierte Kommunikation zwischen Modulen,
+die keine verteilten Transaktionen braucht.
+
+---
+
+## Clean Architecture verletzt: Ein reales Muster
+
+### Wenn Infrastruktur in die Application-Schicht eindringt
+
+> Ein typisches Problem in gewachsenen Spring-Projekten:
+> Der Application Service verwendet `EntityManager` direkt,
+> um ein Entity aus dem Persistenzkontext zu lösen.
+
+```java
+// ❌ Infrastruktur dringt in die Application-Schicht ein
+@Service
+public class DateiAnhaengService {
+
+    @PersistenceContext
+    private EntityManager entityManager;  // JPA direkt im Service!
+
+    public byte[] ladeInhalt(UUID dateiId) {
+        var datei = dateiRepository.findById(dateiId).orElseThrow();
+        byte[] inhalt = datei.getInhalt();
+        entityManager.detach(datei);  // ← Dependency Rule verletzt
+        return inhalt;
+    }
+}
+```
+
+```java
+// ✅ Lösung: JPA Projection im Repository kapselt die Infrastruktur
+interface DateiInhaltProjektion {
+    UUID getId();
+    byte[] getInhalt();
+}
+
+// Im Repository-Interface — kein EntityManager im Service mehr:
+Optional<DateiInhaltProjektion> findInhaltById(UUID id);
+```
+
+- `EntityManager` gehört in die Infrastrukturschicht, nicht in `application`
+- JPA Projections sind die sauberere Alternative: Der Service bekommt nur was er braucht
+- ArchUnit kann diese Verletzung automatisch erkennen (→ Modul 11)

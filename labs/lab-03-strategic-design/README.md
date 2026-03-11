@@ -1,10 +1,38 @@
 # Lab 03: Strategic Design - Bounded Contexts und Context Map
 
-Leite aus dem Event Storming Bounded Contexts ab und erstelle eine Context Map
-für die Immobilien-CRM-Domäne. Nutze dafür die Ergebnisse aus Lab 02 als
-Ausgangspunkt.
+Leite aus dem Event Storming Bounded Contexts ab und erstelle eine Context Map.
+Nutze dafür die Ergebnisse aus Lab 02b (Förderantragsverwaltung) als Ausgangspunkt.
 
 Dieses Lab ist ein reines Modellierungs-Lab - es wird kein Code geschrieben.
+
+---
+
+## Unser Ausgangsmaterial: Pivot Events aus Lab 02b
+
+| Pivot Event | Grenze | Signal aus Lab 02b |
+|-------------|--------|--------------------|
+| `AntragsmappeEingereicht` | Antragstellung → Fachliche Prüfung | Akteurwechsel: Antragsteller → Sachbearbeiterin |
+| `AntragPositivBeschieden` | Fachliche Prüfung → Auszahlung | Sprachgrenze: "AntragsMappe" → "Zahlungsantrag" |
+| `ZahlungAngewiesen` | Auszahlung → Bescheidversand | Verantwortungswechsel: Zahlstelle → System |
+
+### Hot Spots als Grenz-Kandidaten
+
+- "Was ist 'fertig'?" — `AenderungsArt`-Inferenz = implizites State-Machine-Muster
+- "Kontrolle: Teil der AntragsMappe?" — eigene Listener auf demselben Topic → Aggregate-Kandidat
+- "Wer nimmt Entscheidung zurück?" — unklare Verantwortung → Bewilligungsstelle als Grenze
+
+### Ausgefülltes Beispiel (Referenz für Phase 2)
+
+| Subdomain | Typ | Bounded Context | Verantwortlichkeit | Gründe aus Lab 02b | Kern-Aggregate | Wichtigste Events |
+|-----------|-----|-----------------|--------------------|--------------------|----------------|-------------------|
+| Förderantrag stellen | **Core** | Antragstellung | AntragsMappe erfassen, Flurstücke digitalisieren | Pivot Event: `AntragsmappeEingereicht`; Akteurwechsel | AntragsMappe, Flurstück | AntragsmappeErstellt, FlurstückeDigitalisiert, AntragsmappeEingereicht |
+| Fachliche Prüfung | **Core** | Fachliche Prüfung | Antrag prüfen, Kontrollen durchführen, Bescheid vorbereiten | Pivot Event: `AntragPositivBeschieden`; Sprachgrenze "Antrag" → "Bescheid" | Prüfvorgang, Kontrolle | FachlichePrüfungGestartet, KontrolleDurchgeführt, AntragPositivBeschieden |
+| Zahlungsabwicklung | **Supporting** | Auszahlung | Zahlungsantrag anlegen, Kautionsverwaltung, Zahlung anweisen | Pivot Event: `ZahlungAngewiesen`; Verantwortungswechsel | Zahlungsantrag, Kautionsverwaltung | AuszahlungHinzugefügt, ZahlungAngewiesen |
+| Bescheidversand | **Supporting** | Bescheidversand | Amtliche Bescheide erzeugen und versenden | Hot Spot: Polling statt Event-Listener | Bescheid | BescheidVersandt |
+| Auswertung / Monitoring | **Supporting** | Auswertung | Dashboards, Reports, Monitoring der Antragsmengen | Konformist: reagiert reaktiv auf Events | MonitoringEintrag | (nur Listener, keine eigenen Events) |
+| Referenzflächen | **Generic** | Referenzdaten | Katasterdaten, GIS-Daten bereitstellen | Open Host Service: keine BC-spezifische Logik | Flurstück-Stammdaten | — |
+
+---
 
 ## Phase 1: Fachliche Teilbereiche und Bounded Contexts identifizieren (25 Min)
 
@@ -13,7 +41,7 @@ Betrachte die Ergebnisse des Event Stormings und arbeite in zwei Schritten:
 1. Markiere zunächst fachliche Teilbereiche / Subdomains im Prozess.
 2. Leite daraus **Bounded Contexts** ab und ziehe Modellgrenzen.
 
-Nutze insbesondere die in Lab 02 dokumentierten Hot Spots, Sprachwechsel und
+Nutze insbesondere die in Lab 02b dokumentierten Hot Spots, Sprachwechsel und
 Verantwortungswechsel. Verwende dazu die folgenden Leitfragen:
 
 **Leitfragen:**
@@ -23,13 +51,13 @@ Welche fachlichen Probleme oder Verantwortungsräume stecken hinter den Events?
 Welche davon wirken stabiler als eine einzelne Prozessphase?
 
 2. Wo ändert sich die Bedeutung eines Begriffs?
-Beispiel: "Immobilie" bedeutet in der Objektverwaltung etwas anderes (
-Stammdaten, Flächen, Ausstattung) als in der Vermarktung (Expose-Texte,
-Fotos, Zielgruppe).
+Beispiel: "Antrag" bedeutet in der Antragstellung etwas anderes (AntragsMappe
+mit Flurstücken und Förderbedingungen) als in der Auszahlung (Zahlungsantrag
+mit Förderbeträgen und Kautionsverwaltung).
 
 3. Welche sogenannten Pivot Events markieren fachliche Phasenübergänge?
-Übergänge wie "Auftrag erteilt", "Expose veröffentlicht" oder "Angebot
-angenommen" markieren oft eine neue Verantwortung oder ein anderes Modell.
+Übergänge wie `AntragsmappeEingereicht` oder `AntragPositivBeschieden`
+markieren oft eine neue Verantwortung oder ein anderes Modell.
 
 4. Wo gibt es unterschiedliche Experten oder Akteure?
 Wenn verschiedene Personen oder Abteilungen für bestimmte Themen zuständig
@@ -51,9 +79,9 @@ Vorgehen:
 - Zeichne anschließend Linien um die Gruppen von Events, die zu einem
   Bounded Context zusammengehören.
 - Gib jedem Bereich einen sprechenden Namen.
-- Nutze Hot Spots und Sprachwechsel aus Lab 02 bewusst als Kandidaten für
+- Nutze Hot Spots und Sprachwechsel aus Lab 02b bewusst als Kandidaten für
   Grenzen zwischen Contexts.
-- Notiert pro Grenze kurz, welches Signal aus Lab 02 sie auslöst
+- Notiert pro Grenze kurz, welches Signal aus Lab 02b sie auslöst
   (`Sprachwechsel`, `Pivot Event`, `Verantwortungswechsel`, `Hot Spot`).
 - Prüfe, ob die Gruppen in sich schlüssig sind und klare Verantwortlichkeiten
   haben.
@@ -80,15 +108,17 @@ Diskutiert für jeden Teilbereich:
 - Könntet ihr diesen Bereich durch ein Standardprodukt ersetzen, ohne
   Wettbewerbsnachteil?
 
-### Beschreibungstabelle
+### Beschreibungstabelle (ausfüllen)
 
-| Subdomain | Typ | Bounded Context | Verantwortlichkeit | Gründe aus Lab 02 | Wichtige fachliche Objekte / mögliche Kern-Aggregates | Wichtigste Events |
+| Subdomain | Typ | Bounded Context | Verantwortlichkeit | Gründe aus Lab 02b | Wichtige fachliche Objekte / mögliche Kern-Aggregates | Wichtigste Events |
 |-----------|-----|-----------------|--------------------|--------------------|-------------------------------------------------------|-------------------|
 | *Welcher fachliche Bereich?* | Core / Supporting / Generic | *Name* | *Was ist die Aufgabe?* | *Warum ist hier eine Grenze?* | *Welche Objekte tragen das Modell?* | *Welche Events?* |
 
-Die Spalte `Gründe aus Lab 02` sollte auf konkrete Beobachtungen
-verweisen, z. B. `Sprachwechsel: "Immobilie"`, `Pivot Event: "Auftrag erteilt"`
-oder `Hot Spot: "Wer darf den Angebotspreis ändern?"`.
+Die Spalte `Gründe aus Lab 02b` sollte auf konkrete Beobachtungen
+verweisen, z. B. `Sprachwechsel: "Antrag"`, `Pivot Event: "AntragsmappeEingereicht"`
+oder `Hot Spot: "Wer darf die Bewilligungsentscheidung zurücknehmen?"`.
+
+> Das ausgefüllte Referenzbeispiel steht am Anfang dieser Datei.
 
 ## Phase 3: Context Map erstellen (25 Min)
 
@@ -104,7 +134,7 @@ Beziehungstypen (DDD Context Mapping Patterns):
 | Conformist                  | Downstream übernimmt das Modell des Upstream ohne Anpassung                                 |
 | Anti-Corruption Layer (ACL) | Downstream übersetzt das Upstream-Modell in das eigene Modell                               |
 | Open Host Service (OHS)     | Ergänzende Kennzeichnung: Upstream stellt eine definierte API/Schnittstelle bereit          |
-| Published Language (PL)     | Ergänzende Kennzeichnung: Gemeinsames Austauschformat (z.B. OpenImmo-XML)                   |
+| Published Language (PL)     | Ergänzende Kennzeichnung: Gemeinsames Austauschformat (z.B. JSON Schema)                    |
 | Partnership                 | Zwei Teams entwickeln und entscheiden eng gemeinsam, ohne klare U/D-Hierarchie              |
 | Separate Ways               | Bewusste Entscheidung gegen Integration; beide Seiten lösen das Problem getrennt            |
 
@@ -116,16 +146,47 @@ Tipps:
   (Upstream/Downstream), falls relevant.
 - Konzentriere dich auf die 3-5 wichtigsten Beziehungen und begründe diese
   kurz: Warum passt genau dieses Pattern?
-- Markiere externe Systeme gesondert.
+- Markiere externe Systeme gesondert (z. B. EU-IACS, GIS-System, ZID).
+
+### Referenz-Context-Map (Ist-Zustand)
+
+```
+  [Antragstellung]  ──Customer/Supplier──►  [Fachliche Prüfung]
+                    [AntragsmappeGeaendert]
+                                                    │
+                                          Customer/Supplier
+                                     [AntragPositivBeschieden]
+                                                    ▼
+                                            [Auszahlung]
+                                           /            \
+                                    sollte ACL sein    sollte ACL sein
+                                   (heute: Conformist) (heute: Conformist)
+                                          │                  │
+                                    [Auswertung]       [Bescheidversand]
+
+  [Referenzdaten] ──Open Host Service──► alle Contexts
+  (EU-IACS/GIS)    Published Language
+```
+
+**Aufgabe:** Identifiziert in eurer eigenen Context Map, wo heute
+"Conformist" steht, obwohl ein ACL nötig wäre.
 
 ## Phase 4: Vergleich und kurze Auswertung (10 Min)
 
 Vergleicht eure Ergebnisse im Team oder mit einem anderen Tisch:
 
 - Wo wart ihr euch bei den Grenzen sicher, wo nicht?
-- Welche Grenze ist durch Lab-02-Signale gut begründet?
+- Welche Grenze ist durch Lab-02b-Signale gut begründet?
 - Wo habt ihr alternative Schnitte verworfen und warum?
 - Welche Beziehung in eurer Context Map war am schwierigsten zu klassifizieren?
+
+### Reflexion
+
+- Wo haben wir heute Conformist, obwohl ein ACL fachlich notwendig wäre?
+  (Überall, wo ein fremdes Domänenobjekt direkt importiert wird.)
+- Was wäre das teuerste Refactoring? (Einen Klassennamen ändern, der von
+  vielen Listenern per `messageSelector` referenziert wird.)
+- Warum ist Polling für den Bescheidversand ein Zeichen für eine fehlende BC-Grenze?
 
 ## Ergebnis
 

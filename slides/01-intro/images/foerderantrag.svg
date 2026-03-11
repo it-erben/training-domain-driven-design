@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" font-family="system-ui, -apple-system, sans-serif">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f7f4"/>
+      <stop offset="100%" stop-color="#e0eef5"/>
+    </linearGradient>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bgGradient)"/>
+
+  <!-- Application Window Mockup -->
+  <g transform="translate(100, 80)" filter="url(#shadow)">
+    <!-- Window Frame -->
+    <rect width="600" height="420" rx="12" fill="url(#cardGradient)" stroke="#cbd5e1" stroke-width="1"/>
+    
+    <!-- Title Bar -->
+    <path d="M 0 12 Q 0 0 12 0 L 588 0 Q 600 0 600 12 L 600 40 L 0 40 Z" fill="#1e293b"/>
+    <!-- Window Controls -->
+    <circle cx="24" cy="20" r="6" fill="#ef4444"/>
+    <circle cx="44" cy="20" r="6" fill="#f59e0b"/>
+    <circle cx="64" cy="20" r="6" fill="#10b981"/>
+    
+    <!-- Title -->
+    <text x="300" y="25" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="500">Förderantragsverwaltung (ELER)</text>
+
+    <!-- Sidebar -->
+    <rect x="0" y="40" width="160" height="380" fill="#f1f5f9" stroke-right="#e2e8f0"/>
+    <line x1="160" y1="40" x2="160" y2="420" stroke="#e2e8f0" stroke-width="1"/>
+    
+    <!-- Sidebar Items -->
+    <rect x="12" y="56" width="136" height="32" rx="6" fill="#bfdbfe"/>
+    <text x="24" y="76" fill="#1e40af" font-size="13" font-weight="600">Dashboard</text>
+    
+    <text x="24" y="116" fill="#475569" font-size="13">Antragstellung</text>
+    <text x="24" y="148" fill="#475569" font-size="13">Prüfung</text>
+    <text x="24" y="180" fill="#475569" font-size="13">Auszahlung</text>
+
+    <!-- Main Content Area -->
+    <!-- Stats Row -->
+    <g transform="translate(184, 60)">
+      <rect width="120" height="70" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="16" y="28" fill="#64748b" font-size="11" font-weight="500">Eingereicht</text>
+      <text x="16" y="54" fill="#0f172a" font-size="24" font-weight="bold">142</text>
+    </g>
+    <g transform="translate(320, 60)">
+      <rect width="120" height="70" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="16" y="28" fill="#64748b" font-size="11" font-weight="500">In Prüfung</text>
+      <text x="16" y="54" fill="#f59e0b" font-size="24" font-weight="bold">38</text>
+    </g>
+    <g transform="translate(456, 60)">
+      <rect width="120" height="70" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="16" y="28" fill="#64748b" font-size="11" font-weight="500">Bewilligt</text>
+      <text x="16" y="54" fill="#10b981" font-size="24" font-weight="bold">89</text>
+    </g>
+
+    <!-- Data Table -->
+    <g transform="translate(184, 150)">
+      <rect width="392" height="250" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+      
+      <!-- Table Header -->
+      <rect width="392" height="40" rx="8" fill="#f8fafc"/>
+      <line x1="0" y1="40" x2="392" y2="40" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="16" y="25" fill="#475569" font-size="12" font-weight="600">ID</text>
+      <text x="80" y="25" fill="#475569" font-size="12" font-weight="600">Betriebsinhaber</text>
+      <text x="240" y="25" fill="#475569" font-size="12" font-weight="600">Fläche (ha)</text>
+      <text x="320" y="25" fill="#475569" font-size="12" font-weight="600">Status</text>
+
+      <!-- Row 1 -->
+      <line x1="0" y1="80" x2="392" y2="80" stroke="#f1f5f9" stroke-width="1"/>
+      <text x="16" y="65" fill="#334155" font-size="12">BW-001</text>
+      <text x="80" y="65" fill="#334155" font-size="12">Müller Agrar GmbH</text>
+      <text x="240" y="65" fill="#334155" font-size="12">145.2</text>
+      <rect x="315" y="52" width="60" height="20" rx="10" fill="#dcfce7"/>
+      <text x="345" y="65" text-anchor="middle" fill="#166534" font-size="10" font-weight="600">Geprüft</text>
+
+      <!-- Row 2 -->
+      <line x1="0" y1="120" x2="392" y2="120" stroke="#f1f5f9" stroke-width="1"/>
+      <text x="16" y="105" fill="#334155" font-size="12">BW-002</text>
+      <text x="80" y="105" fill="#334155" font-size="12">Hof Schmidt</text>
+      <text x="240" y="105" fill="#334155" font-size="12">84.5</text>
+      <rect x="315" y="92" width="60" height="20" rx="10" fill="#fef3c7"/>
+      <text x="345" y="105" text-anchor="middle" fill="#92400e" font-size="10" font-weight="600">Offen</text>
+
+      <!-- Row 3 -->
+      <line x1="0" y1="160" x2="392" y2="160" stroke="#f1f5f9" stroke-width="1"/>
+      <text x="16" y="145" fill="#334155" font-size="12">BW-003</text>
+      <text x="80" y="145" fill="#334155" font-size="12">Biohof Petersen</text>
+      <text x="240" y="145" fill="#334155" font-size="12">210.8</text>
+      <rect x="315" y="132" width="60" height="20" rx="10" fill="#dbeafe"/>
+      <text x="345" y="145" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="600">Bescheid</text>
+
+      <!-- Row 4 -->
+      <text x="16" y="185" fill="#334155" font-size="12">BW-004</text>
+      <text x="80" y="185" fill="#334155" font-size="12">Agrargenossenschaft Ost</text>
+      <text x="240" y="185" fill="#334155" font-size="12">320.0</text>
+      <rect x="315" y="172" width="60" height="20" rx="10" fill="#fef3c7"/>
+      <text x="345" y="185" text-anchor="middle" fill="#92400e" font-size="10" font-weight="600">Offen</text>
+
+      <!-- Map Icon Overlay (Decoration) -->
+      <g transform="translate(320, 200)" opacity="0.1">
+        <path d="M10 10 L30 5 L50 15 L70 5 L70 45 L50 55 L30 45 L10 55 Z" fill="none" stroke="#0f172a" stroke-width="4"/>
+        <line x1="30" y1="5" x2="30" y2="45" stroke="#0f172a" stroke-width="4"/>
+        <line x1="50" y1="15" x2="50" y2="55" stroke="#0f172a" stroke-width="4"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Floating Elements for depth -->
+  <g transform="translate(640, 420)" filter="url(#shadow)">
+    <circle cx="40" cy="40" r="40" fill="#10b981"/>
+    <path d="M 25 40 L 35 50 L 55 30" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

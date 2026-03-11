@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.realestate</groupId>
-    <artifactId>immobilien-crm-solution-lab-01</artifactId>
+    <groupId>de.foerderung</groupId>
+    <artifactId>foerderantrag-solution-lab-01</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Immobilien CRM - Solution Lab 01: Setup und Warmup</name>
+    <name>Foerderantragsverwaltung - Solution Lab 01: Setup und Warmup</name>
     <description>Solution for Lab 01: Setup und Warmup</description>
 
     <properties>

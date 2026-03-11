@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.realestate</groupId>
-    <artifactId>immobilien-crm-aggregator</artifactId>
+    <groupId>de.foerderung</groupId>
+    <artifactId>foerderantragsverwaltung-aggregator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Immobilien CRM - Aggregator</name>
+    <name>Foerderantragsverwaltung - Aggregator</name>
 
     <modules>
         <module>labs/lab-01-setup-und-warmup/initial-project</module>

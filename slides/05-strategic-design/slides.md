@@ -17,8 +17,10 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Bounded Contexts definieren und abgrenzen können
 - Den Unterschied zwischen Subdomain und Bounded Context verstehen
 - Alle Context-Map-Patterns kennen und anwenden
-- Conway's Law und seine Auswirkungen auf BC-Schnitte verstehen
-- Strategic Design auf das Immobilien-CRM anwenden
+- Conway's Law und den Inverse Conway Maneuver verstehen
+- Team Topologies als Organisationsrahmen für Bounded Contexts einsetzen
+- Wardley Mapping für Build-or-Buy-Entscheidungen nutzen
+- Strategic Design auf die Förderantragsverwaltung anwenden
 
 ---
 
@@ -35,14 +37,14 @@ Innerhalb eines Contexts haben Begriffe eine eindeutige Bedeutung. Außerhalb ka
 **Drei Signale für eine Context-Grenze**
 
 1. Sprachliche Grenze - gleiche Begriffe, andere Bedeutung
-> "Immobilie" in der Objektverwaltung ≠ "Immobilie" in der Vermarktung
+> "Antrag" in der Antragstellung ≠ "Antrag" in der Auszahlung (Zahlungsantrag)
 
 2. Grenz-Events ("Pivots") - Events, die eine neue Phase einleiten
-> `MaklervertragUnterschrieben` → Grenze zwischen Akquise und Vermarktung
-> `AngebotAngenommen` → Grenze zwischen Vermittlung und Abschluss
+> `AntragsmappeEingereicht` → Grenze zwischen Antragstellung und Fachlicher Prüfung
+> `AntragPositivBeschieden` → Grenze zwischen Fachlicher Prüfung und Auszahlung
 
 3. Akteurwechsel - andere Person übernimmt
-> Makler (Akquise) → Marketing-Team (Vermarktung)
+> Antragsteller (Antragstellung) → Sachbearbeiterin (Fachliche Prüfung)
 
 ---
 
@@ -54,13 +56,19 @@ Innerhalb eines Contexts haben Begriffe eine eindeutige Bedeutung. Außerhalb ka
 
 ---
 
-## Beispiel: Der Begriff "Immobilie"
+## Beispiel: Der Begriff "Antrag"
 
-"Immobilie" bedeutet in der Verwaltung etwas anderes als in der Vermarktung!
+"Antrag" bedeutet in der Antragstellung etwas anderes als in der Auszahlung!
 
-![BC Immobilie Vergleich](images/bounded-context-immobilie-vergleich.drawio.svg)
+| | BC: Antragstellung | BC: Auszahlung |
+|---|---|---|
+| Begriff | `AntragsMappe` | `Zahlungsantrag` |
+| Kern-Daten | Flurstücke, Status, Einreichdatum | Förderbetrag, Kontonummer, Auszahlungsstatus |
+| Aggregate | `AntragsMappe`, `Flurstück` | `Zahlungsantrag`, `Kautionsverwaltung` |
+| Akteur | Antragsteller, GIS-Bearbeiterin | Zahlstelle, Buchhaltung |
 
 > Eric Evans: *"A Bounded Context delimits the applicability of a particular model."*
+> — "Domain-Driven Design", S. 335
 
 ---
 <style scoped>section { font-size: 1.8em; }</style>
@@ -93,6 +101,81 @@ Ein Context sollte aber nie mehrere Subdomains abdecken (→ Big Ball of Mud).
 Ein Context sollte von einem Team verantwortet werden, aber nicht von mehreren. Nur bei kleinen Contexten sollte ein Team mehrere verantworten!
 
 Organisiere Teams entlang der gewünschten Architektur, nicht umgekehrt.
+
+### Conway's Law als Diagnosewerkzeug
+
+Wenn ihr auf eine unerwartete Kopplung zwischen zwei Bounded Contexts stoßt,
+lohnt sich die Frage: **Welche Teams kommunizieren heute intensiv miteinander?**
+
+Oft ist die Kopplung im Code ein Abbild der Kopplung in der Organisation.
+Eine Architekturverbesserung ohne Organisationsveränderung ist meist kurzlebig —
+und umgekehrt.
+
+> *„You can't change the architecture without changing the organization that produces it,
+> and you can't change the organization without changing the architecture."*
+> — Susanne Kaiser, „Architecture for Flow" (2025)
+
+---
+
+## Inverse Conway Maneuver
+
+### Teams bewusst zur Architektur hin gestalten
+
+> *"If the architecture of the system and the architecture of the organization
+> are at odds, the architecture of the organization wins."*
+> — Ruth Malan
+
+- **Conway (passiv):** Team-Struktur → Architektur entsteht zufällig
+- **Inverse Conway (aktiv):** Zielarchitektur → Team-Design bewusst gestalten
+
+### Unsere Bounded Contexts → Team-Empfehlung
+
+| Bounded Context | Subdomain-Typ | Team-Empfehlung |
+|---|---|---|
+| Antragstellung | Core | Stream-Aligned Team |
+| Fachliche Prüfung | Core | Stream-Aligned Team |
+| Auszahlung | Supporting | Stream-Aligned Team |
+| Referenzdaten | Generic | Platform Team |
+
+---
+<style scoped>section { font-size: 1.6em; }</style>
+
+## Team Topologies: Vier Team-Typen
+
+### (Skelton & Pais, 2019 — Synthese: Kaiser, 2025)
+
+| Team-Typ | Zweck | DDD-Zuordnung |
+|---|---|---|
+| **Stream-Aligned** | End-to-End Verantwortung für einen Wertestrom | Core / Supporting Domains |
+| **Platform** | Self-Service Infrastruktur für andere Teams | Generic Domains / Querschnitt |
+| **Enabling** | Coaching & Upskilling für Stream-Aligned Teams | — (temporär) |
+| **Complicated Subsystem** | Spezialisiertes Wissen für komplexe Teilsysteme | Besonders komplexe Subdomains |
+
+> **Faustregel:** Ein Bounded Context = ein Stream-Aligned Team.
+> Conway's Law in Aktion: Team-Grenzen ≡ Bounded-Context-Grenzen.
+
+---
+<style scoped>section { font-size: 1.5em; }</style>
+
+## Wardley Mapping: Build or Buy?
+
+### Evolution-Stage entscheidet die Investitionsstrategie
+
+| Evolution Stage | Charakteristik | Subdomain-Typ | Empfehlung |
+|---|---|---|---|
+| **Genesis** | Neu, unsicher, experimentell | Core Domain | Selbst entwickeln |
+| **Custom-Built** | Lernend, marktformend | Core / Supporting | Selbst entwickeln |
+| **Product** | Off-the-shelf verfügbar | Supporting / Generic | Kaufen / Open Source |
+| **Commodity** | Industrialisiert, Utility | Generic | Cloud-Service / Outsourcen |
+
+### Unsere Bounded Contexts — Evolution einschätzen
+
+| BC | Evolution | Empfehlung |
+|---|---|---|
+| Antragstellung (Flurstück-Logik, IACS) | Custom-Built | Selbst — fachliches Differenzierungsmerkmal |
+| Referenzdaten (GIS-Stammdaten) | Product | Integration externer GIS-Dienste |
+| Bescheidversand (PDF, Druck) | Product → Commodity | SaaS / Cloud-Dienst prüfen |
+| Authentifizierung / IAM | Commodity | OpenID Connect / Keycloak |
 
 ---
 
@@ -140,7 +223,7 @@ In diesem Pattern übernimmt der Downstream die Konzepte des Upstreams ohne Einf
 Man setzt dieses Pattern ein, wenn externe Systeme eingebunden werden
 müssen und wir an ihnen nichts ändern können.
 
-Beispiel: Übernahme des OpenImmo-XML-Standards
+Beispiel: Übernahme des IACS/InVeKoS-Datenformats der EU-Agrarbehörden
 
 > Risiko: Das eigene Modell wird vom Upstream-Modell "infiziert".
 > Alternative: ACL, wenn der Aufwand vertretbar ist.
@@ -163,12 +246,12 @@ Schützt das eigene Modell mit einer Übersetzungsschicht
 
 ```java
 @Component
-public class ExternalCrmTranslator {
-    public Contact translate(CrmCustomerDto dto) {
-        return new Contact(
-            ContactId.generate(),
-            dto.getFirstName(), dto.getLastName(),
-            ContactType.from(dto.getType()));
+public class ZidTranslator {
+    public Betriebsinhaber translate(ZidNutzerDto dto) {
+        return new Betriebsinhaber(
+            new BhbNummer(dto.getBetriebsNummer()),
+            dto.getVorname(), dto.getNachname(),
+            BetriebsArt.from(dto.getBetriebsTyp()));
     }
 }
 ```
@@ -188,7 +271,7 @@ public class ExternalCrmTranslator {
 ### Wann einsetzen?
 
 - Gemeinsame Kernkonzepte, die identisch bleiben müssen
-- Beispiel: Gemeinsame Value Objects `Address`, `MonetaryAmount`
+- Beispiel: Gemeinsame Value Objects `BhbNummer`, `Foerderbetrag`, `RegistrierungsNummer`
 
 > Vorsicht: Shared Kernel ist die engste Kopplung zwischen BCs.
 > Je größer der Kernel, desto mehr Abstimmungsaufwand.
@@ -225,25 +308,25 @@ sofortige Integration gewünscht ist.
 ### Vorgeschmack auf Modul 08 (Paketstruktur)
 
 ```
-de.realestate/
-├── brokerage/            ← BC: Brokerage
+de.foerderung/
+├── antragstellung/       ← BC: Antragstellung (Core)
 │   ├── domain/
 │   ├── application/
 │   ├── infrastructure/
 │   └── adapter/
-├── acquisition/          ← BC: Acquisition
+├── pruefung/             ← BC: Fachliche Prüfung (Core)
 │   ├── domain/
 │   ├── application/
 │   ├── infrastructure/
 │   └── adapter/
-└── contact/              ← BC: Contact Management
+└── referenzdaten/        ← BC: Referenzdaten (Generic, OHS)
     ├── domain/
     └── ...
 ```
 
 - Jeder Context ist ein Top-Level-Package (oder Maven-Modul)
 - Contexts kommunizieren nur über definierte Schnittstellen (Events, APIs)
-- Kein direkter Import von `brokerage.domain` in `acquisition.domain`!
+- Kein direkter Import von `antragstellung.domain` in `pruefung.domain`!
 
 ---
 
@@ -258,7 +341,84 @@ de.realestate/
 5. Conway's Law - Welches Team verantwortet welchen Bereich?
 
 ---
+<style scoped>section { font-size: 1.5em; }</style>
+
+## Bounded Contexts in der Förderantragsverwaltung
+
+### Pivot Events bestimmen die Grenzen
+
+| Pivot Event | Grenze | Signal |
+|-------------|--------|--------|
+| `AntragsmappeEingereicht` | Antragstellung → Fachliche Prüfung | Akteurwechsel: Antragsteller → Sachbearbeiterin |
+| `AntragPositivBeschieden` | Fachliche Prüfung → Auszahlung | Sprachgrenze: "Antrag" → "Zahlungsantrag" |
+| `ZahlungAngewiesen` | Auszahlung → Bescheidversand | Verantwortungswechsel: Zahlstelle → System |
+
+### Bounded Contexts (abgeleitet aus echten Systemgrenzen)
+
+| Bounded Context | Subdomain-Typ | Kern-Aggregate | Pivot-Event |
+|-----------------|--------------|----------------|-------------|
+| **Antragstellung** | Core | AntragsMappe, Flurstück | AntragsmappeEingereicht |
+| **Fachliche Prüfung** | Core | Prüfvorgang, Kontrolle | AntragPositivBeschieden |
+| **Auszahlung** | Supporting | Zahlungsantrag, Kautionsverwaltung | ZahlungAngewiesen |
+| **Bescheidversand** | Supporting | Bescheid | BescheidVersandt |
+| **Auswertung / Monitoring** | Supporting | MonitoringReport | — (reaktiv) |
+| **Referenzdaten** | Generic | Flurstücks-Stammdaten | — (OHS) |
+
+> "Antrag" bedeutet in **Antragstellung** (AntragsMappe mit Flurstücken)
+> etwas anderes als in **Auszahlung** (Zahlungsantrag mit Förderbetrag).
+> Das ist die wichtigste sprachliche Grenze in diesem Domänenmodell.
+
+---
+<style scoped>section { font-size: 1.4em; }</style>
+
+## Context Map — Ist-Zustand (Messaging)
+
+```
+  Antragstellung
+         │ Customer/Supplier
+         │ [AntragsmappeGeaendert]
+         ▼
+  Fachliche Prüfung  ◄── Referenzdaten [Conformist/OHS]
+         │ Customer/Supplier
+         │ [AntragPositivBeschieden]
+         ▼
+       Auszahlung
+       /          \
+  [ACL]          [ACL]
+    │               │
+ Auswertung    Bescheidversand
+```
+
+### Was wir jetzt erkenne — Context-Mapping-Patterns
+
+| Beziehung | Pattern | Technisch |
+|-----------|---------|-----------|
+| Antragstellung → Fachliche Prüfung | Customer/Supplier | `topic/AenderungAnRegisterable` (JMS) |
+| Auszahlung → Auswertung | **sollte ACL sein**, ist heute Conformist | MDB castet direkt auf fremdes Objekt |
+| Auszahlung → Bescheidversand | **sollte ACL sein**, ist heute Conformist | Kein Translator vorhanden |
+| Referenzdaten → alle | Open Host Service | REST-API + Published Language |
+| Legacy-System ↔ Kernsystem (Importe) | **ungewollter Shared Kernel** | Java-Klassen über Projektgrenzen importiert |
+
+> Das größte Risiko: `AenderungAnElerAntragsMappe` wird direkt von 217 MDBs verwendet.
+> Ein umbenannter Klassenname — und alle 217 MDBs kompilieren nicht mehr.
+
+---
+
+### Zum Nachlesen
+
+- Evans, „Domain-Driven Design" (2003), S. 335: Bounded Context — Definition und Abgrenzung
+- Evans, „Domain-Driven Design" (2003), S. 344: Context Map — Beziehungen zwischen Contexten
+- Evans, „Domain-Driven Design" (2003), S. 364: Anti-Corruption Layer — das Modell schützen
+- Vernon, „Implementing Domain-Driven Design" (2013), S. 53: Domains, Subdomains, Bounded Contexts
+- Vernon, „Implementing Domain-Driven Design" (2013), S. 111: Context Mapping
+- Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 1: Fachdomänen und Subdomains
+- Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 3: Bounded Contexts
+- Khononov, „Einführung in Domain-Driven Design" (2022), Kapitel 4: Bounded Contexts integrieren (ACL, Shared Kernel)
+- Kaiser, „Architecture for Flow" (2025), Kapitel 2: Subdomains und Wardley-Evolution-Stages
+- Kaiser, „Architecture for Flow" (2025), Kapitel 5: Conway's Law und Team Topologies
+
+---
 
 ## Hands-on: Lab 03
 
-### Context Map für das Immobilien-CRM erstellen
+### Context Map für die Förderantragsverwaltung erstellen

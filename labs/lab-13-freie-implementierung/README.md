@@ -2,30 +2,154 @@
 
 Wähle eine oder mehrere der folgenden Vertiefungsoptionen und implementiere sie eigenständig.
 
-## AcceptOffer - ein weiterer Use Case (einfach)
+## Kontrolle durchführen - ein weiterer Use Case (einfach)
 
-Implementiere den `AcceptOfferUseCase` mit Command, Application Service, REST-Endpoint und Tests. Der Flow im Überblick:
+Implementiere den `KontrolleDurchfuehrenUseCase` mit Command, Application Service,
+REST-Endpoint und Tests. Der Flow im Überblick:
 
-1. `POST /api/brokerage/processes/{id}/offers` mit Angebotsbetrag und Interessent
-2. Command-Objekt `AcceptOfferCommand(UUID brokerageProcessId, String prospectName, BigDecimal amount)`
-3. Application Service lädt den `BrokerageProcess`, ruft `acceptOffer()` auf und speichert
-4. REST-Endpoint gibt 201 mit der Angebots-ID zurück
+1. `POST /api/pruefung/pruefvorgaenge/{id}/kontrollen` mit Kontrolleur-Name und Ergebnis
+2. Command-Objekt `KontrolleDurchfuehrenCommand(UUID pruefvorgangId, String kontrolleur, KontrollErgebnis ergebnis)`
+3. Application Service lädt den `Pruefvorgang`, ruft `kontrolleDurchfuehren()` auf und speichert
+4. REST-Endpoint gibt 201 mit der Kontroll-ID zurück
 5. Tests: Unit-Test für Use Case, WebMvcTest für Controller
 
-## Anti-Corruption Layer mit OpenImmo-XML (mittel)
+## Anti-Corruption Layer für externe Referenzdaten (mittel)
 
-Externe Systeme liefern Daten in fremden Formaten. Erstelle einen Adapter, der ein (simuliertes) OpenImmo-XML-Dokument entgegennimmt und in die Domain-Objekte der Objektverwaltung übersetzt.
+Externe Systeme liefern Daten in fremden Formaten. Erstelle einen Adapter, der
+ein (simuliertes) IACS/InVeKoS-Datenformat entgegennimmt und in die
+Domain-Objekte der Antragstellung übersetzt.
 
-Definiere dazu ein einfaches OpenImmo-XML-Format (z.B. `<openimmo><anbieter><immobilie><geo><plz>50667</plz><ort>Köln</ort></geo></immobilie></anbieter></openimmo>`), erstelle einen `OpenImmoTranslationService` im Package `adapter.acl` und verwende JAXB oder einfaches String-Parsing für die Übersetzung. Vergiss die Tests nicht.
+Definiere dazu ein einfaches XML-Format (z.B. Flurstücksdaten mit
+Gemarkung, Flur, Zähler/Nenner), erstelle einen `InVeKoSTranslationService`
+im Package `adapter.acl` und verwende JAXB oder einfaches String-Parsing für
+die Übersetzung. Vergiss die Tests nicht.
 
-## CQRS: Separates Read Model (mittel)
+```java
+// ACL: externe Referenzdaten → eigene Value Objects
+@Component
+class InVeKoSTranslator {
+    Flurstück translate(InVeKoSFlurstueckDto dto) {
+        return new Flurstück(
+            new FlurstueckNummer(dto.getGemarkung(), dto.getFlur(),
+                dto.getZaehler(), dto.getNenner()),
+            new Flaeche(dto.getGroesse(), "ha")
+        );
+    }
+}
+```
 
-Listenansichten brauchen andere Daten als Schreiboperationen. Erstelle ein separates Read Model `BrokerageProcessOverview` als eigene `@Entity` (oder Spring Data JPA Projection) mit den Feldern `id`, `address` (als String), `status`, `viewingCount`, `offerCount`.
+## CQRS: Separates Monitoring-Read-Model (mittel)
 
-Dazu gehören ein dedizierter `BrokerageProcessQueryService` und ein separater REST-Endpoint `GET /api/brokerage/processes/overview`.
+Auswertungs-Dashboards brauchen andere Daten als Antragstellung-Schreiboperationen.
+Erstelle ein separates Read Model `MonitoringUebersicht` als eigene `@Entity`
+(oder Spring Data JPA Projection) mit den Feldern `registrierungsNummer`,
+`status`, `letzteAenderung`, `anzahlKontrollen`, `bescheidVersandt`.
+
+Dazu gehören ein dedizierter `MonitoringQueryService` und ein separater
+REST-Endpoint `GET /api/auswertung/monitoring/uebersicht`.
+
+Aktualisiere das Read Model über einen `@EventListener`, der auf
+`AntragsmappeGeaendert` reagiert:
+
+```java
+@Component @RequiredArgsConstructor
+class MonitoringUebersichtProjection {
+    private final MonitoringUebersichtRepository repository;
+
+    @EventListener
+    void on(AntragsmappeGeaendert event) {
+        var uebersicht = repository
+            .findByRegistrierungsNummer(event.registrierungsNummer())
+            .orElseGet(() -> MonitoringUebersicht.erstellen(
+                event.registrierungsNummer()));
+        uebersicht.aktualisiere(
+            MonitoringsStatus.from(event.aenderungsArt()),
+            event.geaendertAm());
+        repository.save(uebersicht);
+    }
+}
+```
 
 ## Kafka-Anbindung skizzieren (schwer)
 
-Wie sähe eine Kafka-basierte Event-Kommunikation zwischen Bounded Contexts aus? Füge `spring-kafka` als Dependency hinzu und erstelle sowohl einen Outbound-Adapter `KafkaBrokerageProcessEventPublisher`, der Domain Events auf ein Kafka-Topic schreibt, als auch einen Inbound-Adapter `KafkaAcquisitionEventConsumer`, der Events empfängt. Konfiguriere Kafka in `application.yml`.
+Wie sähe eine Kafka-basierte Event-Kommunikation zwischen Bounded Contexts aus?
+Füge `spring-kafka` als Dependency hinzu und erstelle sowohl einen
+Outbound-Adapter als auch einen Inbound-Adapter:
 
-Ein laufender Kafka-Broker wird nicht benötigt - es reicht eine Skizze mit den richtigen Annotationen und Konfigurationen.
+### Outbound — Antragstellung publiziert auf Kafka
+
+```java
+@Component @RequiredArgsConstructor
+class KafkaAntragMappeEventPublisher {
+    private final KafkaTemplate<String, AntragsmappeEingereicht> kafkaTemplate;
+    private static final String TOPIC = "antragstellung.antragsmappe.eingereicht.v1";
+
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    void publish(AntragsmappeEingereicht event) {
+        kafkaTemplate.send(TOPIC, event.registrierungsNummer(), event);
+    }
+}
+```
+
+### Inbound — Prüfung konsumiert
+
+```java
+@Component @RequiredArgsConstructor
+class KafkaPruefungEventConsumer {
+    private final AntragstellungEventTranslator translator;
+    private final PruefungStartenService service;
+
+    @KafkaListener(topics = "antragstellung.antragsmappe.eingereicht.v1",
+                   groupId = "pruefung")
+    void consume(AntragsmappeEingereicht event) {
+        service.start(translator.translate(event));
+    }
+}
+```
+
+### Evolutionsstufen
+
+```
+Stufe 1 — Legacy: JMS MDB
+  @MessageDriven + ObjectMessage + JMS Topic
+  Problem: kein Translator, kein eigenes Modell, kein Idempotenz-Check
+
+Stufe 2 — In-Process: Spring ApplicationEvents
+  ApplicationEventPublisher + @TransactionalEventListener
+  Gut für: gleiche JVM, Transaktionssicherheit
+  Grenze: Kein Service-übergreifendes Messaging möglich
+
+Stufe 3 — Webhook-basiert
+  WebhookEventScheduler + HTTP POST
+  Gut für: externe Systeme benachrichtigen
+  Problem: polling-basiert, kein Ordering, kein At-Least-Once
+
+Stufe 4 — Ziel: Kafka
+  @KafkaListener + JSON Schema + Consumer Groups
+  Gut für: verteilte Services, Replay, At-Least-Once + Idempotenz
+```
+
+Ein laufender Kafka-Broker wird nicht benötigt - es reicht eine Skizze mit
+den richtigen Annotationen und Konfigurationen. Die ACL-Logik (Translator +
+Service) bleibt identisch zum In-Process-Ansatz.
+
+**Diskussionsfragen:**
+- *"Welcher Event-Listener hat den höchsten Geschäftswert und wäre der beste
+  Kafka-Migrations-Kandidat?"*
+- *"Was ist die Partitionierungs-Strategie?"*
+  → `registrierungsNummer` als Key → Ordering pro Antrag garantiert
+
+## JMS-zu-DDD-Mapping erstellen (einfach, konzeptionell)
+
+Erstelle für ein Legacy-System mit JMS-Messaging eine Übersicht, die für
+5-10 ausgewählte Message Listener dokumentiert:
+
+| Listener-Name | JMS Topic/Queue | DDD-Entsprechung | Bounded Context | Fehlende DDD-Elemente |
+|---------------|----------------|-------------------|-----------------|----------------------|
+| *MonitoringSynchronizer* | `topic/AenderungAnRegisterable` | Event Listener | Auswertung | ACL Translator, eigenes VO |
+| *AuszahlungListener* | `topic/ZaPositivEntschieden` | Event Listener | Auszahlung | Idempotenz, eigenes Aggregate |
+| ... | ... | ... | ... | ... |
+
+**Lernziel:** Message Listener in Legacy-Systemen sind nicht "Chaos", sondern
+ein implizites event-getriebenes System — mit DDD-Brille lassen sich ACLs,
+Bounded Contexts und fehlende Translators systematisch identifizieren.

@@ -35,14 +35,14 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b>
-                                        PropertyController
+                                        AntragsmappeController
                                     </b>
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="111" y="108" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle">
-                        PropertyController
+                        AntragsmappeController
                     </text>
                 </switch>
             </g>
@@ -185,14 +185,14 @@
                             <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
                                 <div style="display: inline-block; font-size: 11px; font-family: &quot;Helvetica&quot;; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                     <b>
-                                        PropertyService
+                                        AntragsmappeService
                                     </b>
                                 </div>
                             </div>
                         </div>
                     </foreignObject>
                     <text x="181" y="448" fill="light-dark(#000000, #ffffff)" font-family="&quot;Helvetica&quot;" font-size="11px" text-anchor="middle">
-                        PropertyService
+                        AntragsmappeService
                     </text>
                 </switch>
             </g>

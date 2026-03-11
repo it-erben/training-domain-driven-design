@@ -1,8 +1,8 @@
 spring:
   application:
-    name: realestate-crm
+    name: foerderantragsverwaltung
   datasource:
-    url: jdbc:h2:mem:realestatecrm
+    url: jdbc:h2:mem:foerderantrag
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -10,12 +10,9 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
+  mvc:
+    problemdetails:
+      enabled: true
 
 server:
   port: 8080

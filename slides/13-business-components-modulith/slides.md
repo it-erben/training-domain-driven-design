@@ -33,8 +33,8 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 | Ebene | Beschreibung | Beispiel |
 |-------|-------------|----------|
-| Bounded Context | Fachliche Grenze aus DDD | Vermittlung, Kontaktmanagement |
-| Modul | Code-Organisation im Monolithen | `de.realestate.brokerage` |
+| Bounded Context | Fachliche Grenze aus DDD | Antragstellung, Auswertung |
+| Modul | Code-Organisation im Monolithen | z. B. `de.foerderung.antragstellung` |
 | Deployment Unit | Auslieferbare Einheit | JAR, Docker Container |
 
 > Ein Bounded Context kann als Modul starten und später zum Microservice werden.
@@ -83,6 +83,28 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 - Microservices lohnen sich erfahrungsgemäß ab ca. 5+ Teams
 
 ---
+<style scoped>section { font-size: 1.6em; }</style>
+
+## Team Topologies: Modul-Grenzen = Team-Grenzen
+
+### Conway's Law aktiv nutzen (Kaiser, 2025)
+
+> Modul-Schnitt und Team-Organisation müssen zusammenpassen.
+> Ein Modul, das von mehreren Teams geändert wird, wird zur Koordinations-Falle.
+
+| Modul / BC | Team-Typ (Team Topologies) | Interaktion |
+|---|---|---|
+| Antragstellung (Core) | Stream-Aligned Team | X-as-a-Service |
+| Fachliche Prüfung (Core) | Stream-Aligned Team | X-as-a-Service |
+| Referenzdaten (Generic) | Platform Team | X-as-a-Service |
+| Shared Kernel / Querschnitt | Enabling Team (temporär) | Facilitating |
+
+### Wann ist ein Modul "extrahierbar"?
+
+Wenn ein Stream-Aligned Team **vollständige End-to-End-Verantwortung**
+für ein Modul übernehmen kann — ohne tägliche Abstimmung mit anderen Teams.
+
+---
 <style scoped>section { font-size: 1.7em; }</style>
 
 ## Spring Modulith - Einführung
@@ -124,18 +146,18 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ## Modul-Struktur-Konventionen
 
 ```
-de.realestate                           ← @SpringBootApplication
-├── brokerage/                             ← Modul "Vermittlung"
-│   ├── ViewingScheduledEvent.java              (public → Event-API)
-│   ├── adapter/                                (Subpaket → intern)
+de.foerderung                 <- @SpringBootApplication
+├── antragstellung/                           <- Modul "Antragstellung"
+│   ├── FlurstueckHinzugefuegt.java               (public -> Event-API)
+│   ├── adapter/                                  (Subpaket -> intern)
 │   │   └── web/
 │   ├── application/
 │   │   └── service/
 │   ├── domain/
 │   │   └── model/
 │   └── infrastructure/
-├── contact/                               ← Modul "Kontaktmanagement"
-└── RealEstateCrmApplication.java
+├── auswertung/                               <- Modul "Auswertung"
+└── FoerderungAnwendung.java
 ```
 
 - Top-Level-Packages unter der Hauptklasse = Module
@@ -153,14 +175,14 @@ de.realestate                           ← @SpringBootApplication
 ## @ApplicationModule
 
 ```java
-// brokerage/package-info.java
+// antragstellung/package-info.java
 @ApplicationModule(
     allowedDependencies = {
-        "contact",
+        "auswertung",
         "shared"
     }
 )
-package de.realestate.brokerage;
+package de.foerderung.antragstellung;
 ```
 
 - Deklariert explizit, welche anderen Module referenziert werden dürfen
@@ -196,7 +218,7 @@ package de.realestate.brokerage;
 class ModulithStructureTest {
 
     ApplicationModules modules =
-        ApplicationModules.of(RealEstateCrmApplication.class);
+        ApplicationModules.of(FoerderungAnwendung.class);
 
     @Test
     void verifyModuleStructure() {
@@ -227,24 +249,27 @@ class ModulithStructureTest {
 
 ```java
 // domain.model (no Spring!)
-public class BrokerageProcess {
-    private final List<Object> domainEvents = new ArrayList<>();
+public class AntragsMappe {
+    private final List<AntragEvent> domainEvents = new ArrayList<>();
 
-    public ViewingId scheduleViewing(ContactId prospect,
-                                     LocalDateTime appointmentDate) {
-        var viewing = new Viewing(
-            ViewingId.generate(), prospect, appointmentDate);
-        viewings.add(viewing);
+    public FlurstueckId flurstueckHinzufuegen(FlurstueckNummer nummer,
+                                              BigDecimal flaeche) {
+        var flurstueck = new Flurstueck(
+            FlurstueckId.generate(), nummer, flaeche);
+        flurstuecke.add(flurstueck);
 
-        domainEvents.add(new ViewingScheduledEvent(
-            id, viewing.getId(), prospect, appointmentDate));
+        // Value Objects auf primitive Typen mappen — öffentliche Modul-API kennt keine Value Objects
+        registerEvent(new FlurstueckHinzugefuegt(
+            id.value(), flurstueck.getId().value(), nummer.wert(), flaeche, Instant.now()));
 
-        return viewing.getId();
+        return flurstueck.getId();
     }
 
-    public List<Object> domainEvents() {
+    public List<AntragEvent> domainEvents() {
         return Collections.unmodifiableList(domainEvents);
     }
+
+    protected void registerEvent(AntragEvent event) { domainEvents.add(event); }
 
     public void clearDomainEvents() { domainEvents.clear(); }
 }
@@ -259,13 +284,13 @@ public class BrokerageProcess {
 
 ```java
 @Service
-public class ScheduleViewingService implements ScheduleViewing {
+public class FlurstueckHinzufuegenService implements FlurstueckHinzufuegen {
 
-    private final BrokerageProcessRepository repository;
+    private final AntragsMappeRepository repository;
     private final ApplicationEventPublisher eventPublisher;
 
-    public ScheduleViewingService(
-            BrokerageProcessRepository repository,
+    public FlurstueckHinzufuegenService(
+            AntragsMappeRepository repository,
             ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
@@ -273,14 +298,16 @@ public class ScheduleViewingService implements ScheduleViewing {
 
     @Transactional
     @Override
-    public ViewingId schedule(ScheduleViewingCommand cmd) {
-        var process = repository.findById(cmd.processId())
-            .orElseThrow(() -> new ProcessNotFound(cmd.processId()));
-        var id = process.scheduleViewing(cmd.prospectId(), cmd.appointmentDate());
-        repository.save(process);
-        process.domainEvents().forEach(eventPublisher::publishEvent);
-        process.clearDomainEvents();
-        return id;
+    public FlurstueckHinzufuegenResult hinzufuegen(FlurstueckHinzufuegenCommand cmd) {
+        var mappe = repository.findById(cmd.antragsmappeId())
+            .orElseThrow(() -> new AntragsmappeNichtGefundenException(cmd.antragsmappeId()));
+        var flurstueckId = mappe.flurstueckHinzufuegen(
+            cmd.flurstueckNummer(), cmd.flaeche());
+        repository.save(mappe);
+        mappe.domainEvents().forEach(eventPublisher::publishEvent);
+        mappe.clearDomainEvents();
+        return new FlurstueckHinzufuegenResult(
+            flurstueckId, mappe.getId(), cmd.flurstueckNummer(), cmd.flaeche());
     }
 }
 ```
@@ -300,14 +327,15 @@ public class ScheduleViewingService implements ScheduleViewing {
 ## Domain Event als Record - Öffentliche Modul-API
 
 ```java
-// Located in the module root (NOT in internal/) → public API
-package de.realestate.brokerage;
+// Located in the module root (NOT in internal/) -> public API
+package de.foerderung.antragstellung;
 
-public record ViewingScheduledEvent(
-    UUID processId,
-    UUID viewingId,
-    UUID prospectId,
-    LocalDateTime appointmentDate
+public record FlurstueckHinzugefuegt(
+    UUID antragsmappeId,
+    UUID flurstueckId,
+    String flurstueckNummer,
+    BigDecimal flaeche,
+    Instant occurredAt
 ) {}
 ```
 
@@ -322,17 +350,17 @@ public record ViewingScheduledEvent(
 ## Events konsumieren - @EventListener
 
 ```java
-// In a different module: contact
-package de.realestate.contact.internal;
+// In a different module: auswertung
+package de.foerderung.auswertung.internal;
 
 @Component
-class ViewingNotification {
+class AntragsstatusNotification {
 
     @EventListener
-    public void onViewingScheduled(ViewingScheduledEvent event) {
-        log.info("New viewing for process {} on {}",
-            event.processId(), event.appointmentDate());
-        // Notify prospect via email
+    public void onFlurstueckHinzugefuegt(FlurstueckHinzugefuegt event) {
+        log.info("Neues Flurstueck {} fuer Antrag {} hinzugefuegt",
+            event.flurstueckId(), event.antragsmappeId());
+        // Auswertung aktualisieren
     }
 }
 ```
@@ -347,27 +375,33 @@ class ViewingNotification {
 ---
 <style scoped>section { font-size: 1.7em; }</style>
 
-## @TransactionalEventListener - Side Effects
+## @ApplicationModuleListener — Spring Modulith 1.2+
+
+Spring Modulith bietet seit Version 1.2 eine dedizierte Annotation,
+die `@TransactionalEventListener(phase = AFTER_COMMIT)` vereinfacht
+und explizit die Modul-Semantik ausdrückt:
 
 ```java
 @Component
-class ViewingNotification {
+class AntragsstatusNotification {
 
-    @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onViewingScheduled(ViewingScheduledEvent event) {
-        // Only executed AFTER successful commit
-        emailService.sendInvitation(event.prospectId(), event.appointmentDate());
+    // Kurzform: implizit AFTER_COMMIT + transaktionale Semantik
+    @ApplicationModuleListener
+    public void onFlurstueckHinzugefuegt(FlurstueckHinzugefuegt event) {
+        // Läuft nach erfolgreichem Commit der Publisher-Transaktion
+        benachrichtigungsService.senden(event.antragsmappeId(), event.flurstueckId());
     }
 }
 ```
 
-| Phase | Wann? | Use Case |
-|-------|-------|----------|
-| `AFTER_COMMIT` | Nach erfolgreichem Commit | E-Mail, Notification |
-| `AFTER_ROLLBACK` | Nach Rollback | Fehler-Logging |
-| `AFTER_COMPLETION` | Immer nach Abschluss | Cleanup |
+| Annotation | Verhalten | Empfehlung |
+|-----------|-----------|------------|
+| `@EventListener` | Synchron, in Publisher-Transaktion | Für Invarianten innerhalb desselben BC |
+| `@TransactionalEventListener(phase = AFTER_COMMIT)` | Nach Commit, At-Most-Once | Explizite Phasensteuerung |
+| `@ApplicationModuleListener` | AFTER_COMMIT, Spring Modulith-aware | **Standard für Modul-Events** |
 
-> Empfehlung: `AFTER_COMMIT` für alle Side Effects (E-Mail, Benachrichtigung, externe API-Calls).
+> `@ApplicationModuleListener` ist die empfohlene Annotation für Event-Listener
+> zwischen Spring-Modulith-Modulen — sie macht die Modul-Semantik explizit sichtbar.
 
 ---
 <style scoped>section { font-size: 1.7em; }</style>
@@ -401,13 +435,13 @@ class ViewingNotification {
 
 ```java
 @Component
-class ViewingStatistics {
+class AntragsStatistik {
 
     @Async
     @TransactionalEventListener(phase = AFTER_COMMIT)
-    public void onViewingScheduled(ViewingScheduledEvent event) {
+    public void onFlurstueckHinzugefuegt(FlurstueckHinzugefuegt event) {
         // Runs in its own thread, its own transaction
-        statisticsService.recordViewing(event);
+        statistikService.flurstueckErfassen(event);
     }
 }
 ```
@@ -417,7 +451,7 @@ class ViewingStatistics {
 ```java
 @SpringBootApplication
 @EnableAsync
-public class RealEstateCrmApplication { }
+public class FoerderungAnwendung { }
 ```
 
 - `@Async` + `@TransactionalEventListener` = eigener Thread-Pool, eigene Transaktion
@@ -431,17 +465,18 @@ public class RealEstateCrmApplication { }
 ## @Externalized - Events nach außen leiten
 
 ```java
-@Externalized("viewings::#{#this.viewingId()}")
-public record ViewingScheduledEvent(
-    UUID processId,
-    UUID viewingId,
-    UUID prospectId,
-    LocalDateTime appointmentDate
+@Externalized("flurstuecke::#{#this.flurstueckId()}")
+public record FlurstueckHinzugefuegt(
+    UUID antragsmappeId,
+    UUID flurstueckId,
+    String flurstueckNummer,
+    BigDecimal flaeche,
+    Instant occurredAt
 ) {}
 ```
 
 ```xml
-<!-- e.g. Kafka integration -->
+<!-- z.B. Kafka-Integration -->
 <dependency>
     <groupId>org.springframework.modulith</groupId>
     <artifactId>spring-modulith-events-kafka</artifactId>
@@ -454,6 +489,36 @@ public record ViewingScheduledEvent(
 - Vorbereitung für spätere Microservice-Extraktion
 
 ---
+<style scoped>section { font-size: 1.6em; }</style>
+
+## Ablösung direkter Webhook-Kommunikation zwischen Modulen
+
+### Das Problem
+
+```
+Heute: Module rufen sich direkt per Webhook auf
+→ Enge Kopplung: Antragstellung kennt Auszahlung direkt
+→ Keine Fehlertoleranz: Webhook schlägt fehl = Daten verloren
+→ Schwer testbar: Integration Tests brauchen alle Module
+```
+
+### Die Lösung: Spring Modulith EventRegistry
+
+```java
+// Kein Kafka nötig! DB-backed, at-least-once delivery
+@TransactionalEventListener(phase = AFTER_COMMIT)
+@Async
+public void onAntragEingereicht(AntragsmappeEingereicht event) {
+    // Auszahlungsmodul reagiert auf Event - kennt Antragstellung NICHT
+    auszahlungService.initiieren(event.antragsmappeId());
+}
+```
+
+> **Broker-frei:** Die Event Publication Registry (JDBC) schreibt Events
+> in die gleiche DB-Transaktion - keine externe Infrastruktur nötig.
+> Perfekt als erster Schritt hin zu entkoppelter, event-basierter Modulkommunikation.
+
+---
 <style scoped>section { font-size: 1.7em; }</style>
 
 ## Wann einen Microservice extrahieren?
@@ -463,7 +528,7 @@ public record ViewingScheduledEvent(
 - Unabhängiges Deployment: Team will unabhängig deployen
 - Skalierung: Ein Modul hat andere Lastanforderungen
 - Technologie: Ein Modul braucht einen anderen Tech-Stack
-- Organisatorisch: Eigenes Team, eigener Lifecycle
+- Organisatorisch: Stream-Aligned Team mit vollständiger End-to-End-Verantwortung (Team Topologies)
 
 ### NICHT extrahieren wegen
 
@@ -476,11 +541,11 @@ public record ViewingScheduledEvent(
 ### Extraktionsstrategie
 
 ```
-1. Modul im Monolith sauber geschnitten  → Spring Modulith verify() [OK]
-2. Events für Kommunikation              → @Externalized vorbereitet
-3. API definiert                         → REST / gRPC Schnittstelle
-4. Eigene Datenbank                      → Shared DB auflösen
-5. Eigenes Deployment                    → Container, CI/CD Pipeline
+1. Modul im Monolith sauber geschnitten  -> Spring Modulith verify() [OK]
+2. Events fuer Kommunikation             -> @Externalized vorbereitet
+3. API definiert                         -> REST / gRPC Schnittstelle
+4. Eigene Datenbank                      -> Shared DB aufloesen
+5. Eigenes Deployment                    -> Container, CI/CD Pipeline
 ```
 
 ---
@@ -514,15 +579,17 @@ public record ViewingScheduledEvent(
 
 ```java
 @ApplicationModuleTest
-class BrokerageIntegrationTest {
+class AntragstellungIntegrationTest {
 
     @Test
-    void viewingScheduledTriggersNotification(Scenario scenario) {
-        scenario.publish(new ViewingScheduledEvent(
-                processId, viewingId, prospectId, LocalDateTime.now()))
-            .andWaitForEventOfType(NotificationSentEvent.class)
+    void flurstueckHinzugefuegtAktualisiertStatistik(Scenario scenario) {
+        scenario.publish(new FlurstueckHinzugefuegt(
+                antragsmappeId, flurstueckId,
+                "BW-0012-0034-0001", new BigDecimal("3.75"),
+                Instant.now()))
+            .andWaitForEventOfType(StatistikAktualisiertEvent.class)
             .toArriveAndVerify(event ->
-                assertThat(event.prospectId()).isEqualTo(prospectId));
+                assertThat(event.antragsmappeId()).isEqualTo(antragsmappeId));
     }
 }
 ```
@@ -538,7 +605,7 @@ class BrokerageIntegrationTest {
 
 ### Aufgabe
 
-Strukturiert das Immobilien-CRM mit Spring Modulith:
+Strukturiert die Förderantragsverwaltung mit Spring Modulith:
 
 1. Module nach Bounded Contexts schneiden (Top-Level-Packages)
 2. `package-info.java` mit `@ApplicationModule` anlegen
@@ -556,11 +623,19 @@ Strukturiert das Immobilien-CRM mit Spring Modulith:
 
 > Modulith oder Microservices - was passt zu eurem Kontext?
 
+- **Konkret:** Wie ersetzen wir direkte Webhook-Infrastruktur zwischen Modulen durch Events?
+- Welche Module kommunizieren heute noch direkt per Webhook - und wie würde ein Event-basierter Schnitt aussehen?
+- Wie verhindert Spring Modulith, dass neue Module das Webhook-Antipattern wiederholen?
 - Wie groß ist euer Team / eure Organisation?
-- Wie oft müsst ihr einzelne Teile unabhängig deployen?
 - Habt ihr die Ops-Kapazität für Microservices
   (Monitoring, Tracing, Service Mesh)?
-- Welche Erfahrungen habt ihr mit verteilten Systemen
-  (Eventual Consistency, Partial Failures)?
 - Wo liegen eure Bounded-Context-Grenzen aktuell?
 - Könntet ihr Events zwischen euren Modulen identifizieren?
+
+---
+
+### Zum Nachlesen
+
+- Kaiser, „Architecture for Flow" (2025), Kapitel 5: Team Topologies und Bounded Contexts
+- Kaiser, „Architecture for Flow" (2025), Kapitel 6: Streams of Change identifizieren
+- Skelton & Pais, „Team Topologies" (2019): Team-Typen und Interaktionsmodi

@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" font-family="Segoe UI, Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#f0f4f8"/>
+
+  <!-- Left panel: Flurstücke aerial map -->
+  <rect x="40" y="40" width="480" height="640" rx="16" fill="#fff" stroke="#d1e3f5" stroke-width="2"/>
+
+  <!-- Map header -->
+  <rect x="40" y="40" width="480" height="56" rx="16" fill="#1a6faf"/>
+  <rect x="40" y="72" width="480" height="24" fill="#1a6faf"/>
+  <text x="280" y="75" text-anchor="middle" fill="white" font-size="20" font-weight="bold">Digitale Flurstückkarte</text>
+
+  <!-- Grid land parcels -->
+  <!-- Row 1 -->
+  <rect x="64" y="120" width="110" height="80" rx="4" fill="#7cb87a" stroke="#5a9958" stroke-width="1.5"/>
+  <rect x="184" y="120" width="130" height="80" rx="4" fill="#9fcf8e" stroke="#7aad6e" stroke-width="1.5"/>
+  <rect x="324" y="120" width="90" height="80" rx="4" fill="#6ab368" stroke="#4e8f4c" stroke-width="1.5"/>
+  <rect x="424" y="120" width="76" height="80" rx="4" fill="#b8dfa6" stroke="#8eba7e" stroke-width="1.5"/>
+
+  <!-- Row 2 -->
+  <rect x="64" y="210" width="140" height="70" rx="4" fill="#c2e5a8" stroke="#9abb88" stroke-width="1.5"/>
+  <rect x="214" y="210" width="100" height="70" rx="4" fill="#7cb87a" stroke="#5a9958" stroke-width="1.5"/>
+  <rect x="324" y="210" width="176" height="70" rx="4" fill="#5ea65c" stroke="#3d8040" stroke-width="1.5"/>
+
+  <!-- Row 3 -->
+  <rect x="64" y="290" width="80" height="90" rx="4" fill="#9fcf8e" stroke="#7aad6e" stroke-width="1.5"/>
+  <rect x="154" y="290" width="130" height="90" rx="4" fill="#e8f5d8" stroke="#b5d49a" stroke-width="1.5"/>
+  <rect x="294" y="290" width="90" height="90" rx="4" fill="#7cb87a" stroke="#5a9958" stroke-width="1.5"/>
+  <rect x="394" y="290" width="106" height="90" rx="4" fill="#b8dfa6" stroke="#8eba7e" stroke-width="1.5"/>
+
+  <!-- Row 4 -->
+  <rect x="64" y="390" width="200" height="65" rx="4" fill="#6ab368" stroke="#4e8f4c" stroke-width="1.5"/>
+  <rect x="274" y="390" width="110" height="65" rx="4" fill="#c2e5a8" stroke="#9abb88" stroke-width="1.5"/>
+  <rect x="394" y="390" width="106" height="65" rx="4" fill="#9fcf8e" stroke="#7aad6e" stroke-width="1.5"/>
+
+  <!-- Row 5 -->
+  <rect x="64" y="465" width="130" height="70" rx="4" fill="#b8dfa6" stroke="#8eba7e" stroke-width="1.5"/>
+  <rect x="204" y="465" width="90" height="70" rx="4" fill="#7cb87a" stroke="#5a9958" stroke-width="1.5"/>
+  <rect x="304" y="465" width="196" height="70" rx="4" fill="#5ea65c" stroke="#3d8040" stroke-width="1.5"/>
+
+  <!-- Highlighted parcel (selected) -->
+  <rect x="154" y="290" width="130" height="90" rx="4" fill="none" stroke="#e8a020" stroke-width="3"/>
+  <text x="219" y="340" text-anchor="middle" fill="#b06000" font-size="11" font-weight="bold">BW-0012-0034</text>
+  <text x="219" y="355" text-anchor="middle" fill="#b06000" font-size="10">3,75 ha</text>
+
+  <!-- Parcel labels -->
+  <text x="119" y="163" text-anchor="middle" fill="#2d6b2b" font-size="9">BW-0001</text>
+  <text x="249" y="163" text-anchor="middle" fill="#2d6b2b" font-size="9">BW-0002</text>
+  <text x="369" y="163" text-anchor="middle" fill="#2d6b2b" font-size="9">BW-0003</text>
+
+  <!-- Legend -->
+  <rect x="64" y="548" width="14" height="14" rx="2" fill="#5ea65c"/>
+  <text x="84" y="560" fill="#444" font-size="12">Fördergebiet</text>
+  <rect x="64" y="570" width="14" height="14" rx="2" fill="#e8f5d8" stroke="#b5d49a"/>
+  <text x="84" y="582" fill="#444" font-size="12">Nicht förderfähig</text>
+  <rect x="180" y="548" width="14" height="14" rx="2" fill="none" stroke="#e8a020" stroke-width="2.5"/>
+  <text x="200" y="560" fill="#444" font-size="12">Ausgewählt</text>
+
+  <!-- Scale bar -->
+  <line x1="64" y1="618" x2="164" y2="618" stroke="#888" stroke-width="2"/>
+  <line x1="64" y1="613" x2="64" y2="623" stroke="#888" stroke-width="2"/>
+  <line x1="164" y1="613" x2="164" y2="623" stroke="#888" stroke-width="2"/>
+  <text x="114" y="635" text-anchor="middle" fill="#666" font-size="11">1 km</text>
+
+  <!-- Middle: Process flow -->
+  <text x="640" y="35" text-anchor="middle" fill="#1a3a5c" font-size="24" font-weight="bold">Förderantragsprozess</text>
+
+  <!-- Step 1: Antragsteller -->
+  <rect x="540" y="55" width="200" height="130" rx="12" fill="#fff" stroke="#1a6faf" stroke-width="2"/>
+  <circle cx="640" cy="100" r="22" fill="#1a6faf"/>
+  <text x="640" y="107" text-anchor="middle" fill="white" font-size="20">👤</text>
+  <text x="640" y="140" text-anchor="middle" fill="#1a3a5c" font-size="14" font-weight="bold">Betriebsinhaber</text>
+  <text x="640" y="158" text-anchor="middle" fill="#555" font-size="11">stellt Förderantrag</text>
+  <text x="640" y="173" text-anchor="middle" fill="#555" font-size="11">mit Flurstücken</text>
+
+  <!-- Arrow down -->
+  <line x1="640" y1="185" x2="640" y2="220" stroke="#1a6faf" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <polygon points="632,216 640,232 648,216" fill="#1a6faf"/>
+
+  <!-- Step 2: AntragsMappe -->
+  <rect x="540" y="232" width="200" height="100" rx="12" fill="#e8f0fb" stroke="#2c7be5" stroke-width="2"/>
+  <text x="640" y="262" text-anchor="middle" fill="#1a3a5c" font-size="13" font-weight="bold">AntragsMappe</text>
+  <text x="640" y="280" text-anchor="middle" fill="#444" font-size="11">DZ-BW-2024-0042</text>
+  <text x="640" y="297" text-anchor="middle" fill="#444" font-size="11">Status: EINGEREICHT</text>
+  <text x="640" y="314" text-anchor="middle" fill="#444" font-size="11">3 Flurstücke · 12,5 ha</text>
+
+  <!-- Arrow down -->
+  <line x1="640" y1="332" x2="640" y2="365" stroke="#1a6faf" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <polygon points="632,361 640,377 648,361" fill="#1a6faf"/>
+
+  <!-- Step 3: Prüfung -->
+  <rect x="540" y="377" width="200" height="100" rx="12" fill="#fff8e8" stroke="#e8a020" stroke-width="2"/>
+  <text x="640" y="407" text-anchor="middle" fill="#7a4f00" font-size="13" font-weight="bold">Sachbearbeiterin</text>
+  <text x="640" y="425" text-anchor="middle" fill="#555" font-size="11">Prüft Flurstücke</text>
+  <text x="640" y="442" text-anchor="middle" fill="#555" font-size="11">gegen IACS-Daten</text>
+  <text x="640" y="459" text-anchor="middle" fill="#555" font-size="11">Status: IN_PRUEFUNG</text>
+
+  <!-- Arrow down -->
+  <line x1="640" y1="477" x2="640" y2="510" stroke="#1a6faf" stroke-width="2.5" stroke-dasharray="5,3"/>
+  <polygon points="632,506 640,522 648,506" fill="#1a6faf"/>
+
+  <!-- Step 4: Bescheid -->
+  <rect x="540" y="522" width="200" height="100" rx="12" fill="#e8f8ec" stroke="#2ea84f" stroke-width="2"/>
+  <text x="640" y="552" text-anchor="middle" fill="#1a5c30" font-size="13" font-weight="bold">Förderbescheid</text>
+  <text x="640" y="570" text-anchor="middle" fill="#444" font-size="11">Foerderbetrag: 4.375 €</text>
+  <text x="640" y="587" text-anchor="middle" fill="#444" font-size="11">Status: BESCHIEDEN</text>
+  <text x="640" y="604" text-anchor="middle" fill="#2ea84f" font-size="11" font-weight="bold">✓ Positiv beschieden</text>
+
+  <!-- Step 5: Auszahlung -->
+  <rect x="540" y="638" width="200" height="42" rx="12" fill="#1a6faf"/>
+  <text x="640" y="664" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Auszahlung · Zahlstelle</text>
+
+  <!-- Right panel: System context -->
+  <rect x="760" y="40" width="480" height="640" rx="16" fill="#fff" stroke="#d1e3f5" stroke-width="2"/>
+  <rect x="760" y="40" width="480" height="56" rx="16" fill="#1a5c30"/>
+  <rect x="760" y="72" width="480" height="24" fill="#1a5c30"/>
+  <text x="1000" y="75" text-anchor="middle" fill="white" font-size="20" font-weight="bold">Systemkontext &amp; Bounded Contexts</text>
+
+  <!-- BC: Antragstellung -->
+  <rect x="780" y="110" width="200" height="120" rx="10" fill="#e8f0fb" stroke="#2c7be5" stroke-width="2"/>
+  <text x="880" y="135" text-anchor="middle" fill="#1a3a5c" font-size="13" font-weight="bold">Antragstellung</text>
+  <text x="880" y="153" text-anchor="middle" fill="#444" font-size="10">AntragsMappe</text>
+  <text x="880" y="168" text-anchor="middle" fill="#444" font-size="10">Flurstück</text>
+  <text x="880" y="183" text-anchor="middle" fill="#444" font-size="10">FlurstueckNummer</text>
+  <text x="880" y="198" text-anchor="middle" fill="#2c7be5" font-size="10" font-weight="bold">Core Domain</text>
+  <text x="880" y="218" text-anchor="middle" fill="#666" font-size="9">de.foerderung</text>
+
+  <!-- BC: Pruefung -->
+  <rect x="1000" y="110" width="220" height="120" rx="10" fill="#fff8e8" stroke="#e8a020" stroke-width="2"/>
+  <text x="1110" y="135" text-anchor="middle" fill="#7a4f00" font-size="13" font-weight="bold">Prüfung</text>
+  <text x="1110" y="153" text-anchor="middle" fill="#444" font-size="10">Pruefvorgang</text>
+  <text x="1110" y="168" text-anchor="middle" fill="#444" font-size="10">Kontrolle</text>
+  <text x="1110" y="183" text-anchor="middle" fill="#444" font-size="10">Pruefergebnis</text>
+  <text x="1110" y="198" text-anchor="middle" fill="#e8a020" font-size="10" font-weight="bold">Core Domain</text>
+  <text x="1110" y="218" text-anchor="middle" fill="#666" font-size="9">de.foerderung</text>
+
+  <!-- Arrow between BCs -->
+  <line x1="980" y1="170" x2="1000" y2="170" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="996,165 1006,170 996,175" fill="#888"/>
+  <text x="990" y="165" text-anchor="middle" fill="#888" font-size="9">Events</text>
+
+  <!-- BC: Referenzdaten -->
+  <rect x="780" y="250" width="200" height="100" rx="10" fill="#f0f8ff" stroke="#4a9fd4" stroke-width="2"/>
+  <text x="880" y="275" text-anchor="middle" fill="#1a5070" font-size="13" font-weight="bold">Referenzdaten</text>
+  <text x="880" y="293" text-anchor="middle" fill="#444" font-size="10">FoerderProgramm</text>
+  <text x="880" y="308" text-anchor="middle" fill="#444" font-size="10">Foerdergebiet</text>
+  <text x="880" y="323" text-anchor="middle" fill="#4a9fd4" font-size="10" font-weight="bold">Supporting</text>
+  <text x="880" y="340" text-anchor="middle" fill="#666" font-size="9">de.foerderung</text>
+
+  <!-- BC: Auszahlung -->
+  <rect x="1000" y="250" width="220" height="100" rx="10" fill="#e8f8ec" stroke="#2ea84f" stroke-width="2"/>
+  <text x="1110" y="275" text-anchor="middle" fill="#1a5c30" font-size="13" font-weight="bold">Auszahlung</text>
+  <text x="1110" y="293" text-anchor="middle" fill="#444" font-size="10">Bescheid</text>
+  <text x="1110" y="308" text-anchor="middle" fill="#444" font-size="10">Foerderbetrag</text>
+  <text x="1110" y="323" text-anchor="middle" fill="#2ea84f" font-size="10" font-weight="bold">Core Domain</text>
+  <text x="1110" y="340" text-anchor="middle" fill="#666" font-size="9">de.foerderung</text>
+
+  <!-- External Systems -->
+  <rect x="780" y="370" width="440" height="50" rx="8" fill="#f5f0ff" stroke="#7c5cbf" stroke-width="1.5"/>
+  <text x="1000" y="398" text-anchor="middle" fill="#5a3d99" font-size="12" font-weight="bold">Externe Systeme · Anti-Corruption Layer</text>
+
+  <!-- ZID -->
+  <rect x="780" y="438" width="135" height="80" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+  <text x="847" y="462" text-anchor="middle" fill="#444" font-size="12" font-weight="bold">ZID</text>
+  <text x="847" y="479" text-anchor="middle" fill="#666" font-size="10">Nutzer-</text>
+  <text x="847" y="493" text-anchor="middle" fill="#666" font-size="10">verwaltung</text>
+  <text x="847" y="508" text-anchor="middle" fill="#888" font-size="9">Downstream</text>
+
+  <!-- EU-IACS -->
+  <rect x="925" y="438" width="135" height="80" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+  <text x="992" y="462" text-anchor="middle" fill="#444" font-size="12" font-weight="bold">EU-IACS</text>
+  <text x="992" y="479" text-anchor="middle" fill="#666" font-size="10">Flächen-</text>
+  <text x="992" y="493" text-anchor="middle" fill="#666" font-size="10">daten</text>
+  <text x="992" y="508" text-anchor="middle" fill="#888" font-size="9">Upstream</text>
+
+  <!-- Agrar-Portal -->
+  <rect x="1070" y="438" width="150" height="80" rx="8" fill="#f5f5f5" stroke="#999" stroke-width="1.5"/>
+  <text x="1145" y="462" text-anchor="middle" fill="#444" font-size="12" font-weight="bold">Agrar-Portal</text>
+  <text x="1145" y="479" text-anchor="middle" fill="#666" font-size="10">Antragsteller-</text>
+  <text x="1145" y="493" text-anchor="middle" fill="#666" font-size="10">frontend</text>
+  <text x="1145" y="508" text-anchor="middle" fill="#888" font-size="9">Open Host Service</text>
+
+  <!-- Tech stack -->
+  <rect x="780" y="534" width="440" height="130" rx="10" fill="#1a3a5c" stroke="#1a3a5c" stroke-width="2"/>
+  <text x="1000" y="558" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Clean Architecture · Spring Boot 4</text>
+
+  <!-- Layer pills -->
+  <rect x="795" y="568" width="100" height="28" rx="14" fill="#2c7be5"/>
+  <text x="845" y="587" text-anchor="middle" fill="white" font-size="11">Domain</text>
+
+  <rect x="905" y="568" width="120" height="28" rx="14" fill="#4a9fd4"/>
+  <text x="965" y="587" text-anchor="middle" fill="white" font-size="11">Application</text>
+
+  <rect x="1035" y="568" width="110" height="28" rx="14" fill="#5a8a6f"/>
+  <text x="1090" y="587" text-anchor="middle" fill="white" font-size="11">Infrastructure</text>
+
+  <rect x="1155" y="568" width="55" height="28" rx="14" fill="#888"/>
+  <text x="1182" y="587" text-anchor="middle" fill="white" font-size="11">Adapter</text>
+
+  <!-- Key principle -->
+  <text x="1000" y="622" text-anchor="middle" fill="#b0cce8" font-size="12">Ports &amp; Adapters · Hexagonal Architecture</text>
+  <text x="1000" y="642" text-anchor="middle" fill="#b0cce8" font-size="12">JPA · REST · Domain Events · ArchUnit</text>
+  <text x="1000" y="655" text-anchor="middle" fill="#7aa8cc" font-size="11">Java 21 · Spring Boot 4 · PostgreSQL · Testcontainers</text>
+
+</svg>

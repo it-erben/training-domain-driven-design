@@ -1,11 +1,11 @@
 # Lab 08: ArchUnit - Architekturregeln als Tests
 
-Füge dem Brokerage-Bounded-Context ArchUnit-Tests hinzu, die sicherstellen,
+Füge dem Antragstellung-Bounded-Context ArchUnit-Tests hinzu, die sicherstellen,
 dass die Clean-Architecture-Regeln eingehalten werden.
 
 Hinweis: Das Lab baut auf dem in den vorherigen Labs eingeführten Package
-`de.realestate.brokerage` auf. Ältere CRUD-Beispiele außerhalb dieses Contexts
-sind hier nicht Gegenstand der Architekturregeln.
+`de.foerderung.antragstellung` auf. Ältere CRUD-Beispiele außerhalb dieses
+Contexts sind hier nicht Gegenstand der Architekturregeln.
 
 ## Schritt 1: ArchUnit-Dependency hinzufügen
 
@@ -22,10 +22,10 @@ Füge die ArchUnit-Dependency zur `pom.xml` hinzu:
 
 ## Schritt 2: Testklasse erstellen
 
-Erstelle die Testklasse `ArchitectureTest` im Package `de.realestate.architecture` unter `src/test/java`:
+Erstelle die Testklasse `ArchitectureTest` im Package `de.foerderung.architecture` unter `src/test/java`:
 
 ```java
-@AnalyzeClasses(packages = "de.realestate.brokerage")
+@AnalyzeClasses(packages = "de.foerderung.antragstellung")
 class ArchitectureTest {
     // Define rules here
 }

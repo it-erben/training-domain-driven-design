@@ -1,11 +1,9 @@
-# Lab 02: Event Storming - Die Immobilien-CRM-Domäne erkunden
+# Lab 02: Event Storming - Die Förderantrags-Domäne erkunden
 
 ## Aufgabe
 
-Führe ein Event Storming für die Immobilien-CRM-Domäne
-durch. Ziel ist es, die wichtigsten Geschäftsprozesse eines Immobilienmaklers
-als zeitliche Abfolge von Domain Events zu modellieren und offene Fragen
-früh sichtbar zu machen.
+Führe ein Event Storming für die Domäne der Förderantragsverwaltung (ELER-Flächenantrag) durch.
+Ziel ist es, die wichtigsten Geschäftsprozesse als zeitliche Abfolge von Domain Events zu modellieren und offene Fragen früh sichtbar zu machen.
 
 Dieses Lab ist ein reines Modellierungs-Lab - es wird kein Code geschrieben.
 
@@ -24,13 +22,13 @@ Verwende folgende Farbcodierung für die Sticky Notes:
 
 | Farbe  | Element         | Beispiel                                      |
 |--------|-----------------|-----------------------------------------------|
-| Orange | Domain Event    | "Immobilie erfasst"                           |
-| Rot    | Hot Spot        | "Wer darf den Angebotspreis anpassen?"        |
-| Blau   | Command         | "Immobilie erfassen"                          |
-| Gelb   | Aggregate       | "Immobilie"                                   |
-| Lila   | Policy          | "Wenn Auftrag erteilt, dann Expose erstellen" |
-| Rosa   | External System | "ImmoScout24", "Grundbuchamt"                 |
-| Grün   | Read Model      | "Immobilienliste", "Exposee-Ansicht"          |
+| Orange | Domain Event    | "Antrag erfasst"                              |
+| Rot    | Hot Spot        | "Wann ist ein Antrag eigentlich fertig?"      |
+| Blau   | Command         | "Antrag einreichen"                           |
+| Gelb   | Aggregate       | "Antragsmappe"                                |
+| Lila   | Policy          | "Wenn Antrag eingereicht, dann Kontrolle starten" |
+| Rosa   | External System | "Referenzflächen-Sync", "Poststelle"          |
+| Grün   | Read Model      | "Antragsübersicht", "Monitoring-Dashboard"    |
 
 ## Anleitung
 
@@ -42,17 +40,17 @@ Vergangenheitsform.
 
 Trigger-Szenarien:
 
-1. Ein Eigentümer ruft beim Makler an und möchte seine Immobilie verkaufen.
-   - Was passiert von der ersten Kontaktaufnahme bis zur Auftragserteilung?
+1. Ein Landwirt digitalisiert seine Flurstücke und reicht den ELER-Antrag ein.
+   - Was passiert von der Erfassung bis zur Einreichung?
 
-2. Ein Interessent findet ein Expose auf ImmoScout24 und meldet sich.
-   - Was passiert von der Anfrage bis zur Besichtigung?
+2. Die fachliche Prüfung des Antrags startet.
+   - Was passiert bei den Kontrollen, Bonitätsprüfungen und Fristen?
 
-3. Ein Kaufinteressent gibt ein Angebot ab.
-   - Was passiert von der Angebotsabgabe bis zum Abschluss oder Abbruch?
+3. Eine Auszahlung wird für einen bewilligten Antrag vorbereitet.
+   - Was passiert von der Zahlungsanweisung bis zum Geldeingang?
 
-4. Der Makler bewertet eine Immobilie vor Ort.
-   - Welche Schritte umfasst die Bewertung?
+4. Das Monitoring-Dashboard muss aktualisiert werden.
+   - Wie fließen die Daten aus den verschiedenen Schritten zusammen?
 
 Tipps:
 
@@ -80,7 +78,7 @@ Markiert offene Fragen, Konflikte und Unklarheiten mit roten Hot Spots.
 Typische Fragen sind:
 
 - Fehlt zwischen zwei Events ein fachlicher Schritt?
-- Verwenden Beteiligte denselben Begriff unterschiedlich?
+- Verwenden Beteiligte denselben Begriff unterschiedlich (z.B. "Antrag" vs. "Mappe")?
 - Ist unklar, wer entscheidet oder welche Regel gilt?
 - Ist unklar, wann ein Prozess in eine neue Phase übergeht?
 
@@ -94,8 +92,7 @@ Immer, wenn ihr anfangt, zu diskutieren – inne halten und einen Hot Spot setze
 Ergänzt nun Commands und Actors:
 
 - Command (blau): Welche Aktion hat das Event ausgelöst?
-- Actor: Wer hat den Command ausgelöst? (z. B. Makler, Eigentümer,
-  Interessent, System)
+- Actor: Wer hat den Command ausgelöst? (z. B. Landwirt, Sachbearbeiter, System)
 
 Notiert den Actor direkt auf dem Command oder daneben.
 
@@ -130,8 +127,10 @@ Artefakt wird in Lab 03 weiterverwendet.
 
 Hier sind ein Paar Events als Inspiration:
 
-- Eigentümer kontaktiert
-- Immobilie erfasst
-- Bewertung durchgeführt
-- Maklerauftrag erteilt
-- Expose erstellt
+- Antrag erfasst
+- Flurstücke digitalisiert
+- Antrag eingereicht
+- Fachliche Prüfung gestartet
+- Kontrolle durchgeführt
+- Antrag positiv beschieden
+- Zahlung angewiesen
