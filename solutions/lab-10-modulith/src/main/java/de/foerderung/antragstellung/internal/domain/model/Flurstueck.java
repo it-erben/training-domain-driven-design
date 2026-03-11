@@ -2,21 +2,20 @@ package de.foerderung.antragstellung.internal.domain.model;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Entity representing a cadastral parcel (Flurstueck) within the AntragsMappe aggregate.
  */
 public class Flurstueck {
 
-    private final UUID id;
+    private final FlurstueckId id;
     private final FlurstueckNummer nummer;
     private final BigDecimal flaeche;
     private final String bemerkung;
     private boolean geprueft;
 
-    Flurstueck(UUID id, FlurstueckNummer nummer, BigDecimal flaeche, String bemerkung) {
-        this.id = Objects.requireNonNull(id, "ID darf nicht null sein");
+    Flurstueck(FlurstueckId id, FlurstueckNummer nummer, BigDecimal flaeche, String bemerkung) {
+        this.id = Objects.requireNonNull(id, "FlurstueckId darf nicht null sein");
         this.nummer = Objects.requireNonNull(nummer, "FlurstueckNummer darf nicht null sein");
         this.flaeche = Objects.requireNonNull(flaeche, "Flaeche darf nicht null sein");
         this.bemerkung = bemerkung;
@@ -27,7 +26,7 @@ public class Flurstueck {
         }
     }
 
-    public static Flurstueck rekonstruieren(UUID id, FlurstueckNummer nummer,
+    public static Flurstueck rekonstruieren(FlurstueckId id, FlurstueckNummer nummer,
                                              BigDecimal flaeche, String bemerkung,
                                              boolean geprueft) {
         Flurstueck flurstueck = new Flurstueck(id, nummer, flaeche, bemerkung);
@@ -55,7 +54,7 @@ public class Flurstueck {
         return id.hashCode();
     }
 
-    public UUID getId() {
+    public FlurstueckId getId() {
         return id;
     }
 

@@ -1,5 +1,6 @@
 package de.foerderung.antragstellung.internal.infrastructure.persistence;
 
+import de.foerderung.antragstellung.internal.domain.model.AntragId;
 import de.foerderung.antragstellung.internal.domain.model.AntragsMappe;
 import de.foerderung.antragstellung.internal.domain.model.AntragStatus;
 import de.foerderung.antragstellung.internal.domain.model.Flurstueck;
@@ -59,7 +60,7 @@ public class JpaAntragsMappe {
 
     public static JpaAntragsMappe fromModel(AntragsMappe mappe) {
         JpaAntragsMappe jpa = new JpaAntragsMappe();
-        jpa.id = mappe.getId();
+        jpa.id = mappe.getId().value();
         jpa.registrierungsNummer = mappe.getRegistrierungsNummer().wert();
         jpa.foerderbetrag = mappe.getBeantragteFoerderung().betrag();
         jpa.waehrung = mappe.getBeantragteFoerderung().waehrung();
@@ -83,7 +84,7 @@ public class JpaAntragsMappe {
                 .toList();
 
         return AntragsMappe.rekonstruieren(
-                id,
+                new AntragId(id),
                 new RegistrierungsNummer(registrierungsNummer),
                 new Foerderbetrag(foerderbetrag, waehrung),
                 new Foerderquote(foerderquote),

@@ -1,6 +1,7 @@
 package de.foerderung.antragstellung.internal.infrastructure.persistence;
 
 import de.foerderung.antragstellung.internal.domain.model.Flurstueck;
+import de.foerderung.antragstellung.internal.domain.model.FlurstueckId;
 import de.foerderung.antragstellung.internal.domain.model.FlurstueckNummer;
 import jakarta.persistence.Embeddable;
 
@@ -21,7 +22,7 @@ public class JpaFlurstueck {
 
     public static JpaFlurstueck fromModel(Flurstueck flurstueck) {
         JpaFlurstueck jpa = new JpaFlurstueck();
-        jpa.flurstueckId = flurstueck.getId();
+        jpa.flurstueckId = flurstueck.getId().value();
         jpa.nummer = flurstueck.getNummer().wert();
         jpa.flaeche = flurstueck.getFlaeche();
         jpa.bemerkung = flurstueck.getBemerkung();
@@ -31,7 +32,7 @@ public class JpaFlurstueck {
 
     public Flurstueck toModel() {
         return Flurstueck.rekonstruieren(
-                flurstueckId,
+                new FlurstueckId(flurstueckId),
                 new FlurstueckNummer(nummer),
                 flaeche,
                 bemerkung,

@@ -1,17 +1,15 @@
 package de.foerderung.antragstellung.internal.domain.model;
 
-import java.util.UUID;
-
 public class AntragsmappeNichtGefundenException extends RuntimeException {
 
-    private final UUID antragsmappeId;
+    private final AntragId antragsmappeId;
 
-    public AntragsmappeNichtGefundenException(UUID antragsmappeId) {
+    public AntragsmappeNichtGefundenException(AntragId antragsmappeId) {
         super("Keine AntragsMappe mit ID %s gefunden".formatted(antragsmappeId));
         this.antragsmappeId = antragsmappeId;
     }
 
-    public UUID getAntragsmappeId() {
+    public AntragId getAntragsmappeId() {
         return antragsmappeId;
     }
 }

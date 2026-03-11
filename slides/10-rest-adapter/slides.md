@@ -208,7 +208,7 @@ public ResponseEntity<Void> einreichen(@PathVariable UUID antragsmappeId) {
 |-----------|------------|---------|
 | Syntaktisch ungültig | `400 Bad Request` | Bean Validation fehlgeschlagen |
 | Ressource nicht gefunden | `404 Not Found` | Unbekannte AntragId |
-| Fachliche Regel verletzt | `422 Unprocessable Entity` | Max. Besichtigungen erreicht |
+| Fachliche Regel verletzt | `422 Unprocessable Entity` | Einreichen ohne Flurstück |
 | Interner Fehler | `500 Internal Server Error` | Unerwarteter Datenbankfehler |
 
 ---

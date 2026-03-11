@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.foerderung.antragstellung.domain.model.AntragId;
-import de.foerderung.antragstellung.domain.model.FlurstueckId;
 import de.foerderung.antragstellung.application.command.FlurstueckHinzufuegenResult;
 import de.foerderung.antragstellung.application.command.FlurstueckPruefenCommand;
 import de.foerderung.antragstellung.application.service.FlurstueckHinzufuegenService;
@@ -66,8 +64,7 @@ public class FlurstueckController {
             @PathVariable UUID antragsmappeId,
             @PathVariable UUID flurstueckId) {
 
-        pruefenService.pruefen(new FlurstueckPruefenCommand(
-                new AntragId(antragsmappeId), new FlurstueckId(flurstueckId)));
+        pruefenService.pruefen(FlurstueckPruefenCommand.of(antragsmappeId, flurstueckId));
 
         return ResponseEntity.noContent().build();
     }

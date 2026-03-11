@@ -1,10 +1,13 @@
 package de.foerderung.antragstellung.internal.domain.event;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import de.foerderung.antragstellung.internal.domain.model.AntragId;
+import de.foerderung.antragstellung.internal.domain.model.NachweisId;
+
+import java.time.Instant;
 
 public record NachweisEingereicht(
-        UUID antragsmappeId,
+        AntragId antragsmappeId,
+        NachweisId nachweisId,
         String dokumentTyp,
-        LocalDateTime timestamp
+        Instant occurredAt
 ) implements AntragEvent {}

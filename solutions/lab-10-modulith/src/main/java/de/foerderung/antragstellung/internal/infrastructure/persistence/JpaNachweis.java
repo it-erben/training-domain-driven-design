@@ -1,9 +1,10 @@
 package de.foerderung.antragstellung.internal.infrastructure.persistence;
 
 import de.foerderung.antragstellung.internal.domain.model.Nachweis;
+import de.foerderung.antragstellung.internal.domain.model.NachweisId;
 import jakarta.persistence.Embeddable;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Embeddable
@@ -12,7 +13,7 @@ public class JpaNachweis {
     private UUID nachweisId;
     private String dokumentTyp;
     private String eingereichtVon;
-    private LocalDateTime eingereichtAm;
+    private Instant eingereichtAm;
     private boolean akzeptiert;
 
     protected JpaNachweis() {
@@ -20,7 +21,7 @@ public class JpaNachweis {
 
     public static JpaNachweis fromModel(Nachweis nachweis) {
         JpaNachweis jpa = new JpaNachweis();
-        jpa.nachweisId = nachweis.getId();
+        jpa.nachweisId = nachweis.getId().value();
         jpa.dokumentTyp = nachweis.getDokumentTyp();
         jpa.eingereichtVon = nachweis.getEingereichtVon();
         jpa.eingereichtAm = nachweis.getEingereichtAm();
@@ -30,7 +31,7 @@ public class JpaNachweis {
 
     public Nachweis toModel() {
         return Nachweis.rekonstruieren(
-                nachweisId,
+                new NachweisId(nachweisId),
                 dokumentTyp,
                 eingereichtVon,
                 eingereichtAm,

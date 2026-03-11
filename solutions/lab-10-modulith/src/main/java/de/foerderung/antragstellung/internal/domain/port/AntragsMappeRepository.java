@@ -1,9 +1,9 @@
 package de.foerderung.antragstellung.internal.domain.port;
 
+import de.foerderung.antragstellung.internal.domain.model.AntragId;
 import de.foerderung.antragstellung.internal.domain.model.AntragsMappe;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Repository port for AntragsMappe aggregates.
@@ -11,9 +11,9 @@ import java.util.UUID;
  */
 public interface AntragsMappeRepository {
 
-    Optional<AntragsMappe> findById(UUID id);
+    Optional<AntragsMappe> findById(AntragId id);
 
     AntragsMappe save(AntragsMappe antragsMappe);
 
-    void deleteById(UUID id);
+    void deleteById(AntragId id);
 }
