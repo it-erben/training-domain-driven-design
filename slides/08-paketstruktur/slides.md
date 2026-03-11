@@ -469,7 +469,7 @@ interface AntragsMappeSpringDataRepository
 - Wo liegen in euren Modulen heute Packages an der falschen Stelle?
 - Welche Packages würden ihr nach Clean Architecture in welchen Ring verschieben?
 - Wie hilft ArchUnit dabei, solche Verschiebungen dauerhaft abzusichern?
-- *„Vermeide Entitäten-Frameworks!"* — Wie passt das zur Domain-Schicht ohne JPA-Annotationen?
+- _„Vermeide Entitäten-Frameworks!"_ — Wie passt das zur Domain-Schicht ohne JPA-Annotationen?
 
 ---
 
