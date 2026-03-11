@@ -1,2 +1,4 @@
 target/
 .mcp.json
+.forge/
+slides/**/*.html
