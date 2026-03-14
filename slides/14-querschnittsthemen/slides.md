@@ -69,7 +69,7 @@ Querschnittsthemen betreffen mehrere Schichten - sie müssen sauber integriert w
 ## @Version auf der JPA-Entity
 
 <style scoped>
-pre { font-size: 16px; }
+section { font-size: 1.2em; }
 </style>
 
 ```java
@@ -100,6 +100,7 @@ public class ProcessJpaEntity {
 ```
 
 ---
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Was passiert bei einem Konflikt?
 
@@ -122,6 +123,7 @@ Spring Data: OptimisticLockingFailureException
 ```
 
 ---
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Konflikt-Behandlung im @RestControllerAdvice
 
@@ -140,7 +142,7 @@ public ProblemDetail handleConflict(
 ```
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Auditing - Wer hat wann was geändert?
 
@@ -172,10 +174,7 @@ public class JpaAuditingConfig {
 
 ## Auditable Base Entity
 
-<style scoped>
-section { font-size: 19px; }
-pre { font-size: 15px; }
-</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ```java
 package de.realestate.infrastructure.persistence;
@@ -207,6 +206,7 @@ public abstract class AuditableJpaEntity {
 - JPA befüllt die Felder automatisch bei `persist` und `merge`
 
 ---
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Auditing in der Praxis - Code
 
@@ -249,10 +249,7 @@ public class ProcessJpaEntity extends AuditableJpaEntity {
 
 ## Soft Delete - Implementierung
 
-<style scoped>
-section { font-size: 22px; }
-pre { font-size: 18px; }
-</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ```java
 @Entity
@@ -289,6 +286,7 @@ Mandantenfähigkeit: Mehrere Maklerbüros auf einer Plattform
 | Separate Database | Hoch | Hoch | Enterprise / Compliance |
 
 ---
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Multi-Tenancy - Discriminator Column
 

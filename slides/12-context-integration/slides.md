@@ -36,7 +36,7 @@ Geschätzte Dauer: ca. 60 Minuten
 - Die Übersetzung findet im Anti-Corruption Layer statt
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Context-Mapping-Patterns: Technische Umsetzung
 
@@ -55,7 +55,7 @@ Geschätzte Dauer: ca. 60 Minuten
 > mit ACL - das häufigste Pattern in modularen Monolithen.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Cross-BC-Event publizieren
 
@@ -83,7 +83,7 @@ public record ContractSignedEvent(
 - Andere Module dürfen dieses Record importieren
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Cross-BC-Event publizieren
 
@@ -111,7 +111,7 @@ public class CloseContractService {
 ```
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Anti-Corruption Layer - Konzept
 
@@ -124,7 +124,7 @@ public class CloseContractService {
 ![h:250](images/acl-konzept.drawio.svg)
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## ACL: Wo lebt der Code?
 
@@ -150,7 +150,7 @@ de.realestate.brokerage
 - Der Application Service kennt nur seinen eigenen Command
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## ACL-Implementierung: Translator
 
@@ -177,7 +177,7 @@ public class AcquisitionEventTranslator {
 - Der Translator ist ein reiner Mapper - keine Geschäftslogik
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## ACL-Implementierung: Event Listener
 
@@ -289,7 +289,7 @@ public void consume(@Payload String payload) {
 - ACL-Logik (Translator + Service) bleibt identisch zum Modulith
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Ausblick: Kafka - Was ändert sich?
 

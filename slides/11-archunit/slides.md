@@ -68,7 +68,7 @@ Woche 24: "Wir müssen die Architektur neu aufsetzen"      [GAME OVER]
 ```
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Grundlegende API
 
@@ -94,7 +94,7 @@ class ArchitectureRulesTest {
 - Fluent API: `classes().that()...should()...`
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Die API im Überblick
 
@@ -121,7 +121,7 @@ Bedingungen (.should())
 ```
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Regel 1: Domain ist Framework-frei
 
@@ -144,7 +144,7 @@ static final ArchRule domain_is_framework_free =
 - Verstöße brechen den Build sofort
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Regel 2: Domain kennt keine äußeren Ringe
 
@@ -174,7 +174,7 @@ static final ArchRule application_does_not_know_infrastructure =
 ```
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Regel 3: Annotationen am richtigen Ort
 
@@ -203,7 +203,7 @@ static final ArchRule transactional_only_in_application =
 ```
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Regel 4: Namenskonventionen
 
@@ -234,7 +234,7 @@ static final ArchRule services_implement_port =
 ```
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Vordefinierte Architekturform: Onion Architecture
 
@@ -256,7 +256,7 @@ static final ArchRule onion_architecture =
 - Alternative: `layeredArchitecture()` für klassische Schichtarchitekturen
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Layered Architecture - Alternative
 
@@ -284,7 +284,7 @@ static final ArchRule layered_architecture =
 > `layeredArchitecture()` für traditionelle Schichten.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Cross-BC-Regeln: Bounded Context Isolation
 
@@ -311,7 +311,7 @@ static final ArchRule bcs_communicate_only_via_events =
 - `slices()` prüft alle BC-Kombinationen auf einmal
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Architektur-Baseline: Legacy-Code schrittweise verbessern
 
@@ -337,7 +337,7 @@ static final ArchRule domain_framework_free =
 > ohne alle bestehenden Verstöße auf einmal fixen zu müssen.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Integration in CI/CD
 

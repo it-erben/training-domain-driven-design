@@ -125,7 +125,7 @@ public record ProcessDetailResponse(
 - `from()`-Factory macht das Mapping explizit und testbar
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1em; }</style>
 
 ## REST Controller - POST (Ressource erstellen)
 
@@ -191,7 +191,7 @@ public ResponseEntity<Void> complete(@PathVariable UUID id) {
 
 ---
 
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## HTTP Status Codes - Best Practices
 
@@ -212,7 +212,7 @@ public ResponseEntity<Void> complete(@PathVariable UUID id) {
 | Interner Fehler | `500 Internal Server Error` | Unerwarteter Datenbankfehler |
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Problem Details - RFC 9457
 
@@ -243,7 +243,7 @@ spring:
 
 ---
 
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## @RestControllerAdvice mit ProblemDetail
 
@@ -276,7 +276,7 @@ public class DomainExceptionHandler {
 > Alternative: Für einfache Fälle ohne eigene `type`-URI reicht `@ResponseStatus(HttpStatus.NOT_FOUND)` direkt auf der Exception-Klasse. `@RestControllerAdvice` lohnt sich, wenn `ProblemDetail`-Felder individuell gesetzt werden sollen.
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1em; }</style>
 
 ## Integration Test mit @WebMvcTest
 
@@ -316,7 +316,7 @@ class ViewingControllerTest {
 ```
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## @WebMvcTest - Fehlerfall testen
 

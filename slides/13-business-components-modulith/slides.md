@@ -188,7 +188,7 @@ package de.realestate.brokerage;
 > ArchUnit für feine Schicht-Regeln, Spring Modulith für Modul-Grenzen.
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Modul-Verifikation als Test
 
@@ -219,7 +219,7 @@ class ModulithStructureTest {
 - Läuft als normaler JUnit-Test in der CI/CD-Pipeline
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Domain Events publizieren - Event Collection Pattern
 
@@ -251,7 +251,7 @@ public class BrokerageProcess {
 ```
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1em; }</style>
 
 ## Domain Events publizieren - Event Collection Pattern
 
@@ -285,17 +285,10 @@ public class ScheduleViewingService implements ScheduleViewing {
 }
 ```
 
-> Der `ApplicationEventPublisher` ist hier akzeptabel - er ist ein Spring-Interface
-> in der Application-Schicht, nicht in der Domain.
->
-> Achtung: Ohne Event Publication Registry können Events zwischen `save()` und
-> `publishEvent()` verloren gehen. Die Registry (nächste Folien) löst dieses Problem.
->
-> Alternative: Spring Data bietet `AbstractAggregateRoot<T>` mit `registerEvent()`,
-> das Events beim `save()` automatisch dispatched - allerdings mit Spring-Abhängigkeit in der Domain.
+> Der `ApplicationEventPublisher` ist hier akzeptabel - er ist ein Spring-Interface in der Application-Schicht, nicht in der Domain.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Domain Event als Record - Öffentliche Modul-API
 
@@ -317,7 +310,7 @@ public record ViewingScheduledEvent(
 - Lose Kopplung: Sender kennt die Empfänger nicht
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Events konsumieren - @EventListener
 
@@ -345,7 +338,7 @@ class ViewingNotification {
 > Teil der gleichen Business-Transaktion sein soll.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## @TransactionalEventListener - Side Effects
 
@@ -412,6 +405,8 @@ class ViewingStatistics {
 }
 ```
 
+---
+
 ### Voraussetzung: `@EnableAsync`
 
 ```java
@@ -426,7 +421,7 @@ public class RealEstateCrmApplication { }
 - Mit Registry: fehlgeschlagene Events werden beim Neustart erneut verarbeitet
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## @Externalized - Events nach außen leiten
 
@@ -508,7 +503,7 @@ public record ViewingScheduledEvent(
 - Microservice-Extraktion nur mit konkretem Grund
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Integration-Tests mit der Scenario-API
 
@@ -532,7 +527,7 @@ class BrokerageIntegrationTest {
 - Ersetzt komplexe Mocking-Setups für Modul-Kommunikation
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Hands-on: Lab-10
 

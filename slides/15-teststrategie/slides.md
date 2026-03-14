@@ -54,7 +54,7 @@ Was fällt darunter?
 - Domain Services und Event-Erzeugung bei Zustandsänderungen
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## Aggregate Root testen
 
@@ -92,7 +92,7 @@ class BrokerageProcessTest {
 ```
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## Value Objects und Berechnung testen
 
@@ -127,7 +127,7 @@ class AskingPriceTest {
 ```
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Werden die richtigen Events erzeugt?
 
@@ -161,7 +161,7 @@ hängt nur von Ports ab. Ports lassen sich einfach mocken oder durch
 InMemory-Implementierungen ersetzen - kein Spring Context nötig.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ```java
 class CreateViewingUseCaseTest {
@@ -189,7 +189,7 @@ class CreateViewingUseCaseTest {
 ```
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Leichtgewichtiger als Mocks: InMemory-Repositories
 
@@ -231,7 +231,7 @@ public class InMemoryBrokerageProcessRepository
 > realistische Abfragen möglich, wiederverwendbar.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Was passiert bei fehlenden Daten?
 
@@ -265,7 +265,7 @@ JPA-relevante Beans mit H2 In-Memory-Datenbank und testet JPA-Mappings
 und Custom Queries in der Infrastruktur.
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ```java
 @DataJpaTest
@@ -296,7 +296,7 @@ class JpaBrokerageProcessRepositoryTest {
 ```
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## HTTP-Kontrakte prüfen mit @WebMvcTest
 
@@ -332,7 +332,7 @@ class ViewingControllerTest {
 > Siehe auch Modul 10 für weitere `@WebMvcTest`-Beispiele.
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1.1em; }</style>
 
 ## Die Spitze der Pyramide: Full Integration Tests
 
@@ -404,7 +404,7 @@ public class BrokerageProcessFixture {
 - Wiederverwendbar in Domain-, Application- und Integration-Tests
 
 ---
-<style scoped>section { font-size: 1.8em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## Testverteilung: Empfehlung
 
@@ -420,6 +420,7 @@ public class BrokerageProcessFixture {
 > Das ist der größte praktische Vorteil.
 
 ---
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Zusammenfassung
 
