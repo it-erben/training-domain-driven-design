@@ -271,7 +271,7 @@ public record ViewingResponse(UUID viewingId) {}
 ```
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.4em; }</style>
 
 ## Infrastructure: JPA-Entity (separates Modell)
 

@@ -174,7 +174,7 @@ public class JpaAuditingConfig {
 
 ## Auditable Base Entity
 
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1em; }</style>
 
 ```java
 package de.realestate.infrastructure.persistence;

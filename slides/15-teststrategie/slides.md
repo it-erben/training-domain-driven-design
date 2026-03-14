@@ -189,7 +189,7 @@ class CreateViewingUseCaseTest {
 ```
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Leichtgewichtiger als Mocks: InMemory-Repositories
 
@@ -368,7 +368,7 @@ class BrokerageIntegrationTest {
 ```
 
 ---
-<style scoped>section { font-size: 1.2em; }</style>
+<style scoped>section { font-size: 1em; }</style>
 
 ## Test Fixtures - Wiederverwendbare Testdaten
 

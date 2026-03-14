@@ -55,7 +55,7 @@ Geschätzte Dauer: ca. 60 Minuten
 > mit ACL - das häufigste Pattern in modularen Monolithen.
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Cross-BC-Event publizieren
 
@@ -150,7 +150,7 @@ de.realestate.brokerage
 - Der Application Service kennt nur seinen eigenen Command
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## ACL-Implementierung: Translator
 
@@ -177,7 +177,7 @@ public class AcquisitionEventTranslator {
 - Der Translator ist ein reiner Mapper - keine Geschäftslogik
 
 ---
-<style scoped>section { font-size: 1.5em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## ACL-Implementierung: Event Listener
 
@@ -205,7 +205,7 @@ public class AcquisitionEventListener {
   Bei Fehler geht das Event verloren (At-Most-Once)
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Idempotente Event-Verarbeitung
 

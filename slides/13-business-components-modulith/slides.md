@@ -119,7 +119,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 ```
 
 ---
-<style scoped>section { font-size: 1.6em; }</style>
+<style scoped>section { font-size: 1.3em; }</style>
 
 ## Modul-Struktur-Konventionen
 
@@ -170,7 +170,7 @@ package de.realestate.brokerage;
 > Ohne `allowedDependencies` sind alle Module erlaubt - explizite Deklaration ist empfohlen.
 
 ---
-<style scoped>section { font-size: 1.7em; }</style>
+<style scoped>section { font-size: 1.5em; }</style>
 
 ## ArchUnit vs. Spring Modulith - Vergleich
 
@@ -188,7 +188,7 @@ package de.realestate.brokerage;
 > ArchUnit für feine Schicht-Regeln, Spring Modulith für Modul-Grenzen.
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Modul-Verifikation als Test
 
@@ -219,7 +219,7 @@ class ModulithStructureTest {
 - Läuft als normaler JUnit-Test in der CI/CD-Pipeline
 
 ---
-<style scoped>section { font-size: 1.3em; }</style>
+<style scoped>section { font-size: 1.2em; }</style>
 
 ## Domain Events publizieren - Event Collection Pattern
 
