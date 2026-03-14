@@ -261,6 +261,8 @@ public class CreateViewingUseCase {
 }
 ```
 
+---
+
 ### Falsch: Auf der Domain
 
 ```java
@@ -285,6 +287,8 @@ public class BrokerageProcess {
 | Checked Exceptions: `rollbackFor = ...` | Sonst kein automatischer Rollback |
 
 > Wenn später Domain Events dazukommen: nicht direkt nach `save()` feuern, sondern erst after commit oder per Outbox.
+
+---
 
 ### Warnung: Selbstaufruf
 
@@ -340,6 +344,8 @@ public CreateViewingResult create(CreateViewingCommand command) {
     // No try/catch - exceptions flow to the controller advice
 }
 ```
+
+---
 
 ```java
 // In the adapter: exception → HTTP status code
