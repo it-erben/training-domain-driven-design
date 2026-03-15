@@ -7,6 +7,7 @@ COPY . /src/
 
 RUN cp /src/mkdocs.yml . && \
     # Root README as landing page
+    mkdir -p docs && \
     cp /src/README.md docs/index.md && \
     # Labs: copy only markdown, rename README.md -> index.md for clean URLs
     find /src/labs -name "*.md" | while read f; do \
