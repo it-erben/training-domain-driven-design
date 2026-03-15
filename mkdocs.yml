@@ -1,0 +1,20 @@
+site_name: DDD & Clean Architecture mit Spring Boot 4
+
+theme:
+  name: material
+  language: de
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - search.suggest
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
