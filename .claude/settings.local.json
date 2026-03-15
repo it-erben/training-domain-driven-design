@@ -20,7 +20,11 @@
       "Bash(git stash:*)",
       "Bash(npx markdownlint-cli:*)",
       "Bash(pre-commit run:*)",
-      "Bash(xxd:*)"
+      "Bash(xxd:*)",
+      "Bash(ls:*)",
+      "mcp__glab__glab_mr_view",
+      "mcp__glab__glab_ci_get",
+      "mcp__glab__glab_ci_trace"
     ]
   }
 }

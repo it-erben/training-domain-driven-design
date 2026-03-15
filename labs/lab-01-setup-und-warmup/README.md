@@ -2,7 +2,38 @@
 
 ## Teil 1: Projekt starten
 
-Importiere das Projekt aus `initial-project/` in deine IDE.
+1. Lade das Starter-Projekt über [start.spring.io](https://start.spring.io/#!type=maven-project&language=java&groupId=de.realestate&artifactId=immobilien-crm&name=Immobilien+CRM&packageName=de.realestate&javaVersion=21&dependencies=web,data-jpa,validation,actuator,h2) herunter.
+2. Entpacke das ZIP und importiere das Projekt in deine IDE.
+3. Ersetze den Inhalt der `application.properties` durch eine `application.yml` mit folgender Konfiguration:
+
+```yaml
+spring:
+  application:
+    name: immobilien-crm
+  datasource:
+    url: jdbc:h2:mem:realestate
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+```
+
+4. Starte die Anwendung und prüfe den Health-Check:
+
+```bash
+mvn spring-boot:run
+curl http://localhost:8080/actuator/health
+# Erwartete Antwort enthält "status":"UP"
+```
 
 ## Teil 2: Immobilien-CRUD implementieren
 
