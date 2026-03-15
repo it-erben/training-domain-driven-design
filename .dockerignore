@@ -1,0 +1,13 @@
+**/target/
+**/*.class
+**/*.jar
+**/*.war
+solutions/
+slides/
+.git/
+.vscode/
+.claude/
+.pre-commit-config.yaml
+.markdownlint.yaml
+.gitlab-ci.yml
+pom.xml
