@@ -65,5 +65,7 @@ RUN cp /src/mkdocs.yml . && \
 RUN mkdocs build
 
 FROM nginx:1.27-alpine
+ARG VERSION=dev
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /build/site /usr/share/nginx/html
+RUN echo "$VERSION" > /usr/share/nginx/html/version
