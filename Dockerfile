@@ -25,21 +25,18 @@ RUN cp /src/mkdocs.yml . && \
     fi && \
     # Slide PDFs
     cp /src/public/*.pdf docs/folien/ 2>/dev/null || true && \
+    printf '# Folien zum Download\n\n' > docs/folien/index.md && \
     if ls docs/folien/*.pdf 1>/dev/null 2>&1; then \
-      printf '# Folien zum Download\n\n' > docs/folien/index.md; \
       for pdf in docs/folien/*.pdf; do \
         name=$(basename "$pdf" .pdf); \
         echo "- [${name}](${name}.pdf)" >> docs/folien/index.md; \
       done; \
+    else \
+      echo "*Keine Folien verfügbar.*" >> docs/folien/index.md; \
     fi && \
     # Zip solutions
     if [ -d /src/solutions ]; then \
-      cd /src && python3 -c "\
-import zipfile, os
-with zipfile.ZipFile('/build/docs/musterloesungen/solutions.zip', 'w', zipfile.ZIP_DEFLATED) as zf:
-    for root, dirs, files in os.walk('solutions'):
-        for f in files:
-            zf.write(os.path.join(root, f))" && cd /build; \
+      cd /src && python3 -c "import zipfile,os;zf=zipfile.ZipFile('/build/docs/musterloesungen/solutions.zip','w',zipfile.ZIP_DEFLATED);[zf.write(os.path.join(r,f)) for r,d,fs in os.walk('solutions') for f in fs];zf.close()" && cd /build; \
       printf '# Musterlösungen zum Download\n\n' > docs/musterloesungen/index.md; \
       printf '[Musterlösungen herunterladen](solutions.zip){ .md-button }\n' >> docs/musterloesungen/index.md; \
     fi && \
