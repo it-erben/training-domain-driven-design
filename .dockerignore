@@ -2,7 +2,6 @@
 **/*.class
 **/*.jar
 **/*.war
-solutions/
 slides/
 .git/
 .vscode/

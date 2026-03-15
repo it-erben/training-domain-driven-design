@@ -6,42 +6,62 @@ WORKDIR /build
 COPY . /src/
 
 RUN cp /src/mkdocs.yml . && \
-    # Root README as landing page
-    mkdir -p docs && \
-    cp /src/README.md docs/index.md && \
-    # Labs: copy only markdown, rename README.md -> index.md for clean URLs
-    find /src/labs -name "*.md" | while read f; do \
-      rel="${f#/src/labs/}"; \
-      target="docs/labs/$rel"; \
-      if [ "$(basename "$rel")" = "README.md" ]; then \
-        target="docs/labs/$(dirname "$rel")/index.md"; \
+    mkdir -p docs/labs docs/folien docs/musterloesungen && \
+    # Labs: flatten to single files so mkdocs uses H1 headings as nav titles
+    for dir in /src/labs/*/; do \
+      lab_name=$(basename "$dir"); \
+      if [ -f "$dir/README.md" ]; then \
+        cp "$dir/README.md" "docs/labs/$lab_name.md"; \
       fi; \
-      mkdir -p "$(dirname "$target")"; \
-      cp "$f" "$target"; \
     done && \
-    # Assignments: copy only markdown (directory may not exist)
+    # Assignments: flatten alongside labs (if directory exists)
     if [ -d /src/assignments ]; then \
-      find /src/assignments -name "*.md" | while read f; do \
-        rel="${f#/src/assignments/}"; \
-        target="docs/assignments/$rel"; \
-        if [ "$(basename "$rel")" = "README.md" ]; then \
-          target="docs/assignments/$(dirname "$rel")/index.md"; \
+      for dir in /src/assignments/*/; do \
+        name=$(basename "$dir"); \
+        if [ -f "$dir/README.md" ]; then \
+          cp "$dir/README.md" "docs/labs/$name.md"; \
         fi; \
-        mkdir -p "$(dirname "$target")"; \
-        cp "$f" "$target"; \
       done; \
     fi && \
-    # Slide PDFs from CI artifacts (pdf-publisher writes to public/)
-    mkdir -p docs/slides && \
-    cp /src/public/*.pdf docs/slides/ 2>/dev/null || true && \
-    # Generate slides index linking all PDFs
-    if ls docs/slides/*.pdf 1>/dev/null 2>&1; then \
-      printf '# Slides\n\n' > docs/slides/index.md; \
-      for pdf in docs/slides/*.pdf; do \
+    # Slide PDFs
+    cp /src/public/*.pdf docs/folien/ 2>/dev/null || true && \
+    if ls docs/folien/*.pdf 1>/dev/null 2>&1; then \
+      printf '# Folien zum Download\n\n' > docs/folien/index.md; \
+      for pdf in docs/folien/*.pdf; do \
         name=$(basename "$pdf" .pdf); \
-        echo "- [${name}](${name}.pdf)" >> docs/slides/index.md; \
+        echo "- [${name}](${name}.pdf)" >> docs/folien/index.md; \
       done; \
     fi && \
+    # Zip solutions
+    if [ -d /src/solutions ]; then \
+      cd /src && python3 -c "\
+import zipfile, os
+with zipfile.ZipFile('/build/docs/musterloesungen/solutions.zip', 'w', zipfile.ZIP_DEFLATED) as zf:
+    for root, dirs, files in os.walk('solutions'):
+        for f in files:
+            zf.write(os.path.join(root, f))" && cd /build; \
+      printf '# Musterlösungen zum Download\n\n' > docs/musterloesungen/index.md; \
+      printf '[Musterlösungen herunterladen](solutions.zip){ .md-button }\n' >> docs/musterloesungen/index.md; \
+    fi && \
+    # Generate TOC index page
+    printf '# DDD & Clean Architecture mit Spring Boot 4\n\n' > docs/index.md && \
+    printf '## Inhaltsverzeichnis\n\n### Labs\n\n' >> docs/index.md && \
+    for f in docs/labs/*.md; do \
+      title=$(head -1 "$f" | sed 's/^# //'); \
+      name=$(basename "$f" .md); \
+      echo "- [${title}](labs/${name}.md)" >> docs/index.md; \
+    done && \
+    printf '\n### [Folien zum Download](folien/)\n\n' >> docs/index.md && \
+    printf '### [Musterlösungen zum Download](musterloesungen/)\n' >> docs/index.md && \
+    # Generate explicit nav from H1 headings
+    printf '\nnav:\n  - Startseite: index.md\n  - Labs:\n' >> mkdocs.yml && \
+    for f in docs/labs/*.md; do \
+      title=$(head -1 "$f" | sed 's/^# //'); \
+      name=$(basename "$f" .md); \
+      printf '    - "%s": labs/%s.md\n' "$title" "$name" >> mkdocs.yml; \
+    done && \
+    printf '  - Folien zum Download: folien/index.md\n' >> mkdocs.yml && \
+    printf '  - Musterlösungen zum Download: musterloesungen/index.md\n' >> mkdocs.yml && \
     rm -rf /src
 
 RUN mkdocs build
