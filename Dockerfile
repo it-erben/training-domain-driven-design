@@ -51,14 +51,15 @@ RUN cp /src/mkdocs.yml . && \
     printf '\n### [Folien zum Download](folien/)\n\n' >> docs/index.md && \
     printf '### [Musterlösungen zum Download](musterloesungen/)\n' >> docs/index.md && \
     # Generate explicit nav from H1 headings
-    printf '\nnav:\n  - Startseite: index.md\n  - Labs:\n' >> mkdocs.yml && \
+    printf '\nnav:\n  - Startseite: index.md\n' >> mkdocs.yml && \
+    printf '  - Folien zum Download: folien/index.md\n' >> mkdocs.yml && \
+    printf '  - Musterlösungen zum Download: musterloesungen/index.md\n' >> mkdocs.yml && \
+    printf '  - Labs:\n' >> mkdocs.yml && \
     for f in docs/labs/*.md; do \
       title=$(head -1 "$f" | sed 's/^# //'); \
       name=$(basename "$f" .md); \
       printf '    - "%s": labs/%s.md\n' "$title" "$name" >> mkdocs.yml; \
     done && \
-    printf '  - Folien zum Download: folien/index.md\n' >> mkdocs.yml && \
-    printf '  - Musterlösungen zum Download: musterloesungen/index.md\n' >> mkdocs.yml && \
     rm -rf /src
 
 RUN mkdocs build
