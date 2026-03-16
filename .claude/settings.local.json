@@ -24,7 +24,9 @@
       "Bash(ls:*)",
       "mcp__glab__glab_mr_view",
       "mcp__glab__glab_ci_get",
-      "mcp__glab__glab_ci_trace"
+      "mcp__glab__glab_ci_trace",
+      "Bash(cat /Users/aerben/.claude/projects/-Users-aerben-repositories-it-erben-gfu-domain-driven-design/4f7cceda-fd1a-4db4-9670-453e207ed5ca/tool-results/toolu_01VjP4rcH8m6LdHHHTn3WiyQ.json | python3 -c \"import json,sys; data=json.load\\(sys.stdin\\); text=data[0]['text']; print\\(text[-5000:]\\)\")",
+      "mcp__glab__glab_api"
     ]
   }
 }
