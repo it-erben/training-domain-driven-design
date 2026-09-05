@@ -153,3 +153,8 @@ Solutions dort als Modul ergänzen, sonst baut die CI sie nicht.
   `fix:` einen Release-Tag.
 - **`public/` ist leer und `target/` gitignoriert.** Keins von beidem als
   Ablage benutzen.
+- **Die CI läuft auf zwei Plattformen.** `.gitlab-ci.yml` bindet die
+  GitLab-Komponenten ein, `.github/workflows/ci.yml` ruft `lint.yml`,
+  `slides.yml`, `maven.yml`, `release.yml` und `pages.yml` aus
+  `it-erben/ci`. Die PDFs gehen
+  dort auf GitHub Pages, ein Deployment gibt es auf GitHub nicht.
